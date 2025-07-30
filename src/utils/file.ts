@@ -373,9 +373,9 @@ async function mpFileUpload(file: File) {
   }
 
   let imageUrl = res.url
-//   if (proxyOrigin && window.location.href.startsWith(`http`)) {
-//     imageUrl = `https://wsrv.nl?url=${encodeURIComponent(imageUrl)}`
-//   }
+  if (proxyOrigin && window.location.href.startsWith(`http`)) {
+    imageUrl = `https://wsrv.nl?url=${encodeURIComponent(imageUrl)}`
+  }
 
   return imageUrl
 }
