@@ -66,6 +66,10 @@ export const useStore = defineStore(`store`, () => {
   const showAIToolbox = useStorage(`showAIToolbox`, true)
   const toggleAIToolbox = useToggle(showAIToolbox)
 
+  // 是否开启 AI 助手
+  const showAIAssistant = useStorage(`showAIAssistant`, true)
+  const toggleAIAssistant = useToggle(showAIAssistant)
+
   // 是否统计字数和阅读时间
   const isCountStatus = useStorage(`isCountStatus`, defaultStyleConfig.isCountStatus)
   const toggleCountStatus = useToggle(isCountStatus)
@@ -578,6 +582,10 @@ export const useStore = defineStore(`store`, () => {
     toggleAIToolbox()
   })
 
+  const aiAssistantChanged = withAfterRefresh(() => {
+    toggleAIAssistant()
+  })
+
   // 导出编辑器内容为 HTML，并且下载到本地
   const exportEditorContent2HTML = () => {
     exportHTML(primaryColor.value, posts.value[currentPostIndex.value].title)
@@ -675,7 +683,9 @@ export const useStore = defineStore(`store`, () => {
     isCiteStatus,
     citeStatusChanged,
     showAIToolbox,
+    showAIAssistant,
     aiToolboxChanged,
+    aiAssistantChanged,
     isUseIndent,
     useIndentChanged,
 
@@ -798,6 +808,7 @@ export function getAllStoreStates() {
     isMacCodeBlock: store.isMacCodeBlock,
     isCiteStatus: store.isCiteStatus,
     showAIToolbox: store.showAIToolbox,
+    showAIAssistant: store.showAIAssistant,
     isCountStatus: store.isCountStatus,
     isUseIndent: store.isUseIndent,
     isOpenRightSlider: store.isOpenRightSlider,
