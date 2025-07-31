@@ -29,7 +29,7 @@
     "ext:zip": "wxt zip",
     "firefox:dev": "wxt -b firefox",
     "firefox:zip": "wxt zip -b firefox",
-    "lint": "eslint . --fix",
+    "lint": "eslint src --fix",
     "type-check": "vue-tsc --build --force",
     "postinstall": "simple-git-hooks && wxt prepare",
     "package:extension": "npm --prefix ./src/extension run package"
@@ -118,6 +118,6 @@
     "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
-    "*": "npm run lint"
+    "*.{js,ts,vue}": "eslint --fix"
   }
 }
