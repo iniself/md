@@ -478,25 +478,24 @@ export function solveWeChatImage() {
   const images = clipboardDiv.getElementsByTagName(`img`)
 
   Array.from(images).forEach((image) => {
-    const src = image.getAttribute('src') || ''
-    if (src.includes('wsrv.nl') && src.includes('url=')) {
+    const src = image.getAttribute(`src`) || ``
+    if (src.includes(`wsrv.nl`) && src.includes(`url=`)) {
       try {
-        const urlParam = new URL(src).searchParams.get('url')
+        const urlParam = new URL(src).searchParams.get(`url`)
         if (urlParam) {
           const decoded = decodeURIComponent(urlParam)
-          image.setAttribute('src', decoded)
+          image.setAttribute(`src`, decoded)
         }
-      } catch (err) {
-        console.warn('无法解析图片 URL:', src, err)
+      }
+      catch (err) {
+        console.warn(`无法解析图片 URL:`, src, err)
       }
     }
 
-    const width = image.getAttribute(`width`)!
-    const height = image.getAttribute(`height`)!
-    image.removeAttribute(`width`)
-    image.removeAttribute(`height`)
-    image.style.width = width
-    image.style.height = height
+    const width = image.width
+    const height = image.height
+    image.style.width = `${width}px`
+    image.style.height = `${height}px`
   })
 }
 
