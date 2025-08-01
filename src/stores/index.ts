@@ -70,6 +70,10 @@ export const useStore = defineStore(`store`, () => {
   const showAIAssistant = useStorage(`showAIAssistant`, true)
   const toggleAIAssistant = useToggle(showAIAssistant)
 
+  // 是否显示 发布 按钮
+  const showPublish = useStorage(`showPublish`, true)
+  const togglePublish = useToggle(showPublish)
+
   // 是否统计字数和阅读时间
   const isCountStatus = useStorage(`isCountStatus`, defaultStyleConfig.isCountStatus)
   const toggleCountStatus = useToggle(isCountStatus)
@@ -586,6 +590,10 @@ export const useStore = defineStore(`store`, () => {
     toggleAIAssistant()
   })
 
+  const publishChanged = withAfterRefresh(() => {
+    togglePublish()
+  })
+
   // 导出编辑器内容为 HTML，并且下载到本地
   const exportEditorContent2HTML = () => {
     exportHTML(primaryColor.value, posts.value[currentPostIndex.value].title)
@@ -684,8 +692,10 @@ export const useStore = defineStore(`store`, () => {
     citeStatusChanged,
     showAIToolbox,
     showAIAssistant,
+    showPublish,
     aiToolboxChanged,
     aiAssistantChanged,
+    publishChanged,
     isUseIndent,
     useIndentChanged,
 
@@ -809,6 +819,7 @@ export function getAllStoreStates() {
     isCiteStatus: store.isCiteStatus,
     showAIToolbox: store.showAIToolbox,
     showAIAssistant: store.showAIAssistant,
+    showPublish: store.showPublish,
     isCountStatus: store.isCountStatus,
     isUseIndent: store.isUseIndent,
     isOpenRightSlider: store.isOpenRightSlider,
