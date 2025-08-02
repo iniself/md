@@ -12,8 +12,10 @@ import type { ExtendedProperties, IOpts, ThemeStyles } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 
 import { getStyleString } from '.'
+import markedAbbr from './MDAbbr'
 import markedAlert from './MDAlert'
 import markedFootnotes from './MDFootnotes'
+import markedImageSize from './MDImageSize'
 import { MDKatex } from './MDKatex'
 import markedSlider from './MDSlider'
 
@@ -384,6 +386,8 @@ export function initRenderer(opts: IOpts): RendererAPI {
     ),
   )
   marked.use(markedFootnotes())
+  marked.use(markedAbbr())
+  marked.use(markedImageSize())
 
   return {
     buildAddition,

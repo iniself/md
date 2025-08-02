@@ -491,11 +491,6 @@ export function solveWeChatImage() {
         console.warn(`无法解析图片 URL:`, src, err)
       }
     }
-
-    const width = image.width
-    const height = image.height
-    image.style.width = `${width}px`
-    image.style.height = `${height}px`
   })
 }
 
