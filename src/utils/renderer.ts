@@ -19,6 +19,7 @@ import markedImageSize from './MDImageSize'
 import { MDKatex } from './MDKatex'
 import markedSlider from './MDSlider'
 
+marked.use(markedImageSize())
 marked.setOptions({
   breaks: true,
 })
@@ -144,6 +145,53 @@ function parseFrontMatterAndContent(markdownText: string): ParseResult {
       markdownContent: markdownText,
       readingTime: readingTime(markdownText),
     }
+  }
+}
+
+function extractImageInfo(input: string): {
+  relHref: string
+  width?: string
+  height?: string
+  fit?: string
+} {
+  const allowedFits = new Set([`cover`, `contain`, `fill`, `none`, `scale-down`])
+
+  // 抽取尺寸和 fit 的正则
+  const sizeFitRegex = /(?:\s*=\s*(\d+(?:\.\d+)?%?)(?:x(\d+(?:\.\d+)?%?))?)?(?:\s+@([\w-]+))?/
+
+  // 提取 url 主体
+  const parts = input.match(/^(\S+)/)
+  const baseUrl = parts?.[1] ?? ``
+  const remainder = input.slice(baseUrl.length)
+
+  // 用 size+fit 的正则抽取 width height fit
+  const match = sizeFitRegex.exec(remainder)
+
+  let width: string | undefined
+  let height: string | undefined
+  let fit: string | undefined
+
+  if (match) {
+    width = match[1]
+    height = match[2]
+    const fitRaw = match[3]
+    if (fitRaw && allowedFits.has(fitRaw)) {
+      fit = fitRaw
+    }
+  }
+
+  // 把处理过的尺寸+fit部分从 remainder 去掉
+  const matchedLength = match?.[0]?.length || 0
+  const rest = remainder.slice(matchedLength).trim()
+
+  // 拼接剩余部分回 href
+  const relHref = rest ? `${baseUrl} ${rest}` : baseUrl
+
+  return {
+    relHref,
+    width,
+    height,
+    fit,
   }
 }
 
@@ -317,10 +365,37 @@ export function initRenderer(opts: IOpts): RendererAPI {
     },
 
     image({ href, title, text }: Tokens.Image): string {
+      const styleParts = []
+
+      let { relHref, width, height, fit } = extractImageInfo(href)
+      if (relHref) {
+        href = relHref.trim()
+        const isNumeric = (value: string) => /^-?\d+(?:\.\d+)?$/.test(value)
+        width = width?.trim() || ``
+        height = height?.trim() || ``
+
+        if (width && isNumeric(width)) {
+          width = `${width}px`
+        }
+        if (height && isNumeric(height)) {
+          height = `${height}px`
+        }
+
+        if (width)
+          styleParts.push(`width: ${width};`)
+        if (height)
+          styleParts.push(`height: ${height};`)
+        if (fit)
+          styleParts.push(`object-fit: ${fit};`)
+      }
+      const imgWidthStyles = styleParts.length > 0 ? `${styleParts.join(` `)}` : ``
+
       const subText = styledContent(`figcaption`, transform(opts.legend!, text, title))
       const figureStyles = styles(`figure`)
       const imgStyles = styles(`image`)
-      return `<figure ${figureStyles}><img ${imgStyles} src="${href}" title="${title}" alt="${text}"/>${subText}</figure>`
+
+      const mergeImgStyles = `style="${imgStyles.replace(/^style="/, ``).replace(/"$/, ``).trim().replace(/;$/, ``)}; ${imgWidthStyles}"`
+      return `<figure ${figureStyles}><img ${mergeImgStyles} src="${href}" title="${title}" alt="${text}"/>${subText}</figure>`
     },
 
     link({ href, title, text, tokens }: Tokens.Link): string {
@@ -387,7 +462,6 @@ export function initRenderer(opts: IOpts): RendererAPI {
   )
   marked.use(markedFootnotes())
   marked.use(markedAbbr())
-  marked.use(markedImageSize())
 
   return {
     buildAddition,

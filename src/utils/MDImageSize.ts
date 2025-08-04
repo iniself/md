@@ -1,41 +1,27 @@
 import type { MarkedExtension, Tokens } from 'marked'
 
-export default function MDImageSize(): MarkedExtension {
+export default function markedImageSize(): MarkedExtension {
   return {
     extensions: [
       {
-        name: `imageSize`,
+        name: `image`,
         level: `inline`,
-        start(src: string) {
+        start(src) {
           return src.indexOf(`![`)
         },
-        tokenizer(src: string) {
-          const regex = /^!\[([^\]]*)\]\(\s*(\S+?)\s*(?:=([0-9.%]*)(?:x([0-9.%]*))?\s*)?\)/
-          const match = src.match(regex)
+        tokenizer(src, _tokens) {
+          const regex = /^!\[([^\]]*)\]\(\s*([^\s)]+(?:\s[^\s)]+)*)\s*\)/
+          const match = regex.exec(src)
           if (match) {
-            const [raw, alt, srcUrl, width, height] = match
+            const [raw, alt, href] = match
             return {
-              type: `imageSize`,
+              type: `image`,
               raw,
-              alt,
-              src: srcUrl.trim(),
-              width: width?.trim() || ``,
-              height: height?.trim() || ``,
-            }
+              href,
+              title: ``,
+              text: alt,
+            } as any as Tokens.Image // 为了 TS 编译通过
           }
-          return undefined
-        },
-        renderer(token: Tokens.Generic) {
-          const { src, alt, width, height } = token
-          const styleParts = []
-          if (width)
-            styleParts.push(`width: ${width};`)
-          if (height)
-            styleParts.push(`height: ${height};`)
-          styleParts.push(`margin: auto`)
-          const style = styleParts.join(` `)
-
-          return `<center><img src="${src}" alt="${alt}" style="${style}" /></center>`
         },
       },
     ],
