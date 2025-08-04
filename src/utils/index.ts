@@ -165,10 +165,11 @@ export async function formatDoc(content: string, type: `markdown` | `css` = `mar
   const addSpaceContent = await addSpacingToMarkdown(content)
 
   const parser = type in plugins ? type : `markdown`
-  return await format(addSpaceContent, {
+  const md = await format(addSpaceContent, {
     parser,
     plugins: plugins[parser],
   })
+  return md.replace(/\\([!()[\]_`*])/g, `$1`)
 }
 
 export function sanitizeTitle(title: string) {
