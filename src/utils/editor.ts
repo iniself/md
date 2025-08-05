@@ -113,11 +113,27 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
       })
     },
 
+    [`${ctrlKey}-J`]: function italic(editor) {
+      toggleFormat(editor, {
+        prefix: `=:: `,
+        suffix: `=`,
+        check: s => s.startsWith(`=:: `) && s.endsWith(`=`),
+      })
+    },
+
     [`${ctrlKey}-D`]: function del(editor) {
       toggleFormat(editor, {
         prefix: `~~`,
         suffix: `~~`,
         check: s => s.startsWith(`~~`) && s.endsWith(`~~`),
+      })
+    },
+
+    [`${ctrlKey}-U`]: function underline(editor) {
+      toggleFormat(editor, {
+        prefix: `++`,
+        suffix: `++`,
+        check: s => s.startsWith(`++`) && s.endsWith(`++`),
       })
     },
 
@@ -145,7 +161,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
     [`${ctrlKey}-5`]: (ed: CodeMirror.Editor) => applyHeading(ed, 5),
     [`${ctrlKey}-6`]: (ed: CodeMirror.Editor) => applyHeading(ed, 6),
 
-    [`${ctrlKey}-U`]: function unorderedList(editor) {
+    [`${ctrlKey}-${altKey}-U`]: function unorderedList(editor) {
       const selected = editor.getSelection()
       const lines = selected.split(`\n`)
       const isList = lines.every(line => line.trim().startsWith(`- `))
@@ -155,7 +171,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
       editor.replaceSelection(updated)
     },
 
-    [`${ctrlKey}-O`]: function orderedList(editor) {
+    [`${ctrlKey}-${altKey}-O`]: function orderedList(editor) {
       const selected = editor.getSelection()
       const lines = selected.split(`\n`)
       const isList = lines.every(line => /^\d+\.\s/.test(line.trim()))

@@ -7,7 +7,7 @@ import {
   Settings,
   Sun,
 } from 'lucide-vue-next'
-import { altSign, ctrlKey, ctrlSign, shiftSign } from '@/config'
+import { altKey, altSign, ctrlKey, ctrlSign, shiftSign } from '@/config'
 import { useStore } from '@/stores'
 import { addPrefix, processClipboardContent } from '@/utils'
 
@@ -50,9 +50,19 @@ const formatItems = [
     cmd: `${ctrlKey}-I`,
   },
   {
+    label: `颜色`,
+    kbd: [ctrlSign, `J`],
+    cmd: `${ctrlKey}-J`,
+  },
+  {
     label: `删除线`,
     kbd: [ctrlSign, `D`],
     cmd: `${ctrlKey}-D`,
+  },
+  {
+    label: `下划线`,
+    kbd: [ctrlSign, `U`],
+    cmd: `${ctrlKey}-U`,
   },
   {
     label: `超链接`,
@@ -71,13 +81,13 @@ const formatItems = [
   },
   {
     label: `无序列表`,
-    kbd: [ctrlSign, `U`],
-    cmd: `${ctrlKey}-U`,
+    kbd: [ctrlSign, altSign, `U`],
+    cmd: `${ctrlKey}-${altKey}-U`,
   },
   {
     label: `有序列表`,
-    kbd: [ctrlSign, `O`],
-    cmd: `${ctrlKey}-O`,
+    kbd: [ctrlSign, altSign, `O`],
+    cmd: `${ctrlKey}-${altKey}-O`,
   },
   {
     label: `格式化`,
@@ -231,7 +241,7 @@ async function copy() {
 
       <!-- 复制按钮组 -->
       <div
-        class="bg-background space-x-1 text-background-foreground mx-2 flex items-center border rounded-md"
+        class="space-x-1 bg-background text-background-foreground mx-2 flex items-center border rounded-md"
       >
         <Button variant="ghost" class="shadow-none" @click="copy">
           复制
