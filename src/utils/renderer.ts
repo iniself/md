@@ -18,8 +18,10 @@ import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
 import { MDKatex } from './MDKatex'
 import markedSlider from './MDSlider'
+import markedTextExtension from './MDTextExtension'
 
 marked.use(markedImageSize())
+marked.use(markedTextExtension())
 marked.setOptions({
   breaks: true,
 })
