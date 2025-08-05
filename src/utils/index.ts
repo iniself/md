@@ -169,7 +169,7 @@ export async function formatDoc(content: string, type: `markdown` | `css` = `mar
     parser,
     plugins: plugins[parser],
   })
-  return md.replace(/\\([!()[\]_`*])/g, `$1`)
+  return md.replace(/\\([!()[\]_`*~=])/g, `$1`)
 }
 
 export function sanitizeTitle(title: string) {
