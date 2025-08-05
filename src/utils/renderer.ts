@@ -19,9 +19,11 @@ import markedImageSize from './MDImageSize'
 import { MDKatex } from './MDKatex'
 import markedSlider from './MDSlider'
 import markedTextExtension from './MDTextExtension'
+import markedUnderlineExtension from './MDUnderlineExtension'
 
 marked.use(markedImageSize())
 marked.use(markedTextExtension())
+marked.use(markedUnderlineExtension())
 marked.setOptions({
   breaks: true,
 })
