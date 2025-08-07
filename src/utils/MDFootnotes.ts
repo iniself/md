@@ -14,7 +14,7 @@ interface MapContent {
 }
 const fnMap = new Map<string, MapContent>()
 
-export default function markedFootnotes(title: string, linkCss: string): MarkedExtension {
+export default function markedFootnotes(title: string, hr: string, linkCss: string): MarkedExtension {
   return {
     extensions: [
       {
@@ -49,6 +49,7 @@ export default function markedFootnotes(title: string, linkCss: string): MarkedE
                 <br>`
           if (index === 1) {
             return `
+            ${hr}
             ${title}
             <p style="font-size: 80%;margin: 0.5em 8px;word-break:break-all;">${fnInner}`
           }
