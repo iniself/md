@@ -260,20 +260,26 @@ export const useStore = defineStore(`store`, () => {
     })
   }
 
-  // 切换 highlight.js 代码主题
-  const codeThemeChange = () => {
+  // 切换 highlight.js 代码主题（使用 <style> 注入，而不是 <link>）
+  const codeThemeChange = async () => {
     const cssUrl = codeBlockTheme.value
-    const el = document.querySelector(`#hljs`)
-    if (el) {
-      el.setAttribute(`href`, cssUrl)
+    const existing = document.querySelector(`#hljs`)
+    if (existing) {
+      existing.remove() // 移除旧的 <link> 或 <style>
     }
-    else {
-      const link = document.createElement(`link`)
-      link.setAttribute(`type`, `text/css`)
-      link.setAttribute(`rel`, `stylesheet`)
-      link.setAttribute(`href`, cssUrl)
-      link.setAttribute(`id`, `hljs`)
-      document.head.appendChild(link)
+
+    try {
+      const res = await fetch(cssUrl)
+      const cssText = await res.text()
+
+      const style = document.createElement(`style`)
+      style.setAttribute(`id`, `hljs`)
+      style.setAttribute(`type`, `text/css`)
+      style.textContent = cssText
+      document.head.appendChild(style)
+    }
+    catch (err) {
+      console.error(`无法加载 CSS: ${cssUrl}`, err)
     }
   }
 

@@ -504,7 +504,14 @@ function mergeCss(html: string): string {
 
 function modifyHtmlStructure(htmlString: string): string {
   const tempDiv = document.createElement(`div`)
-  tempDiv.innerHTML = htmlString
+  // 复制 code 主题样式
+  const styleEl = document.querySelector(`#hljs`)
+  if (styleEl) {
+    tempDiv.innerHTML = styleEl.outerHTML + htmlString
+  }
+  else {
+    tempDiv.innerHTML = htmlString
+  }
 
   // 移动 `li > ul` 和 `li > ol` 到 `li` 后面
   tempDiv.querySelectorAll(`li > ul, li > ol`).forEach((originalItem) => {

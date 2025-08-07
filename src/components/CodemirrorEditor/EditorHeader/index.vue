@@ -102,6 +102,41 @@ const { copy: copyContent } = useClipboard({
   legacy: true,
 })
 
+function convertHighlightToInlineStyles(container: HTMLElement) {
+  const elements = container.querySelectorAll(`[class*="hljs"]`)
+
+  elements.forEach((el) => {
+    const computedStyle = window.getComputedStyle(el)
+
+    const propsToKeep = [
+      `color`,
+      `background`,
+      `font-weight`,
+      `font-style`,
+      `text-decoration`,
+      `font-size`,
+      `font-family`,
+      `line-height`,
+      `white-space`,
+      `overflow`,
+      `display`,
+      `padding`,
+      `margin`,
+      `border-radius`,
+    ]
+
+    const inlineStyle = propsToKeep
+      .map((prop) => {
+        const val = computedStyle.getPropertyValue(prop)
+        return val ? `${prop}: ${val};` : ``
+      })
+      .join(` `)
+
+    // 合并现有 style 属性（如有）
+    el.setAttribute(`style`, `${el.getAttribute(`style`) || ``}; ${inlineStyle}`)
+  })
+}
+
 // 复制到微信公众号
 async function copy() {
   // 如果是 Markdown 源码，直接复制并返回
@@ -131,12 +166,44 @@ async function copy() {
       const temp = clipboardDiv.innerHTML
 
       if (copyMode.value === `txt`) {
-        const range = document.createRange()
-        range.setStartBefore(clipboardDiv.firstChild!)
-        range.setEndAfter(clipboardDiv.lastChild!)
-        window.getSelection()!.addRange(range)
-        document.execCommand(`copy`)
-        window.getSelection()!.removeAllRanges()
+        // 新增：把 hljs 相关的 class 样式变成 inline 样式
+        convertHighlightToInlineStyles(clipboardDiv)
+
+        const rawHtml = clipboardDiv.innerHTML
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(rawHtml, `text/html`)
+
+        // doc.querySelectorAll('sup').forEach(el => {
+        //     el.removeAttribute('style')
+        // })
+
+        const cleanedHtml = doc.body.innerHTML
+        const plainText = doc.body.textContent || ``
+
+        if (navigator.clipboard && navigator.clipboard.write) {
+          navigator.clipboard.write([
+            new ClipboardItem({
+              'text/html': new Blob([cleanedHtml], { type: `text/html` }),
+              'text/plain': new Blob([plainText], { type: `text/plain` }),
+            }),
+          ]).then(() => {
+          }).catch((err) => {
+            fallbackCopyWithExecCommand()
+            console.error(err)
+          })
+        }
+        else {
+          fallbackCopyWithExecCommand()
+        }
+
+        function fallbackCopyWithExecCommand() {
+          const range = document.createRange()
+          range.setStartBefore(clipboardDiv.firstChild!)
+          range.setEndAfter(clipboardDiv.lastChild!)
+          window.getSelection()!.addRange(range)
+          document.execCommand(`copy`)
+          window.getSelection()!.removeAllRanges()
+        }
       }
 
       clipboardDiv.innerHTML = output.value
