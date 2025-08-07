@@ -412,7 +412,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
       }
       if (opts.citeStatus) {
         const ref = addFootnote(title || text, href)
-        return `<span ${styles(`link`)}>${parsedText}<sup>[${ref}]</sup></span>`
+        return `<span ${styles(`link`)}>${parsedText}<sup>[链接${ref}]</sup></span>`
       }
       return styledContent(`link`, parsedText, `span`)
     },
@@ -464,7 +464,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
     MDKatex({ nonStandard: true }, styles(`inline_katex`, `;vertical-align: middle; line-height: 1;`), styles(`block_katex`, `;text-align: center;`),
     ),
   )
-  marked.use(markedFootnotes())
+  marked.use(markedFootnotes(styledContent(`h4`, `文章注释`), styles(`link`)))
   marked.use(markedAbbr())
 
   return {

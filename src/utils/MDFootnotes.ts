@@ -14,7 +14,7 @@ interface MapContent {
 }
 const fnMap = new Map<string, MapContent>()
 
-export default function markedFootnotes(): MarkedExtension {
+export default function markedFootnotes(title: string, linkCss: string): MarkedExtension {
   return {
     extensions: [
       {
@@ -49,6 +49,7 @@ export default function markedFootnotes(): MarkedExtension {
                 <br>`
           if (index === 1) {
             return `
+            ${title}
             <p style="font-size: 80%;margin: 0.5em 8px;word-break:break-all;">${fnInner}`
           }
           if (index === fnMap.size) {
@@ -79,9 +80,9 @@ export default function markedFootnotes(): MarkedExtension {
         renderer(token: Tokens.Generic) {
           const { fnId } = token
           const { index } = fnMap.get(fnId) as MapContent
-          return `<sup style="color: var(--md-primary-color);">
-                    <a href="#fnDef-${fnId}" id="fnRef-${fnId}">\[${index}\]</a>
-                </sup>`
+          return `<span ${linkCss}><sup style="color: var(--md-primary-color);">
+                    <a href="#fnDef-${fnId}" id="fnRef-${fnId}">\[注释${index}\]</a>
+                </sup></span>`
         },
       },
     ],
