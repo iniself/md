@@ -266,7 +266,8 @@ export function initRenderer(opts: IOpts): RendererAPI {
     }
 
     return (
-      styledContent(`h4`, `引用链接`)
+      styledContent(`hr`, ``)
+      + styledContent(`h4`, `引用链接`)
       + styledContent(`footnotes`, buildFootnoteArray(footnotes), `p`)
     )
   }
