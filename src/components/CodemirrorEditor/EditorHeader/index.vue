@@ -178,12 +178,25 @@ async function copy() {
         // })
 
         const cleanedHtml = doc.body.innerHTML
+
+        const tempDoc = new DOMParser().parseFromString(cleanedHtml, `text/html`)
+
+        tempDoc.querySelectorAll(`a`).forEach((a) => {
+          const href = a.getAttribute(`href`)
+          if (href && href.startsWith(`#`)) {
+            a.setAttribute(`data-anchor-id`, href.slice(1))
+            a.removeAttribute(`href`)
+          }
+        })
+
+        const cleanedHtmlFinal = tempDoc.body.innerHTML
+
         const plainText = doc.body.textContent || ``
 
         if (navigator.clipboard && navigator.clipboard.write) {
           navigator.clipboard.write([
             new ClipboardItem({
-              'text/html': new Blob([cleanedHtml], { type: `text/html` }),
+              'text/html': new Blob([cleanedHtmlFinal], { type: `text/html` }),
               'text/plain': new Blob([plainText], { type: `text/plain` }),
             }),
           ]).then(() => {
