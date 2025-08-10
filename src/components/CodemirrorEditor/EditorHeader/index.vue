@@ -138,6 +138,7 @@ function convertHighlightToInlineStyles(container: HTMLElement) {
 }
 
 // 复制到微信公众号
+let changeCiteStatusWhenCopy = false
 async function copy() {
   // 如果是 Markdown 源码，直接复制并返回
   if (copyMode.value === `md`) {
@@ -176,8 +177,11 @@ async function copy() {
         const cleanedHtml = doc.body.innerHTML
 
         const tempDoc = new DOMParser().parseFromString(cleanedHtml, `text/html`)
-
         if (copyMode.value === `txt`) {
+        //   if (!store.isCiteStatus){
+        //     store.citeStatusChanged()
+        //     await copy()
+        //   }
           tempDoc.querySelectorAll(`a`).forEach((a) => {
             const href = a.getAttribute(`href`)
             if (href && href.startsWith(`#`)) {
@@ -202,6 +206,12 @@ async function copy() {
           })
         }
         else if (copyMode.value === `zhihu`) {
+          if (store.isCiteStatus) {
+            store.citeStatusChanged()
+            changeCiteStatusWhenCopy = true
+            await copy()
+            return
+          }
           tempDoc.querySelectorAll(`a`).forEach((a) => {
             const href = a.getAttribute(`href`)
             if (href && href.startsWith(`#`)) {
@@ -308,6 +318,10 @@ async function copy() {
           },
         }),
       )
+      if (changeCiteStatusWhenCopy) {
+        store.citeStatusChanged()
+        changeCiteStatusWhenCopy = false
+      }
       editorRefresh()
       emit(`endCopy`)
     })
