@@ -266,7 +266,7 @@ async function copy() {
           }
         }
 
-        const cleanedHtmlFinal = tempDoc.body.innerHTML
+        const cleanedHtmlFinal = tempDoc.body.innerHTML.replace(/(<li\b[^>]*>\s*)\d+\.\s*/gi, `$1`).replace(/(<li\b[^>]*>\s*)•\s*/gi, `$1`)
         const plainText = doc.body.textContent || ``
 
         if (navigator.clipboard && navigator.clipboard.write) {
