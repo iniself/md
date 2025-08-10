@@ -415,7 +415,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
         const ref = addFootnote(title || text, href)
         return `<span ${styles(`link`)}>${parsedText}<sup>[链接${ref}]</sup></span>`
       }
-      return styledContent(`link`, parsedText, `span`)
+      return `<a href="${href}" title="${title || text}" ${styles(`link`)}>${parsedText}</a>`
     },
 
     strong({ tokens }: Tokens.Strong): string {

@@ -165,7 +165,7 @@ async function copy() {
 
       const temp = clipboardDiv.innerHTML
 
-      if (copyMode.value === `txt`) {
+      if (copyMode.value === `txt` || copyMode.value === `zhihu`) {
         // 新增：把 hljs 相关的 class 样式变成 inline 样式
         convertHighlightToInlineStyles(clipboardDiv)
 
@@ -173,24 +173,90 @@ async function copy() {
         const parser = new DOMParser()
         const doc = parser.parseFromString(rawHtml, `text/html`)
 
-        // doc.querySelectorAll('sup').forEach(el => {
-        //     el.removeAttribute('style')
-        // })
-
         const cleanedHtml = doc.body.innerHTML
 
         const tempDoc = new DOMParser().parseFromString(cleanedHtml, `text/html`)
 
-        tempDoc.querySelectorAll(`a`).forEach((a) => {
-          const href = a.getAttribute(`href`)
-          if (href && href.startsWith(`#`)) {
-            a.setAttribute(`data-anchor-id`, href.slice(1))
-            a.removeAttribute(`href`)
+        if (copyMode.value === `txt`) {
+          tempDoc.querySelectorAll(`a`).forEach((a) => {
+            const href = a.getAttribute(`href`)
+            if (href && href.startsWith(`#`)) {
+              a.setAttribute(`data-anchor-id`, href.slice(1))
+              a.removeAttribute(`href`)
+            }
+            else if (href && href.startsWith(`http`) && !href.startsWith(`https://mp.weixin.qq.com`)) {
+              const span = tempDoc.createElement(`span`)
+              span.className = a.className
+              span.style.cssText = a.style.cssText
+
+              Array.from(a.attributes).forEach((attr) => {
+                if (attr.name.startsWith(`data-`)) {
+                  span.setAttribute(attr.name, attr.value)
+                }
+              })
+              while (a.firstChild) {
+                span.appendChild(a.firstChild)
+              }
+              a.replaceWith(span)
+            }
+          })
+        }
+        else if (copyMode.value === `zhihu`) {
+          tempDoc.querySelectorAll(`a`).forEach((a) => {
+            const href = a.getAttribute(`href`)
+            if (href && href.startsWith(`#`)) {
+              // 处理锚点
+              a.setAttribute(`data-anchor-id`, href.slice(1))
+              a.removeAttribute(`href`)
+            }
+          })
+
+          tempDoc.querySelectorAll(`sup`).forEach((sup) => {
+            const a = sup.querySelector(`a[id][data-anchor-id]`)
+            if (a) {
+              const id = a.getAttribute(`id`) || ``
+              const anchorId = a.getAttribute(`data-anchor-id`) || ``
+              const newSup = tempDoc.createElement(`sup`)
+              newSup.id = id
+              newSup.className = `Reference isEditable`
+              newSup.setAttribute(`data-ref-key`, anchorId)
+              const link = document.querySelector(`a#${anchorId}`)
+              if (link && link.previousElementSibling && link.previousElementSibling.tagName.toLowerCase() === `span`) {
+                const span = link.previousElementSibling
+                const text = span.innerHTML
+                newSup.setAttribute(`data-text`, text)
+              }
+
+              newSup.setAttribute(`data-url`, ``)
+              newSup.setAttribute(`data-draft-node`, `inline`)
+              newSup.setAttribute(`data-draft-type`, `reference`)
+              // newSup.setAttribute('style', 'counter-reset: zh-ref 1;');
+
+              const outerSpan = tempDoc.createElement(`span`)
+              outerSpan.setAttribute(`data-offset-key`, `eds3i-1-0`)
+
+              const innerSpan = tempDoc.createElement(`span`)
+              innerSpan.setAttribute(`data-text`, `true`)
+              innerSpan.textContent = ` `
+
+              outerSpan.appendChild(innerSpan)
+              newSup.appendChild(outerSpan)
+
+              sup.replaceWith(newSup)
+            }
+          })
+          // 删除标准注释区，因为知乎有自己的注释区
+          const h4 = tempDoc.querySelector(`h4[data-heading="true"]`)
+          if (h4) {
+            const p = h4.nextElementSibling
+            h4.remove()
+            if (p && p.tagName.toLowerCase() === `p`) {
+              p.remove()
+            }
           }
-        })
+        }
 
         const cleanedHtmlFinal = tempDoc.body.innerHTML
-
         const plainText = doc.body.textContent || ``
 
         if (navigator.clipboard && navigator.clipboard.write) {
@@ -337,6 +403,9 @@ async function copy() {
             <DropdownMenuRadioGroup v-model="copyMode">
               <DropdownMenuRadioItem value="txt">
                 公众号格式
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="zhihu">
+                知乎格式
               </DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="html">
                 HTML 格式
