@@ -344,7 +344,6 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
 
   const displayText = a.textContent?.trim() || href
   const encodedHref = encodeURIComponent(href)
-  const _displayHost = href.replace(/^https?:\/\//, ``).replace(/\/.*$/, ``)
 
   //   const cardDiv = doc.createElement('div');
   const cardDiv = doc.createElement(`span`)
