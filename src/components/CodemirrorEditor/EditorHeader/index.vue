@@ -70,6 +70,11 @@ const formatItems = [
     cmd: `${ctrlKey}-K`,
   },
   {
+    label: `知乎卡片链接`,
+    kbd: [ctrlSign, altSign, `K`],
+    cmd: `${ctrlKey}-${altKey}-K`,
+  },
+  {
     label: `行内代码`,
     kbd: [ctrlSign, `E`],
     cmd: `${ctrlKey}-E`,

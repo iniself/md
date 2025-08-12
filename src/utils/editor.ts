@@ -140,9 +140,18 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
     [`${ctrlKey}-K`]: function link(editor) {
       toggleFormat(editor, {
         prefix: `[`,
-        suffix: `]()`,
-        check: s => s.startsWith(`[`) && s.endsWith(`]()`),
+        suffix: `](https://)`,
+        check: s => s.startsWith(`[`) && s.endsWith(`](https://)`),
         afterInsertCursorOffset: -1,
+      })
+    },
+
+    [`${ctrlKey}-${altKey}-K`]: function link(editor) {
+      toggleFormat(editor, {
+        prefix: `[`,
+        suffix: `[](https://)]`,
+        check: s => s.startsWith(`[`) && s.endsWith(`](https://)]`),
+        afterInsertCursorOffset: -2,
       })
     },
 
