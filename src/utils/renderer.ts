@@ -20,6 +20,7 @@ import { MDKatex } from './MDKatex'
 import markedSlider from './MDSlider'
 import markedTextExtension from './MDTextExtension'
 import markedUnderlineExtension from './MDUnderlineExtension'
+import markedZhihuLinkCard from './MDZhihuLinkCard'
 
 marked.use(markedImageSize())
 marked.use(markedTextExtension())
@@ -467,6 +468,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
   )
   marked.use(markedFootnotes(styledContent(`h4`, `文章注释`), styledContent(`hr`, ``), styles(`link`)))
   marked.use(markedAbbr())
+  marked.use(markedZhihuLinkCard(styles(`wx_link`), styles(`link`)))
 
   return {
     buildAddition,

@@ -178,10 +178,6 @@ async function copy() {
 
         const tempDoc = new DOMParser().parseFromString(cleanedHtml, `text/html`)
         if (copyMode.value === `txt`) {
-        //   if (!store.isCiteStatus){
-        //     store.citeStatusChanged()
-        //     await copy()
-        //   }
           tempDoc.querySelectorAll(`a`).forEach((a) => {
             const href = a.getAttribute(`href`)
             if (href && href.startsWith(`#`)) {
@@ -218,6 +214,10 @@ async function copy() {
               // 处理锚点
               a.setAttribute(`data-anchor-id`, href.slice(1))
               a.removeAttribute(`href`)
+            }
+            if (a.getAttribute(`data-linkcard`) !== null) {
+              // 处理知乎链接卡片
+              transformAnchorsToZhihuCards(a, tempDoc)
             }
           })
 
@@ -265,8 +265,12 @@ async function copy() {
             }
           }
         }
+        // 第三个正则处理知乎卡片之间多余的<br>
+        const cleanedHtmlFinal = tempDoc.body.innerHTML.replace(/(<li\b[^>]*>\s*)\d+\.\s*/gi, `$1`).replace(/(<li\b[^>]*>\s*)•\s*/gi, `$1`).replace(
+          /(<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>)(?:\s*<br\s*\/?>\s*(?=<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>))+/gis,
+          `$1`,
+        )
 
-        const cleanedHtmlFinal = tempDoc.body.innerHTML.replace(/(<li\b[^>]*>\s*)\d+\.\s*/gi, `$1`).replace(/(<li\b[^>]*>\s*)•\s*/gi, `$1`)
         const plainText = doc.body.textContent || ``
 
         if (navigator.clipboard && navigator.clipboard.write) {
@@ -326,6 +330,56 @@ async function copy() {
       emit(`endCopy`)
     })
   }, 350)
+}
+function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, container: Document | HTMLElement) {
+  const doc = container instanceof Document ? container : container.ownerDocument!
+  const href = a.getAttribute(`href`) || ``
+  if (!href.startsWith(`http`))
+    return
+
+  const displayText = a.textContent?.trim() || href
+  const encodedHref = encodeURIComponent(href)
+  const _displayHost = href.replace(/^https?:\/\//, ``).replace(/\/.*$/, ``)
+
+  //   const cardDiv = doc.createElement('div');
+  const cardDiv = doc.createElement(`span`)
+  cardDiv.className = `RichText-LinkCardContainer`
+
+  const cardA = doc.createElement(`a`)
+  cardA.setAttribute(`target`, `_blank`)
+  cardA.setAttribute(`href`, `https://link.zhihu.com/?target=${encodedHref}`)
+  cardA.setAttribute(`data-draft-node`, `block`)
+  cardA.setAttribute(`data-draft-type`, `link-card`)
+  cardA.setAttribute(`data-text`, displayText)
+  cardA.className = `LinkCard new css-nctz4i`
+
+  const spanContents = doc.createElement(`span`)
+  spanContents.className = `LinkCard-contents`
+
+  const spanTitle = doc.createElement(`span`)
+  spanTitle.className = `LinkCard-title two-line`
+  spanTitle.textContent = displayText
+
+  const spanDesc = doc.createElement(`span`)
+  spanDesc.className = `LinkCard-desc`
+
+  const spanInlineFlex = doc.createElement(`span`)
+  spanInlineFlex.style.cssText = `display: inline-flex; align-items: center;`
+  spanInlineFlex.innerHTML = `&ZeroWidthSpace;`
+    + `<svg width="14" height="14" viewBox="0 0 24 24" class="Zi Zi--InsertLink" fill="currentColor">
+       <path fill-rule="evenodd" clip-rule="evenodd" d="M5.327 18.883a3.005 3.005 0 0 1 0-4.25l2.608-2.607a.75.75 0 1 0-1.06-1.06l-2.608 2.607a4.505 4.505 0 0 0 6.37 6.37l2.608-2.607a.75.75 0 0 0-1.06-1.06l-2.608 2.607a3.005 3.005 0 0 1-4.25 0Zm5.428-11.799a.75.75 0 0 0 1.06 1.06L14.48 5.48a3.005 3.005 0 0 1 4.25 4.25l-2.665 2.665a.75.75 0 0 0 1.061 1.06l2.665-2.664a4.505 4.505 0 0 0-6.371-6.372l-2.665 2.665Zm5.323 2.117a.75.75 0 1 0-1.06-1.06l-7.072 7.07a.75.75 0 0 0 1.061 1.06l7.071-7.07Z"></path>
+     </svg>`
+
+  spanDesc.appendChild(spanInlineFlex)
+  spanDesc.appendChild(doc.createTextNode(href))
+
+  spanContents.appendChild(spanTitle)
+  spanContents.appendChild(spanDesc)
+
+  cardA.appendChild(spanContents)
+  cardDiv.appendChild(cardA)
+
+  a.replaceWith(cardDiv)
 }
 </script>
 
