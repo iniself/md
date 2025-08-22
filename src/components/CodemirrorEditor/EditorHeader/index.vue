@@ -182,6 +182,8 @@ async function copy() {
         const cleanedHtml = doc.body.innerHTML
 
         const tempDoc = new DOMParser().parseFromString(cleanedHtml, `text/html`)
+        let cleanedHtmlFinal = ``
+
         if (copyMode.value === `txt`) {
           tempDoc.querySelectorAll(`a`).forEach((a) => {
             const href = a.getAttribute(`href`)
@@ -205,6 +207,7 @@ async function copy() {
               a.replaceWith(span)
             }
           })
+          cleanedHtmlFinal = tempDoc.body.innerHTML
         }
         else if (copyMode.value === `zhihu`) {
           if (store.isCiteStatus) {
@@ -269,13 +272,9 @@ async function copy() {
               p.remove()
             }
           }
+          // 第三个正则处理知乎卡片之间多余的<br>
+          cleanedHtmlFinal = tempDoc.body.innerHTML.replace(/(<li\b[^>]*>\s*)\d+\.\s*/gi, `$1`).replace(/(<li\b[^>]*>\s*)•\s*/gi, `$1`).replace(/(<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>)(?:\s*<br\s*\/?>\s*(?=<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>))+/gis, `$1`)
         }
-        // 第三个正则处理知乎卡片之间多余的<br>
-        const cleanedHtmlFinal = tempDoc.body.innerHTML.replace(/(<li\b[^>]*>\s*)\d+\.\s*/gi, `$1`).replace(/(<li\b[^>]*>\s*)•\s*/gi, `$1`).replace(
-          /(<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>)(?:\s*<br\s*\/?>\s*(?=<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>))+/gis,
-          `$1`,
-        )
-
         const plainText = doc.body.textContent || ``
 
         if (navigator.clipboard && navigator.clipboard.write) {
