@@ -23,7 +23,9 @@ export default function markedUnderlineExtension(): MarkedExtension {
         },
         renderer(token: Tokens.Generic) {
           const tokens = token.tokens ?? []
-          return `<u>${this.parser.parseInline(tokens)}</u>`
+          const store = useStore()
+          const { primaryColor } = storeToRefs(store)
+          return `<u style="text-decoration-line: underline;text-decoration-color:${primaryColor.value};text-decoration-style: wavy;text-underline-offset: 4px">${this.parser.parseInline(tokens)}</u>`
         },
       },
     ],
