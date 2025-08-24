@@ -12,6 +12,7 @@ import type { ExtendedProperties, IOpts, ThemeStyles } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 
 import { getStyleString } from '.'
+import admonitionExtension from './admonition/index.ts'
 import markedAbbr from './MDAbbr'
 import markedAlert from './MDAlert'
 import markedFootnotes from './MDFootnotes'
@@ -21,6 +22,7 @@ import markedSlider from './MDSlider'
 import markedTextExtension from './MDTextExtension'
 import markedUnderlineExtension from './MDUnderlineExtension'
 import markedZhihuLinkCard from './MDZhihuLinkCard'
+import './admonition/index.css'
 
 marked.use(markedImageSize())
 marked.use(markedTextExtension())
@@ -29,6 +31,7 @@ marked.setOptions({
   breaks: true,
 })
 marked.use(markedSlider())
+marked.use(admonitionExtension)
 
 function buildTheme({ theme: _theme, fonts, size, isUseIndent }: IOpts): ThemeStyles {
   const theme = cloneDeep(_theme)
