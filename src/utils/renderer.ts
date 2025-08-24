@@ -229,7 +229,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
 
     children.forEach((c) => {
       if (c.tagName.toLowerCase() === `blockquote`) {
-        processBlockquoteChildren(c)
+        processBlockquoteChildren(c as HTMLElement)
       }
     })
   }
