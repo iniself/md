@@ -216,6 +216,24 @@ export function initRenderer(opts: IOpts): RendererAPI {
     return getStyles(styleMapping, tag, addition)
   }
 
+  function processBlockquoteChildren(container: HTMLElement) {
+    const children = Array.from(container.children)
+    const ps = children.filter(c => c.tagName.toLowerCase() === `p`) as HTMLElement[]
+    ps.forEach((p, i) => {
+      let styleStr = styles(`blockquote_p`)
+      const marginTop = i === 0 ? `0` : `1.5em`
+      const marginBottom = i === ps.length - 1 ? `0` : `1.5em`
+      styleStr = styleStr.replace(/margin:[^;]+;/, `margin: ${marginTop} 8px ${marginBottom} 8px;`)
+      p.setAttribute(`style`, styleStr.slice(7, -1))
+    })
+
+    children.forEach((c) => {
+      if (c.tagName.toLowerCase() === `blockquote`) {
+        processBlockquoteChildren(c)
+      }
+    })
+  }
+
   function styledContent(styleLabel: string, content: string, tagName?: string): string {
     const tag = tagName ?? styleLabel
 
@@ -291,9 +309,10 @@ export function initRenderer(opts: IOpts): RendererAPI {
     },
 
     blockquote({ tokens }: Tokens.Blockquote): string {
-      let text = this.parser.parse(tokens)
-      text = text.replace(/<p .*?>/g, `<p ${styles(`blockquote_p`)}>`)
-      return styledContent(`blockquote`, text)
+      const container = document.createElement(`div`)
+      container.innerHTML = this.parser.parse(tokens)
+      processBlockquoteChildren(container)
+      return styledContent(`blockquote`, container.innerHTML)
     },
 
     code({ text, lang = `` }: Tokens.Code): string {

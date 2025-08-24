@@ -89,6 +89,7 @@ const defaultTheme: Theme = {
     // 引用内容
     blockquote_p: {
       'display': `block`,
+      'margin': `0 8px 1.5em 8px`,
       'font-size': `1em`,
       'letter-spacing': `0.1em`,
       'color': `hsl(var(--foreground))`,
