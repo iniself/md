@@ -75,6 +75,11 @@ const formatItems = [
     cmd: `${ctrlKey}-${altKey}-K`,
   },
   {
+    label: `Admonition`,
+    kbd: [ctrlSign, altSign, `A`],
+    cmd: `${ctrlKey}-${altKey}-A`,
+  },
+  {
     label: `行内代码`,
     kbd: [ctrlSign, `E`],
     cmd: `${ctrlKey}-E`,

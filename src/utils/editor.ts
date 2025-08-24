@@ -155,6 +155,15 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
       })
     },
 
+    [`${ctrlKey}-${altKey}-A`]: function link(editor) {
+      toggleFormat(editor, {
+        prefix: `!!! note\n\n`,
+        suffix: `!!!`,
+        check: s => s.startsWith(`!!! note`) && s.endsWith(`!!!`),
+        afterInsertCursorOffset: 1,
+      })
+    },
+
     [`${ctrlKey}-E`]: function code(editor) {
       toggleFormat(editor, {
         prefix: `\``,
