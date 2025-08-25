@@ -12,7 +12,7 @@ import type { ExtendedProperties, IOpts, ThemeStyles } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 
 import { getStyleString } from '.'
-import admonitionExtension from './admonition/index.ts'
+import markedAdmonitionExtension from './admonition/index.ts'
 import markedAbbr from './MDAbbr'
 import markedAlert from './MDAlert'
 import markedFootnotes from './MDFootnotes'
@@ -31,7 +31,7 @@ marked.setOptions({
   breaks: true,
 })
 marked.use(markedSlider())
-marked.use(admonitionExtension)
+marked.use(markedAdmonitionExtension())
 
 function buildTheme({ theme: _theme, fonts, size, isUseIndent }: IOpts): ThemeStyles {
   const theme = cloneDeep(_theme)
