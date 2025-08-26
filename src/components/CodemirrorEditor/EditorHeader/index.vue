@@ -147,6 +147,98 @@ function convertHighlightToInlineStyles(container: HTMLElement) {
   })
 }
 
+function inlineAdmonitionForWechat(container: HTMLElement) {
+  const admonitions = container.querySelectorAll<HTMLElement>(`.admonition`)
+  admonitions.forEach((adm) => {
+    const title = adm.querySelector<HTMLElement>(`.admonition-title`)
+    if (!title)
+      return
+
+    const computed = window.getComputedStyle(title)
+
+    // 获取 --icon 值
+    const iconValue = computed.getPropertyValue(`--icon`)
+    if (!iconValue || !iconValue.startsWith(`url`))
+      return
+
+    let iconData = iconValue.trim()
+    iconData = iconData.replace(/^url\((['"]?)(.*)\1\)$/, `$2`)
+
+    if (!iconData.startsWith(`data:image/svg+xml`))
+      return
+
+    const svgText = decodeURIComponent(
+      iconData.replace(/^data:image\/svg\+xml(?:;charset=[^,]+|;utf8)?,/, ``),
+    )
+
+    const parser = new DOMParser()
+    const svgDoc = parser.parseFromString(svgText, `image/svg+xml`)
+    const svgEl = svgDoc.documentElement
+
+    // 查找已有的 juice span（第一个 span）
+    let iconSpan = title.querySelector(`span`)
+    if (iconSpan) {
+      // 获取原背景色
+      const bgColor = iconSpan.style.backgroundColor || ``
+
+      // 清空内容，保留 style
+      const style = iconSpan.getAttribute(`style`) || ``
+      iconSpan.innerHTML = ``
+      iconSpan.setAttribute(`style`, style)
+      iconSpan.style.removeProperty(`background-color`)
+      iconSpan.appendChild(svgEl)
+
+      // 把背景色应用到 SVG 的 path 上
+      if (bgColor) {
+        svgEl.querySelectorAll(`path`).forEach((path) => {
+          path.setAttribute(`fill`, bgColor) // 或者 stroke
+        })
+      }
+    }
+    else {
+      // 没有 span 时新增
+      iconSpan = document.createElement(`span`)
+      iconSpan.appendChild(svgEl)
+      title.prepend(iconSpan)
+    }
+  })
+}
+
+function inlineAdmonitionForZhihu(container: Document) {
+  const admonitions = container.querySelectorAll<HTMLElement>(`.admonition`)
+  admonitions.forEach((adm) => {
+    const titleText = adm.querySelector(`.admonition-title span:last-child`)?.textContent?.trim() || ``
+    const contentText = adm.querySelector(`p:not(.admonition-title)`)?.textContent?.trim() || ``
+    const p = container.createElement(`p`)
+    const strong = container.createElement(`strong`)
+    strong.textContent = titleText
+    p.appendChild(strong)
+    p.append(`：${contentText}`)
+    adm.replaceWith(p)
+  })
+}
+
+function cleanEmptyParas(container: Document | HTMLElement) {
+  container.querySelectorAll(`p`).forEach((p) => {
+    if (
+      p.innerHTML.trim() === `&nbsp;`
+      && (p.style.fontSize === `0px` || p.style.lineHeight === `0`)
+    ) {
+      p.remove()
+    }
+  })
+}
+
+function cleanSection(container: Document) {
+  const section = container.querySelector(`body > section`)
+  if (section) {
+    while (section.firstChild) {
+      container.body.insertBefore(section.firstChild, section)
+    }
+    section.remove()
+  }
+}
+
 // 复制到微信公众号
 let changeCiteStatusWhenCopy = false
 async function copy() {
@@ -173,13 +265,13 @@ async function copy() {
       const clipboardDiv = document.getElementById(`output`)!
       clipboardDiv.focus()
       window.getSelection()!.removeAllRanges()
-
+      // 新增：把 hljs 相关的 class 样式变成 inline 样式
+      convertHighlightToInlineStyles(clipboardDiv)
+      // 新增：修正Admonition的图标。内联样式已经通过 utils/index.ts mergeCss 中的 juice 进行了处理
+      inlineAdmonitionForWechat(clipboardDiv)
       const temp = clipboardDiv.innerHTML
 
       if (copyMode.value === `txt` || copyMode.value === `zhihu`) {
-        // 新增：把 hljs 相关的 class 样式变成 inline 样式
-        convertHighlightToInlineStyles(clipboardDiv)
-
         const rawHtml = clipboardDiv.innerHTML
         const parser = new DOMParser()
         const doc = parser.parseFromString(rawHtml, `text/html`)
@@ -233,6 +325,13 @@ async function copy() {
               transformAnchorsToZhihuCards(a, tempDoc)
             }
           })
+
+          // 处理admonition适配知乎
+          inlineAdmonitionForZhihu(tempDoc)
+          // 清理多余的空行
+          cleanEmptyParas(tempDoc)
+          // 清理顶层<section>
+          cleanSection(tempDoc)
 
           tempDoc.querySelectorAll(`sup`).forEach((sup) => {
             const a = sup.querySelector(`a[id][data-anchor-id]`)

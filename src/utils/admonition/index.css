@@ -144,6 +144,7 @@
   margin: 0 -0.6rem 0 -0.8rem;
   padding: 0.4rem 0.6rem 0.4rem 1rem;
   position: relative;
+  max-width: 150% !important;
 }
 .admonition-title::before {
   content: "";

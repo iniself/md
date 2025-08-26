@@ -100,7 +100,7 @@ const endReg = /^!!!\s*$/
 const debug = false
 
 let config: Config = {
-  nodeName: `div`,
+  nodeName: `section`,
   className: `admonition`,
   title: { nodeName: `p` },
 }
@@ -170,7 +170,7 @@ export default function markedAdmonitionExtension(): MarkedExtension {
         renderer(this: any, token: Tokens.Generic) {
           const html = `<${config.nodeName} class="${config.className} ${config.className}-${token.icon}">
             <${config.title.nodeName} class="${config.className}-title">
-              ${this.parser.parseInline(token.titleTokens)}
+              <span>${this.parser.parseInline(token.titleTokens)}</span>
             </${config.title.nodeName}>
             ${this.parser.parse(token.tokens!)}
           </${config.nodeName}>`
