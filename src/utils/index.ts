@@ -14,7 +14,9 @@ import { prefix } from '@/config/prefix'
 import type { Block, ExtendedProperties, Inline, Theme } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 import { addSpacingToMarkdown } from '@/utils/autoSpace'
+import admonition_css from './admonition/index.css?inline'
 import markedAlert from './MDAlert'
+
 import { MDKatex } from './MDKatex'
 
 export function addPrefix(str: string) {
@@ -496,7 +498,7 @@ export function solveWeChatImage() {
 }
 
 function mergeCss(html: string): string {
-  return juice(html, {
+  return juice(`<style>${admonition_css}</style>\n${html}`, {
     inlinePseudoElements: true,
     preserveImportant: true,
   })
@@ -504,14 +506,7 @@ function mergeCss(html: string): string {
 
 function modifyHtmlStructure(htmlString: string): string {
   const tempDiv = document.createElement(`div`)
-  // 复制 code 主题样式
-  const styleEl = document.querySelector(`#hljs`)
-  if (styleEl) {
-    tempDiv.innerHTML = styleEl.outerHTML + htmlString
-  }
-  else {
-    tempDiv.innerHTML = htmlString
-  }
+  tempDiv.innerHTML = htmlString
 
   // 移动 `li > ul` 和 `li > ol` 到 `li` 后面
   tempDiv.querySelectorAll(`li > ul, li > ol`).forEach((originalItem) => {
