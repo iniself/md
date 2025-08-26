@@ -320,7 +320,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
 
     code({ text, lang = `` }: Tokens.Code): string {
       if (lang.startsWith(`en`)) {
-        return `<p lang="en" style="text-align: justify;hyphens: auto; word-wrap: break-word !important;">${marked.parseInline(text)}</p>`
+        return `<p lang="en" ${styles(`p`, `;text-align: justify;hyphens: auto; word-wrap: break-word !important;padding-right: 0.5em;`)}>${marked.parseInline(text)}</p>`
       }
       if (lang.startsWith(`mermaid`)) {
         clearTimeout(codeIndex)
