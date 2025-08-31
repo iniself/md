@@ -384,7 +384,6 @@ async function copy() {
           cleanedHtmlFinal = tempDoc.body.innerHTML.replace(/(<li\b[^>]*>\s*)\d+\.\s*/gi, `$1`).replace(/(<li\b[^>]*>\s*)•\s*/gi, `$1`).replace(/(<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>)(?:\s*<br\s*\/?>\s*(?=<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>))+/gis, `$1`)
         }
         const plainText = doc.body.textContent || ``
-        console.log(cleanedHtmlFinal)
         if (navigator.clipboard && navigator.clipboard.write) {
           navigator.clipboard.write([
             new ClipboardItem({
