@@ -189,10 +189,14 @@ function inlineAdmonitionForWechat(container: HTMLElement) {
       iconSpan.appendChild(svgEl)
 
       // 把背景色应用到 SVG 的 path 上
-      if (bgColor) {
+      if (bgColor && !adm.classList.contains(`admonition-hint`)) {
         svgEl.querySelectorAll(`path`).forEach((path) => {
-          path.setAttribute(`fill`, bgColor) // 或者 stroke
+          path.setAttribute(`fill`, bgColor)
         })
+      }
+      else {
+        // 如果是 hint
+        svgEl.innerHTML = `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><title></title><path d="M24,13.1a8,8,0,1,0-13.6,5.7A5.07,5.07,0,0,1,12,22.4V23h8v-.53a5.23,5.23,0,0,1,1.63-3.69A8,8,0,0,0,24,13.1Z" fill="none" stroke="${bgColor}" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><line x1="12" y1="26" x2="20" y2="26" fill="none" stroke="${bgColor}" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><line x1="13" y1="27" x2="19" y2="27" fill="none" stroke="${bgColor}" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><line x1="16" y1="28" x2="16" y2="27" fill="none" stroke="${bgColor}" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><polyline points="16 12.42 15 15.25 17 15.25 16 18.17" fill="none" stroke="${bgColor}" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       }
     }
     else {
