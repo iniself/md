@@ -325,6 +325,10 @@ export function initRenderer(opts: IOpts): RendererAPI {
       if (lang.startsWith(`mermaid`)) {
         clearTimeout(codeIndex)
         codeIndex = setTimeout(() => {
+          mermaid.initialize({
+            securityLevel: `loose`,
+            htmlLabels: false,
+          })
           mermaid.run()
         }, 0) as any as number
         return `<pre class="mermaid">${text}</pre>`
