@@ -172,7 +172,9 @@ export default function markedAdmonitionExtension(): MarkedExtension {
             <${config.title.nodeName} class="${config.className}-title">
               <span>${this.parser.parseInline(token.titleTokens)}</span>
             </${config.title.nodeName}>
-            ${this.parser.parse(token.tokens!)}
+            <${config.nodeName} style="padding: 0 0.6rem;">
+              ${this.parser.parse(token.tokens!)}
+            </${config.nodeName}>
           </${config.nodeName}>`
           return html
         },
