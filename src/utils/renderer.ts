@@ -479,9 +479,6 @@ export function initRenderer(opts: IOpts): RendererAPI {
         `
       }
       else {
-        const headerRow = header
-          .map(cell => this.tablecell(cell))
-          .join(``)
         const body = rows
           .map((row) => {
             const rowContent = row
@@ -498,7 +495,6 @@ export function initRenderer(opts: IOpts): RendererAPI {
         return `
             <section style="padding:0 8px; max-width: 100%; overflow: auto">
             <table class="preview-table">
-                <thead ${styles(`thead`, `;display: none`)}>${headerRow}</thead>
                 <tbody>${body}</tbody>
             </table>
             </section>
