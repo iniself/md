@@ -50,7 +50,7 @@ const formatItems = [
     cmd: `${ctrlKey}-I`,
   },
   {
-    label: `颜色`,
+    label: `文字更多样式`,
     kbd: [ctrlSign, `J`],
     cmd: `${ctrlKey}-J`,
   },
