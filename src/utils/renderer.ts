@@ -457,25 +457,53 @@ export function initRenderer(opts: IOpts): RendererAPI {
     },
 
     table({ header, rows }: Tokens.Table): string {
-      const headerRow = header
-        .map(cell => this.tablecell(cell))
-        .join(``)
-      const body = rows
-        .map((row) => {
-          const rowContent = row
-            .map(cell => this.tablecell(cell))
-            .join(``)
-          return styledContent(`tr`, rowContent)
-        })
-        .join(``)
-      return `
-        <section style="padding:0 8px; max-width: 100%; overflow: auto">
-          <table class="preview-table">
-            <thead ${styles(`thead`)}>${headerRow}</thead>
-            <tbody>${body}</tbody>
-          </table>
-        </section>
-      `
+      if (header[0].text !== `cols`) {
+        const headerRow = header
+          .map(cell => this.tablecell(cell))
+          .join(``)
+        const body = rows
+          .map((row) => {
+            const rowContent = row
+              .map(cell => this.tablecell(cell))
+              .join(``)
+            return styledContent(`tr`, rowContent)
+          })
+          .join(``)
+        return `
+          <section style="padding:0 8px; max-width: 100%; overflow: auto">
+            <table class="preview-table">
+              <thead ${styles(`thead`)}>${headerRow}</thead>
+              <tbody>${body}</tbody>
+            </table>
+          </section>
+        `
+      }
+      else {
+        const headerRow = header
+          .map(cell => this.tablecell(cell))
+          .join(``)
+        const body = rows
+          .map((row) => {
+            const rowContent = row
+              .map((cell) => {
+                const text = this.parser.parseInline(cell.tokens)
+                const tag = `td`
+                const styleLabel = `td`
+                return `<${tag} ${/^h\d$/.test(tag) ? `data-heading="true"` : ``} ${styles(styleLabel, `;border: none`)}>${text}</${tag}>`
+              })
+              .join(``)
+            return styledContent(`tr`, rowContent)
+          })
+          .join(``)
+        return `
+            <section style="padding:0 8px; max-width: 100%; overflow: auto">
+            <table class="preview-table">
+                <thead ${styles(`thead`, `;display: none`)}>${headerRow}</thead>
+                <tbody>${body}</tbody>
+            </table>
+            </section>
+        `
+      }
     },
 
     tablecell(token: Tokens.TableCell): string {
