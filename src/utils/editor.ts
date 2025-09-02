@@ -97,6 +97,14 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
       editor.redo()
     },
 
+    [`${ctrlKey}-/`]: function bold(editor) {
+      toggleFormat(editor, {
+        prefix: `<!-- `,
+        suffix: ` -->`,
+        check: s => s.startsWith(`<!-- `) && s.endsWith(` -->`),
+      })
+    },
+
     [`${ctrlKey}-B`]: function bold(editor) {
       toggleFormat(editor, {
         prefix: `**`,

@@ -40,6 +40,11 @@ function addFormat(cmd: string) {
 
 const formatItems = [
   {
+    label: `注释`,
+    kbd: [ctrlSign, `/`],
+    cmd: `${ctrlKey}-/`,
+  },
+  {
     label: `加粗`,
     kbd: [ctrlSign, `B`],
     cmd: `${ctrlKey}-B`,
