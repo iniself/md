@@ -360,27 +360,13 @@ export function initRenderer(opts: IOpts): RendererAPI {
         .map(item => this.listitem(item))
         .join(``)
 
-      listOrderedStack.pop()
-      listCounters.pop()
-
       return styledContent(
         ordered ? `ol` : `ul`,
         html,
       )
     },
 
-    // 2. listitem：从栈顶取 ordered + counter，计算 prefix 并自增
     listitem(token: Tokens.ListItem) {
-      const ordered = listOrderedStack[listOrderedStack.length - 1]
-      const idx = listCounters[listCounters.length - 1]!
-
-      // 准备下一个
-      listCounters[listCounters.length - 1] = idx + 1
-
-      const prefix = ordered
-        ? `${idx}. `
-        : `• `
-
       // 渲染内容：优先 inline，fallback 去掉 <p> 包裹
       let content: string
       try {
@@ -394,7 +380,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
 
       return styledContent(
         `listitem`,
-        `${prefix}${content}`,
+        `${content}`,
         `li`,
       )
     },

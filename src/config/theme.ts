@@ -191,6 +191,7 @@ const defaultTheme: Theme = {
 
     // 有序列表
     ol: {
+      'list-style': `decimal`,
       'padding-left': `1em`,
       'margin-left': `0`,
       'color': `hsl(var(--foreground))`,
@@ -198,7 +199,7 @@ const defaultTheme: Theme = {
 
     // 无序列表
     ul: {
-      'list-style': `circle`,
+      'list-style': `square`,
       'padding-left': `1em`,
       'margin-left': `0`,
       'color': `hsl(var(--foreground))`,
@@ -236,10 +237,8 @@ const defaultTheme: Theme = {
   },
   inline: {
     listitem: {
-      'text-indent': `-1em`,
-      'display': `block`,
-      'margin': `0.2em 8px`,
-      'color': `hsl(var(--foreground))`,
+      margin: `0.2em 8px`,
+      color: `hsl(var(--foreground))`,
     },
 
     codespan: {
