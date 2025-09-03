@@ -27,6 +27,23 @@ function githubSubmit(formValues: any) {
   toast.success(`保存成功`)
 }
 
+// gitee
+const giteeSchema = toTypedSchema(yup.object({
+  repo: yup.string().required(`Gitee 仓库名不能为空`),
+  branch: yup.string().optional(),
+  accessToken: yup.string().required(`Gitee Token 不能为空`),
+}))
+
+const giteeConfig = ref(localStorage.getItem(`giteeConfig`)
+  ? JSON.parse(localStorage.getItem(`giteeConfig`)!)
+  : { repo: ``, branch: ``, accessToken: `` })
+
+function giteeSubmit(formValues: any) {
+  localStorage.setItem(`giteeConfig`, JSON.stringify(formValues))
+  giteeConfig.value = formValues
+  toast.success(`保存成功`)
+}
+
 // 阿里云
 const aliOSSSchema = toTypedSchema(yup.object({
   accessKeyId: yup.string().required(`AccessKey ID 不能为空`),
@@ -299,6 +316,10 @@ const options = [
     label: `GitHub`,
   },
   {
+    value: `gitee`,
+    label: `Gitee`,
+  },
+  {
     value: `aliOSS`,
     label: `阿里云`,
   },
@@ -498,6 +519,47 @@ function onDrop(e: DragEvent) {
                 如何获取 GitHub Token？
               </Button>
             </FormItem>
+
+            <FormItem>
+              <Button type="submit">
+                保存配置
+              </Button>
+            </FormItem>
+          </Form>
+        </TabsContent>
+
+        <TabsContent value="gitee">
+          <Form :validation-schema="giteeSchema" :initial-values="giteeConfig" @submit="giteeSubmit">
+            <Field v-slot="{ field, errorMessage }" name="repo">
+              <FormItem label="Gitee 仓库名" required :error="errorMessage">
+                <Input
+                  v-bind="field"
+                  v-model="field.value"
+                  placeholder="如：https://gitee.com/username/repo"
+                />
+              </FormItem>
+            </Field>
+
+            <Field v-slot="{ field, errorMessage }" name="branch">
+              <FormItem label="分支" :error="errorMessage">
+                <Input
+                  v-bind="field"
+                  v-model="field.value"
+                  placeholder="如：release，可不填，默认 master"
+                />
+              </FormItem>
+            </Field>
+
+            <Field v-slot="{ field, errorMessage }" name="accessToken">
+              <FormItem label="Token" required :error="errorMessage">
+                <Input
+                  v-bind="field"
+                  v-model="field.value"
+                  type="password"
+                  placeholder="如：cc1d0c1426d0fd0902bd2d7184b14da61b8abc46"
+                />
+              </FormItem>
+            </Field>
 
             <FormItem>
               <Button type="submit">

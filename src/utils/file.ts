@@ -146,7 +146,7 @@ async function giteeUpload(content: any, filename: string) {
     },
   })
   res.content = res.data?.content || res.content
-  return encodeURI(res.content.download_url)
+  return `https://wsrv.nl?url=${encodeURIComponent(res.content.download_url)}`
 }
 
 // -----------------------------------------------------------------------
