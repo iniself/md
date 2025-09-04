@@ -108,7 +108,9 @@ export const useStore = defineStore(`store`, () => {
   const editorContent = useStorage(`__editor_content`, DEFAULT_CONTENT)
 
   const isOpenRightSlider = useStorage(addPrefix(`is_open_right_slider`), false)
+  const isOpenLeftSlider = useStorage(addPrefix(`is_open_left_slider`), false)
   const isOpenPostSlider = useStorage(addPrefix(`is_open_post_slider`), false)
+  const isOpenTocSlider = useStorage(addPrefix(`is_open_toc_slider`), false)
 
   /*******************************
    * 内容列表 posts：默认就带 id
@@ -764,7 +766,9 @@ export const useStore = defineStore(`store`, () => {
     addPost,
     renamePost,
     delPost,
+    isOpenLeftSlider,
     isOpenPostSlider,
+    isOpenTocSlider,
     isOpenRightSlider,
 
     titleList,
@@ -829,7 +833,9 @@ export function getAllStoreStates() {
     isCountStatus: store.isCountStatus,
     isUseIndent: store.isUseIndent,
     isOpenRightSlider: store.isOpenRightSlider,
+    isOpenLeftSlider: store.isOpenLeftSlider,
     isOpenPostSlider: store.isOpenPostSlider,
+    isOpenTocSlider: store.isOpenTocSlider,
     theme: store.theme,
     fontFamily: store.fontFamily,
     fontSize: store.fontSize,

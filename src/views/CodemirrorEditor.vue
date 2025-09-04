@@ -438,11 +438,33 @@ onUnmounted(() => {
       >
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel
-            :default-size="15"
-            :max-size="store.isOpenPostSlider ? 30 : 0"
-            :min-size="store.isOpenPostSlider ? 10 : 0"
+            :default-size="10"
+            :max-size="store.isOpenLeftSlider && store.isOpenPostSlider ? 30 : 0"
+            :min-size="store.isOpenLeftSlider && store.isOpenPostSlider ? 10 : 0"
           >
             <PostSlider />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel
+            :default-size="10"
+            :max-size="store.isOpenLeftSlider && store.isOpenTocSlider ? 30 : 0"
+            :min-size="store.isOpenLeftSlider && store.isOpenTocSlider ? 10 : 0"
+          >
+            <div class="overflow-auto p-4">
+              <h3 class="mb-2 font-bold">
+                目录
+              </h3>
+              <ul>
+                <li
+                  v-for="(item, index) in store.titleList"
+                  :key="index"
+                  class="line-clamp-1 py-1 leading-6 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  :style="{ paddingLeft: `${item.level - 0.5}em` }"
+                >
+                  <a :href="item.url">{{ item.title }}</a>
+                </li>
+              </ul>
+            </div>
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel class="flex">
@@ -504,8 +526,6 @@ onUnmounted(() => {
                   :bottom="store.isMobile ? 90 : 20"
                 />
               </div>
-
-              <FloatingToc />
             </div>
             <CssEditor class="order-2 flex-1" />
             <RightSlider class="order-2" />

@@ -10,6 +10,7 @@ import {
 import { altKey, altSign, ctrlKey, ctrlSign, shiftSign } from '@/config'
 import { useStore } from '@/stores'
 import { addPrefix, processClipboardContent } from '@/utils'
+import TocMenu from '../TocMenu.vue'
 
 const emit = defineEmits([`startCopy`, `endCopy`])
 
@@ -21,7 +22,7 @@ const {
   isCountStatus,
   output,
   primaryColor,
-  isOpenPostSlider,
+  isOpenLeftSlider,
   editor,
 } = storeToRefs(store)
 
@@ -505,6 +506,7 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
     <!-- 左侧菜单：移动端隐藏 -->
     <div class="space-x-2 hidden sm:flex">
       <Menubar class="menubar">
+        <TocMenu />
         <FileDropdown />
 
         <MenubarMenu>
@@ -556,10 +558,10 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
       <Button
         variant="outline"
         size="icon"
-        @click="isOpenPostSlider = !isOpenPostSlider"
+        @click="isOpenLeftSlider = !isOpenLeftSlider"
       >
-        <PanelLeftOpen v-show="!isOpenPostSlider" class="size-4" />
-        <PanelLeftClose v-show="isOpenPostSlider" class="size-4" />
+        <PanelLeftOpen v-show="!isOpenLeftSlider" class="size-4" />
+        <PanelLeftClose v-show="isOpenLeftSlider" class="size-4" />
       </Button>
 
       <!-- 暗色切换 -->
