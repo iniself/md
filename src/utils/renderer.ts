@@ -13,6 +13,8 @@ import type { RendererAPI } from '@/types/renderer-types'
 
 import { getStyleString } from '.'
 import markedAdmonitionExtension from './admonition/index.ts'
+// @ts-expect-error: not ts
+import markedExtendedtables from './extendedtables/index.js'
 import markedAbbr from './MDAbbr'
 import markedAlert from './MDAlert'
 import markedFootnotes from './MDFootnotes'
@@ -508,6 +510,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
   marked.use(markedFootnotes(styledContent(`h4`, `文章注释`), styledContent(`hr`, ``), styles(`link`)))
   marked.use(markedAbbr())
   marked.use(markedZhihuLinkCard(styles(`wx_link`), styles(`link`)))
+  marked.use(markedExtendedtables(styles))
 
   return {
     buildAddition,
