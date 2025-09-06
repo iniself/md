@@ -510,7 +510,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
   marked.use(markedFootnotes(styledContent(`h4`, `文章注释`), styledContent(`hr`, ``), styles(`link`)))
   marked.use(markedAbbr())
   marked.use(markedZhihuLinkCard(styles(`wx_link`), styles(`link`)))
-  marked.use(markedExtendedtables(styles))
+  marked.use(markedExtendedtables(styles, opts.isTableHeaderCenter))
 
   return {
     buildAddition,

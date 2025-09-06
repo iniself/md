@@ -24,7 +24,7 @@ Column widths
 */
 
 /* eslint-disable style/indent-binary-ops */
-export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = true } = {}) {
+export default function (stylesFN, isTableHeaderCenter, { interruptPatterns = [], skipEmptyRows = true } = {}) {
   return {
     extensions: [
       {
@@ -127,6 +127,7 @@ export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = tru
           }
         },
         renderer(token) {
+          const isCenterHeader = isTableHeaderCenter.value
           let i, j, row, cell, col, text
           let output = `<section style="padding:0 8px; max-width: 100%; overflow: auto"><table class="preview-table">`
           const isTable = token.header[0][0].text !== `cols`
@@ -147,6 +148,7 @@ export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = tru
                   token.width[col],
                   stylesFN,
                   isTable,
+                  isCenterHeader,
                 )
                 col += cell.colspan
               }
@@ -172,6 +174,7 @@ export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = tru
                     token.width[col],
                     stylesFN,
                     isTable,
+                    isCenterHeader,
                   )
                   col += cell.colspan
                 }
@@ -188,11 +191,11 @@ export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = tru
   }
 }
 
-function getTableCell(text, cell, type, align, width, stylesFN, isTable) {
+function getTableCell(text, cell, type, align, width, stylesFN, isTable, isCenterHeader) {
   if (!cell.rowspan) {
     return ``
   }
-  const tagStyle = isTable ? stylesFN(`td`) : stylesFN(`td`, `;border: none`)
+  const tagStyle = isTable ? (type === `th` && isCenterHeader ? stylesFN(`td`, `;text-align: center`) : stylesFN(`td`)) : stylesFN(`td`, `;border: none`)
   const tag = `<${type} ${tagStyle}`
             + `${cell.colspan > 1 ? ` colspan=${cell.colspan}` : ``}`
             + `${cell.rowspan > 1 ? ` rowspan=${cell.rowspan}` : ``}`
