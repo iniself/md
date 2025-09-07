@@ -116,8 +116,8 @@ export const useStore = defineStore(`store`, () => {
   const editorContent = useStorage(`__editor_content`, DEFAULT_CONTENT)
 
   const isOpenRightSlider = useStorage(addPrefix(`is_open_right_slider`), false)
-  const isOpenLeftSlider = useStorage(addPrefix(`is_open_left_slider`), false)
-  const isOpenPostSlider = useStorage(addPrefix(`is_open_post_slider`), false)
+  const isOpenLeftSlider = useStorage(addPrefix(`is_open_left_slider`), true)
+  const isOpenPostSlider = useStorage(addPrefix(`is_open_post_slider`), true)
   const isOpenTocSlider = useStorage(addPrefix(`is_open_toc_slider`), false)
 
   /*******************************
@@ -249,7 +249,7 @@ export const useStore = defineStore(`store`, () => {
   watch(currentPostId, () => {
     const post = getPostById(currentPostId.value)
     if (post)
-      toRaw(editor.value!).setValue(post.content)
+      editor.value && toRaw(editor.value).setValue(post.content)
   })
 
   onMounted(() => {

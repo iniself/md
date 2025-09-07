@@ -20,11 +20,11 @@ const store = useStore()
         }
       "
     >
-      <template v-if="store.isOpenTocSlider">
+      <template v-if="store.isOpenLeftSlider && store.isOpenTocSlider">
         <TableOfContents class="mr-1 size-5" />
         文章大纲
       </template>
-      <template v-if="store.isOpenPostSlider">
+      <template v-if="store.isOpenLeftSlider && store.isOpenPostSlider">
         <ListOrdered class="mr-1 size-5" />
         文件列表
       </template>
