@@ -128,7 +128,7 @@ export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = tru
         },
         renderer(token) {
           const store = useStore() // eslint-disable-line no-undef
-          const { isCenterHeader } = storeToRefs(store) // eslint-disable-line no-undef
+          const { isCenterHeader, primaryColor } = storeToRefs(store) // eslint-disable-line no-undef
           let i, j, row, cell, col, text
           let output = `<section style="padding:0 8px; max-width: 100%; overflow: auto"><table class="preview-table">`
           const isTable = token.header[0][0].text !== `cols`
@@ -150,6 +150,7 @@ export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = tru
                   stylesFN,
                   isTable,
                   isCenterHeader.value,
+                  primaryColor.value,
                 )
                 col += cell.colspan
               }
@@ -176,6 +177,7 @@ export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = tru
                     stylesFN,
                     isTable,
                     isCenterHeader.value,
+                    primaryColor.value,
                   )
                   col += cell.colspan
                 }
@@ -192,11 +194,15 @@ export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = tru
   }
 }
 
-function getTableCell(text, cell, type, align, width, stylesFN, isTable, isCenterHeader) {
+function getTableCell(text, cell, type, align, width, stylesFN, isTable, isCenterHeader, primaryColor) {
   if (!cell.rowspan) {
     return ``
   }
-  const tagStyle = isTable ? (type === `th` && isCenterHeader ? stylesFN(`td`, `;text-align: center`) : stylesFN(`td`)) : stylesFN(`td`, `;border: none`)
+  const thCenterStyle = stylesFN(`th`, `;text-align: center; background-color: ${hexToRgba(primaryColor, 0.05)}`)
+  const thLeftStyle = stylesFN(`th`, `; background-color: ${hexToRgba(primaryColor, 0.05)}`)
+  const tdWithBoderStyle = stylesFN(`td`)
+  const tdNotBoderStyle = stylesFN(`td`, `;border: none`)
+  const tagStyle = isTable ? (type === `th` ? (isCenterHeader ? thCenterStyle : thLeftStyle) : tdWithBoderStyle) : tdNotBoderStyle
   const tag = `<${type} ${tagStyle}`
             + `${cell.colspan > 1 ? ` colspan=${cell.colspan}` : ``}`
             + `${cell.rowspan > 1 ? ` rowspan=${cell.rowspan}` : ``}`
@@ -276,4 +282,22 @@ function splitCells(tableRow, count, prevRow = [], skipEmptyRows) {
     }
   }
   return cells
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace(/^#/, ``)
+  if (hex.length === 3) {
+    hex = hex.split(``).map(c => c + c).join(``)
+  }
+  const num = Number.parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255,
+  }
+}
+
+function hexToRgba(hex, alpha = 1) {
+  const { r, g, b } = hexToRgb(hex)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
