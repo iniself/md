@@ -24,7 +24,7 @@ Column widths
 */
 
 /* eslint-disable style/indent-binary-ops */
-export default function (stylesFN, isTableHeaderCenter, { interruptPatterns = [], skipEmptyRows = true } = {}) {
+export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = true } = {}) {
   return {
     extensions: [
       {
@@ -127,7 +127,8 @@ export default function (stylesFN, isTableHeaderCenter, { interruptPatterns = []
           }
         },
         renderer(token) {
-          const isCenterHeader = isTableHeaderCenter.value
+          const store = useStore() // eslint-disable-line no-undef
+          const { isCenterHeader } = storeToRefs(store) // eslint-disable-line no-undef
           let i, j, row, cell, col, text
           let output = `<section style="padding:0 8px; max-width: 100%; overflow: auto"><table class="preview-table">`
           const isTable = token.header[0][0].text !== `cols`
@@ -148,7 +149,7 @@ export default function (stylesFN, isTableHeaderCenter, { interruptPatterns = []
                   token.width[col],
                   stylesFN,
                   isTable,
-                  isCenterHeader,
+                  isCenterHeader.value,
                 )
                 col += cell.colspan
               }
@@ -174,7 +175,7 @@ export default function (stylesFN, isTableHeaderCenter, { interruptPatterns = []
                     token.width[col],
                     stylesFN,
                     isTable,
-                    isCenterHeader,
+                    isCenterHeader.value,
                   )
                   col += cell.colspan
                 }

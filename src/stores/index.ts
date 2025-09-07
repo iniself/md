@@ -360,7 +360,6 @@ export const useStore = defineStore(`store`, () => {
     size: fontSize.value,
     isUseIndent: isUseIndent.value,
     isMacCodeBlock: isMacCodeBlock.value,
-    isTableHeaderCenter: isCenterHeader,
   })
 
   const readingTime = reactive({
@@ -597,9 +596,6 @@ export const useStore = defineStore(`store`, () => {
 
   const centerHeaderChanged = withAfterRefresh(() => {
     toggleHeaderStyle()
-    renderer.setOptions({
-      isTableHeaderCenter: isCenterHeader,
-    })
   })
 
   const aiToolboxChanged = withAfterRefresh(() => {
