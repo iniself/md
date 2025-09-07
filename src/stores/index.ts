@@ -82,7 +82,11 @@ export const useStore = defineStore(`store`, () => {
   const isUseIndent = useStorage(addPrefix(`use_indent`), false)
   const toggleUseIndent = useToggle(isUseIndent)
 
-  // // 表头文字是否居中
+  // 段落对齐方式
+  const isJustify = useStorage(`isJustify`, false)
+  const toggleJustify = useToggle(isJustify)
+
+  // 表头文字是否居中
   const isCenterHeader = useStorage(`isCenterHeader`, true)
   const toggleHeaderStyle = useToggle(isCenterHeader)
 
@@ -594,6 +598,10 @@ export const useStore = defineStore(`store`, () => {
     toggleUseIndent()
   })
 
+  const justifyChanged = withAfterRefresh(() => {
+    toggleJustify()
+  })
+
   const centerHeaderChanged = withAfterRefresh(() => {
     toggleHeaderStyle()
   })
@@ -714,6 +722,9 @@ export const useStore = defineStore(`store`, () => {
     publishChanged,
     isUseIndent,
     useIndentChanged,
+
+    isJustify,
+    justifyChanged,
 
     isCenterHeader,
     centerHeaderChanged,
@@ -843,6 +854,7 @@ export function getAllStoreStates() {
     showPublish: store.showPublish,
     isCountStatus: store.isCountStatus,
     isUseIndent: store.isUseIndent,
+    isJustify: store.isJustify,
     isCenterHeader: store.isCenterHeader,
     isOpenRightSlider: store.isOpenRightSlider,
     isOpenLeftSlider: store.isOpenLeftSlider,

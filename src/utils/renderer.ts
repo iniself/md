@@ -304,11 +304,18 @@ export function initRenderer(opts: IOpts): RendererAPI {
     },
 
     paragraph({ tokens }: Tokens.Paragraph): string {
+      const store = useStore()
+      const { isJustify } = storeToRefs(store)
+
       const text = this.parser.parseInline(tokens)
       const isFigureImage = text.includes(`<figure`) && text.includes(`<img`)
       const isEmpty = text.trim() === ``
       if (isFigureImage || isEmpty) {
         return text
+      }
+      if (isJustify.value) {
+        // 两端对齐
+        return `<p lang="zh" ${styles(`p`, `;text-align: justify;hyphens: auto; word-wrap: break-word !important`)}>${marked.parseInline(text)}</p>`
       }
       return styledContent(`p`, text)
     },

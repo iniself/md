@@ -256,6 +256,25 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         </div>
       </div>
       <div class="space-y-2">
+        <h2>段落对齐</h2>
+        <div class="grid grid-cols-5 justify-items-center gap-2">
+          <Button
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': !store.isJustify,
+            }" @click="store.isJustify && store.justifyChanged()"
+          >
+            靠左对齐
+          </Button>
+          <Button
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': store.isJustify,
+            }" @click="!store.isJustify && store.justifyChanged()"
+          >
+            两端对齐
+          </Button>
+        </div>
+      </div>
+      <div class="space-y-2">
         <h2>表头格式</h2>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button
