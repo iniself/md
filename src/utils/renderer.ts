@@ -315,7 +315,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
       }
       if (isJustify.value) {
         // 两端对齐
-        return `<p lang="zh" ${styles(`p`, `;text-align: justify;hyphens: auto; word-wrap: break-word !important`)}>${marked.parseInline(text)}</p>`
+        return `<p lang="zh"  ${/^h\d$/.test(`p`) ? `data-heading="true"` : ``} ${styles(`p`, `;text-align: justify;hyphens: auto; word-wrap: break-word !important`)}>${text}</p>`
       }
       return styledContent(`p`, text)
     },
