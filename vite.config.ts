@@ -11,7 +11,10 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default defineConfig({
-  base: process.env.SERVER_ENV === `NETLIFY` ? `/` : `/md/`,
+  base:
+    process.env.SERVER_ENV === `NETLIFY_WEB`
+      ? `/`
+      : process.env.SERVER_ENV === `NETLIFY_ELECTRON` ? `./` : `/md/`,
   define: { process },
   envPrefix: [`VITE_`, `CF_`],
   plugins: [
@@ -40,6 +43,10 @@ export default defineConfig({
   },
   css: { devSourcemap: true },
   build: {
+    outDir:
+      process.env.SERVER_ENV === `NETLIFY_WEB`
+        ? `dist-web`
+        : process.env.SERVER_ENV === `NETLIFY_ELECTRON` ? `dist-electron` : `dist-web-md/md`,
     rollupOptions: {
       output: {
         chunkFileNames: `static/js/md-[name]-[hash].js`,
