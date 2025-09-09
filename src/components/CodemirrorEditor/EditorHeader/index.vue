@@ -161,6 +161,31 @@ function inlineAdmonitionForWechat(container: HTMLElement) {
       return
 
     const computed = window.getComputedStyle(title)
+    // 这里应该给这个 title 的 margin-top 用 compute 赋值
+    const propsToKeep = [
+      `color`,
+      `background`,
+      `font-weight`,
+      `font-style`,
+      `text-decoration`,
+      `font-size`,
+      `font-family`,
+      `line-height`,
+      `white-space`,
+      `overflow`,
+      `display`,
+      `padding`,
+      `margin`,
+      `border-radius`,
+    ]
+
+    const inlineStyle = propsToKeep
+      .map((prop) => {
+        const val = computed.getPropertyValue(prop)
+        return val ? `${prop}: ${val};` : ``
+      })
+      .join(` `)
+    title.setAttribute(`style`, `${title.getAttribute(`style`) || ``}; ${inlineStyle}`)
 
     // 获取 --icon 值
     const iconValue = computed.getPropertyValue(`--icon`)
@@ -279,9 +304,8 @@ async function copy() {
       convertHighlightToInlineStyles(clipboardDiv)
       // 新增：修正Admonition的图标。内联样式已经通过 utils/index.ts mergeCss 中的 juice 进行了处理
       inlineAdmonitionForWechat(clipboardDiv)
-      const temp = clipboardDiv.innerHTML
 
-      if (copyMode.value === `txt` || copyMode.value === `zhihu`) {
+      if (copyMode.value === `txt` || copyMode.value === `zhihu` || copyMode.value === `html`) {
         const rawHtml = clipboardDiv.innerHTML
         const parser = new DOMParser()
         const doc = parser.parseFromString(rawHtml, `text/html`)
@@ -291,7 +315,7 @@ async function copy() {
         const tempDoc = new DOMParser().parseFromString(cleanedHtml, `text/html`)
         let cleanedHtmlFinal = ``
 
-        if (copyMode.value === `txt`) {
+        if (copyMode.value === `txt` || copyMode.value === `html`) {
           tempDoc.querySelectorAll(`a`).forEach((a) => {
             const href = a.getAttribute(`href`)
             if (href && href.startsWith(`#`)) {
@@ -390,20 +414,46 @@ async function copy() {
           cleanedHtmlFinal = tempDoc.body.innerHTML.replace(/(<li\b[^>]*>\s*)\d+\.\s*/gi, `$1`).replace(/(<li\b[^>]*>\s*)•\s*/gi, `$1`).replace(/(<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>)(?:\s*<br\s*\/?>\s*(?=<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>))+/gis, `$1`)
         }
         const plainText = doc.body.textContent || ``
-        if (navigator.clipboard && navigator.clipboard.write) {
-          navigator.clipboard.write([
-            new ClipboardItem({
-              'text/html': new Blob([cleanedHtmlFinal], { type: `text/html` }),
-              'text/plain': new Blob([plainText], { type: `text/plain` }),
-            }),
-          ]).then(() => {
-          }).catch((err) => {
+        if (copyMode.value === `txt`) {
+          if (navigator.clipboard && navigator.clipboard.write) {
+            navigator.clipboard.write([
+              new ClipboardItem({
+                'text/html': new Blob([cleanedHtmlFinal], { type: `text/html` }),
+                'text/plain': new Blob([plainText], { type: `text/plain` }),
+              }),
+            ]).then(() => {
+            }).catch((err) => {
+              fallbackCopyWithExecCommand()
+              console.error(err)
+            })
+          }
+          else {
             fallbackCopyWithExecCommand()
-            console.error(err)
-          })
+          }
+          // 输出提示
+          toast.success(`已复制渲染后的内容到剪贴板，可直接到公众号后台粘贴。`)
+        }
+        else if (copyMode.value === `zhihu`) {
+          if (navigator.clipboard && navigator.clipboard.write) {
+            navigator.clipboard.write([
+              new ClipboardItem({
+                'text/html': new Blob([cleanedHtmlFinal], { type: `text/html` }),
+                'text/plain': new Blob([plainText], { type: `text/plain` }),
+              }),
+            ]).then(() => {
+            }).catch((err) => {
+              fallbackCopyWithExecCommand()
+              console.error(err)
+            })
+          }
+          else {
+            fallbackCopyWithExecCommand()
+          }
+          toast.success(`已复制渲染后的内容到剪贴板，可直接到知乎文章中粘贴。`)
         }
         else {
-          fallbackCopyWithExecCommand()
+          await copyContent(cleanedHtmlFinal)
+          toast.success(`已复制 HTML 源码，请进行下一步操作。`)
         }
 
         function fallbackCopyWithExecCommand() {
@@ -422,16 +472,6 @@ async function copy() {
         nextTick(() => toggleDark())
       }
 
-      if (copyMode.value === `html`) {
-        await copyContent(temp)
-      }
-
-      // 输出提示
-      toast.success(
-        copyMode.value === `html`
-          ? `已复制 HTML 源码，请进行下一步操作。`
-          : `已复制渲染后的内容到剪贴板，可直接到公众号后台粘贴。`,
-      )
       window.dispatchEvent(
         new CustomEvent(`copyToMp`, {
           detail: {
