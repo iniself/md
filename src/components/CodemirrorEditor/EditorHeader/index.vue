@@ -338,7 +338,34 @@ async function copy() {
               a.replaceWith(span)
             }
           })
+
           cleanedHtmlFinal = tempDoc.body.innerHTML
+          if (copyMode.value === `html`) {
+            // 给 html 加上宽度否则视觉上太宽。移动端不加
+            const head = tempDoc.head
+            const metaCharset = tempDoc.createElement(`meta`)
+            metaCharset.setAttribute(`charset`, `UTF-8`)
+            head.appendChild(metaCharset)
+            const metaViewport = tempDoc.createElement(`meta`)
+            metaViewport.setAttribute(`name`, `viewport`)
+            metaViewport.setAttribute(`content`, `width=device-width, initial-scale=1.0`)
+            head.appendChild(metaViewport)
+            const style = tempDoc.createElement(`style`)
+            style.textContent = `
+            body {
+              margin: 0 auto;
+              padding: 1rem;
+            }
+            @media (min-width: 768px) {
+              body {
+                max-width: 900px;
+                margin: 0 auto;
+                }
+              }
+            `
+            head.appendChild(style)
+            cleanedHtmlFinal = tempDoc.documentElement.outerHTML
+          }
         }
         else if (copyMode.value === `zhihu`) {
           if (store.isCiteStatus) {
