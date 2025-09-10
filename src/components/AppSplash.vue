@@ -35,7 +35,7 @@ onMounted(() => {
   background-color: hsl(var(--background));
 
   &::before {
-    content: url('../assets/images/favicon.png');
+    content: url('../assets/images/auilog.png');
     width: 100px;
     height: 100px;
     margin-bottom: 26px;

@@ -631,7 +631,7 @@ onUnmounted(() => {
     .loading__img {
       width: 75px;
       height: 75px;
-      background: url('../assets/images/favicon.png') no-repeat;
+      background: url('../assets/images/auilog.png') no-repeat;
       margin: 1em auto;
       background-size: cover;
     }
