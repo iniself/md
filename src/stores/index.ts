@@ -126,7 +126,7 @@ export const useStore = defineStore(`store`, () => {
   const posts = useStorage<Post[]>(addPrefix(`posts`), [
     {
       id: uuid(),
-      title: `内容1`,
+      title: `Markdown语法`,
       content: DEFAULT_CONTENT,
       history: [
         { datetime: new Date().toLocaleString(`zh-cn`), content: DEFAULT_CONTENT },
