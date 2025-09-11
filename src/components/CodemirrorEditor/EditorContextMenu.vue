@@ -2,8 +2,10 @@
 import { altSign, ctrlSign, shiftSign } from '@/config'
 import { useDisplayStore, useStore } from '@/stores'
 
+const emit = defineEmits([`startCopy`, `endCopy`])
+
 const {
-  exportEditorContent2HTML,
+  export2HTML,
   exportEditorContent2MD,
   formatContent,
   importDefaultContent,
@@ -57,7 +59,7 @@ const importMarkdownContent = useImportMarkdownContent()
       <ContextMenuItem inset @click="exportEditorContent2MD()">
         导出 .md 文档
       </ContextMenuItem>
-      <ContextMenuItem inset @click="exportEditorContent2HTML()">
+      <ContextMenuItem inset @click="export2HTML(emit)">
         导出 .html
       </ContextMenuItem>
       <ContextMenuItem inset @click="downloadAsCardImage()">

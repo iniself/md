@@ -23,6 +23,7 @@ import {
 } from '@/utils'
 import { css2json, customCssWithTemplate, customizeTheme, postProcessHtml, renderMarkdown } from '@/utils/'
 import { copyPlain } from '@/utils/clipboard'
+import copy from '@/utils/contentExporter'
 
 import { initRenderer } from '@/utils/renderer'
 
@@ -624,6 +625,13 @@ export const useStore = defineStore(`store`, () => {
     document.querySelector(`#output`)!.innerHTML = output.value
   }
 
+  async function export2HTML(emit: any) {
+    // 放入拷贝 html 的逻辑代码
+    const title = posts.value[currentPostIndex.value].title
+    const fullHtml = await copy(`outhtml`, emit)
+    downloadFile(fullHtml as string, `${sanitizeTitle(title)}.html`, `text/html`)
+  }
+
   // 导出编辑器内容为无样式 HTML
   const exportEditorContent2PureHTML = () => {
     exportPureHTML(editor.value!.getValue(), posts.value[currentPostIndex.value].title)
@@ -757,6 +765,7 @@ export const useStore = defineStore(`store`, () => {
 
     formatContent,
     exportEditorContent2HTML,
+    export2HTML,
     exportEditorContent2PureHTML,
     exportEditorContent2MD,
     exportEditorContent2PDF,

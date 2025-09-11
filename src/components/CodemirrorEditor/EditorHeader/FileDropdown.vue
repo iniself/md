@@ -2,6 +2,8 @@
 import { Download, FileCode, FileCog, FileText, Upload } from 'lucide-vue-next'
 import { useStore } from '@/stores'
 
+const emit = defineEmits([`startCopy`, `endCopy`])
+
 const store = useStore()
 
 const {
@@ -10,7 +12,7 @@ const {
 } = storeToRefs(store)
 
 const {
-  exportEditorContent2HTML,
+  export2HTML,
   exportEditorContent2PureHTML,
   exportEditorContent2MD,
   downloadAsCardImage,
@@ -36,7 +38,7 @@ const importMarkdownContent = useImportMarkdownContent()
         <Download class="mr-2 size-4" />
         导出 .md
       </MenubarItem>
-      <MenubarItem @click="exportEditorContent2HTML()">
+      <MenubarItem @click="export2HTML(emit)">
         <FileCode class="mr-2 size-4" />
         导出 .html
       </MenubarItem>

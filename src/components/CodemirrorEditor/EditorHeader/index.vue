@@ -14,6 +14,15 @@ import TocMenu from '../TocMenu.vue'
 
 const emit = defineEmits([`startCopy`, `endCopy`])
 
+function fileDropDownStartCopy() {
+  emit(`startCopy`)
+}
+
+// 拷贝结束
+function fileDropDownEndCopy() {
+  emit(`endCopy`)
+}
+
 const store = useStore()
 
 const {
@@ -114,6 +123,7 @@ const formatItems = [
 
 const copyMode = useStorage(addPrefix(`copyMode`), `txt`)
 
+// should merge these codes into contentExporter.ts (metaer)
 const { copy: copyContent } = useClipboard({
   legacy: true,
 })
@@ -341,30 +351,7 @@ async function copy() {
 
           cleanedHtmlFinal = tempDoc.body.innerHTML
           if (copyMode.value === `html`) {
-            // 给 html 加上宽度否则视觉上太宽。移动端不加
-            const head = tempDoc.head
-            const metaCharset = tempDoc.createElement(`meta`)
-            metaCharset.setAttribute(`charset`, `UTF-8`)
-            head.appendChild(metaCharset)
-            const metaViewport = tempDoc.createElement(`meta`)
-            metaViewport.setAttribute(`name`, `viewport`)
-            metaViewport.setAttribute(`content`, `width=device-width, initial-scale=1.0`)
-            head.appendChild(metaViewport)
-            const style = tempDoc.createElement(`style`)
-            style.textContent = `
-            body {
-              margin: 0 auto;
-              padding: 1rem;
-            }
-            @media (min-width: 768px) {
-              body {
-                max-width: 900px;
-                margin: 0 auto;
-                }
-              }
-            `
-            head.appendChild(style)
-            cleanedHtmlFinal = tempDoc.documentElement.outerHTML
+            // 仅编辑器部分的 html 代码，你可以拷贝到你其他 html 代码中
           }
         }
         else if (copyMode.value === `zhihu`) {
@@ -564,6 +551,7 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
 
   a.replaceWith(cardDiv)
 }
+// merge end
 </script>
 
 <template>
@@ -574,7 +562,11 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
     <div class="space-x-2 hidden sm:flex">
       <Menubar class="menubar">
         <TocMenu />
-        <FileDropdown />
+        <!-- <FileDropdown /> -->
+        <FileDropdown
+          @start-copy="fileDropDownStartCopy"
+          @end-copy="fileDropDownEndCopy"
+        />
 
         <MenubarMenu>
           <MenubarTrigger> 格式</MenubarTrigger>
