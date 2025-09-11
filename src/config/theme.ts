@@ -17,7 +17,7 @@ const defaultTheme: Theme = {
       'border-bottom': `2px solid var(--md-primary-color)`,
       'margin': `2em auto 1em`,
       'color': `hsl(var(--foreground))`,
-      'font-size': `1.2em`,
+      'font-size': `1.35em`,
       'font-weight': `bold`,
       'text-align': `center`,
     },
