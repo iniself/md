@@ -176,11 +176,20 @@ function telegramSubmit(values: any) {
 // 当前是否为网页（http/https 协议）
 const isWebsite = window.location.protocol.startsWith(`http`)
 
+// 是否 Electron 环境
+const isElectron
+  = typeof navigator === `object`
+    && typeof navigator.userAgent === `string`
+    && navigator.userAgent.toLowerCase().includes(`electron`)
+// 是否 Tauri 环境
+const isTauri = typeof window !== `undefined` && `__TAURI__` in window
+
 // Cloudflare Pages 环境
 const isCfPage = import.meta.env.CF_PAGES === `1`
 
 // 插件模式运行（如 chrome-extension://）
-const isPluginMode = !isWebsite
+// const isPluginMode = !isWebsite
+const isPluginMode = !isWebsite && !isElectron && !isTauri
 
 // 是否需要填写 proxyOrigin（只在 非插件 且 非CF页面 时需要）
 const isProxyRequired = computed(() => {

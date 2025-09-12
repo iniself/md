@@ -12,6 +12,14 @@ import fetch from '@/utils/fetch'
 import * as tokenTools from '@/utils/tokenTools'
 import { base64encode, safe64, utf16to8 } from '@/utils/tokenTools'
 
+// 是否 Electron 环境
+const isElectron
+  = typeof navigator === `object`
+    && typeof navigator.userAgent === `string`
+    && navigator.userAgent.toLowerCase().includes(`electron`)
+// 是否 Tauri 环境
+const isTauri = typeof window !== `undefined` && `__TAURI__` in window
+
 function getConfig(useDefault: boolean, platform: string) {
   if (useDefault) {
     // load default config file
@@ -378,7 +386,7 @@ async function mpFileUpload(file: File) {
 
   let imageUrl = res.url
   const store = useStore()
-  if (proxyOrigin && window.location.href.startsWith(`http`) && store.useWsrv) {
+  if (proxyOrigin && (window.location.href.startsWith(`http`) || isElectron || isTauri) && store.useWsrv) {
     imageUrl = `https://wsrv.nl?url=${encodeURIComponent(imageUrl)}`
   }
 
