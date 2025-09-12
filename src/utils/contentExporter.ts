@@ -218,62 +218,82 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
           let cleanedHtmlFinal = ``
 
           if (mode === `txt` || mode === `html` || mode === `outhtml`) {
-            tempDoc.querySelectorAll(`a`).forEach((a) => {
-              const href = a.getAttribute(`href`)
-              if (href && href.startsWith(`#`)) {
-                a.setAttribute(`data-anchor-id`, href.slice(1))
-                a.removeAttribute(`href`)
-              }
-              else if (href && href.startsWith(`http`) && !href.startsWith(`https://mp.weixin.qq.com`)) {
-                const span = tempDoc.createElement(`span`)
-                span.className = a.className
-                span.style.cssText = a.style.cssText
-
-                Array.from(a.attributes).forEach((attr) => {
-                  if (attr.name.startsWith(`data-`)) {
-                    span.setAttribute(attr.name, attr.value)
-                  }
-                })
-                while (a.firstChild) {
-                  span.appendChild(a.firstChild)
+            if (mode === `txt`) {
+              tempDoc.querySelectorAll(`a`).forEach((a) => {
+                const href = a.getAttribute(`href`)
+                if (href && href.startsWith(`#`)) {
+                  a.setAttribute(`data-anchor-id`, href.slice(1))
+                  a.removeAttribute(`href`)
                 }
-                a.replaceWith(span)
-              }
-            })
+                else if (href && href.startsWith(`http`) && !href.startsWith(`https://mp.weixin.qq.com`)) {
+                  const span = tempDoc.createElement(`span`)
+                  span.className = a.className
+                  span.style.cssText = a.style.cssText
+
+                  Array.from(a.attributes).forEach((attr) => {
+                    if (attr.name.startsWith(`data-`)) {
+                      span.setAttribute(attr.name, attr.value)
+                    }
+                  })
+                  while (a.firstChild) {
+                    span.appendChild(a.firstChild)
+                  }
+                  a.replaceWith(span)
+                }
+              })
+            }
 
             cleanedHtmlFinal = tempDoc.body.innerHTML
             if (mode === `html`) {
               // 仅编辑器部分的 html 代码，你可以拷贝到你其他 html 代码中
+              // 需要恢复正常的链接！
+              if (isCiteStatus.value) {
+                citeStatusChanged()
+                changeCiteStatusWhenCopy = true
+                await copy(mode, emit)
+                return
+              }
             }
             if (mode === `outhtml`) {
               // 给 html 加上宽度否则视觉上太宽。移动端不加
-              const head = tempDoc.head
-              const metaCharset = tempDoc.createElement(`meta`)
-              metaCharset.setAttribute(`charset`, `UTF-8`)
-              head.appendChild(metaCharset)
-              const metaViewport = tempDoc.createElement(`meta`)
-              metaViewport.setAttribute(`name`, `viewport`)
-              metaViewport.setAttribute(`content`, `width=device-width, initial-scale=1.0`)
-              head.appendChild(metaViewport)
-              const style = tempDoc.createElement(`style`)
-              style.textContent = `
-                body {
-                  margin: 0 auto;
-                  padding: 1rem;
-                }
-                @media (min-width: 768px) {
+              // 这里运行了两次，导致citeStatusChanged()生成了一次，然后又调回去生成了一次
+              if (isCiteStatus.value) {
+                citeStatusChanged()
+                changeCiteStatusWhenCopy = true
+                const exportHtmlFile = await copy(mode, emit)
+                toast.success(`已导出 HTML`)
+                resolve(exportHtmlFile)
+              }
+              if (!isCiteStatus.value) {
+                const head = tempDoc.head
+                const metaCharset = tempDoc.createElement(`meta`)
+                metaCharset.setAttribute(`charset`, `UTF-8`)
+                head.appendChild(metaCharset)
+                const metaViewport = tempDoc.createElement(`meta`)
+                metaViewport.setAttribute(`name`, `viewport`)
+                metaViewport.setAttribute(`content`, `width=device-width, initial-scale=1.0`)
+                head.appendChild(metaViewport)
+                const style = tempDoc.createElement(`style`)
+                style.textContent = `
                   body {
-                  max-width: 900px;
-                  margin: 0 auto;
+                    margin: 0 auto;
+                    padding: 1rem;
                   }
-                }
-                `
-              head.appendChild(style)
-              cleanedHtmlFinal = tempDoc.documentElement.outerHTML
+                  @media (min-width: 768px) {
+                    body {
+                    max-width: 900px;
+                    margin: 0 auto;
+                    }
+                  }
+                  `
+                head.appendChild(style)
+                cleanedHtmlFinal = tempDoc.documentElement.outerHTML
+                resolve(cleanedHtmlFinal)
+              }
             }
           }
           else if (mode === `zhihu`) {
-            if (isCiteStatus) {
+            if (isCiteStatus.value) {
               citeStatusChanged()
               changeCiteStatusWhenCopy = true
               await copy(mode, emit)
@@ -346,6 +366,8 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
             cleanedHtmlFinal = tempDoc.body.innerHTML.replace(/(<li\b[^>]*>\s*)\d+\.\s*/gi, `$1`).replace(/(<li\b[^>]*>\s*)•\s*/gi, `$1`).replace(/(<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>)(?:\s*<br\s*\/?>\s*(?=<span[^>]+RichText-LinkCardContainer[^>]*>.*?<\/span>))+/gis, `$1`)
           }
           const plainText = doc.body.textContent || ``
+
+          // start copy
           if (mode === `txt`) {
             if (navigator.clipboard && navigator.clipboard.write) {
               navigator.clipboard.write([
@@ -386,10 +408,6 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
           else if (mode === `html`) {
             await copyContent(cleanedHtmlFinal)
             toast.success(`已复制 HTML 源码，请进行下一步操作。`)
-          }
-          else if (mode === `outhtml`) {
-            toast.success(`已导出 HTML`)
-            resolve(cleanedHtmlFinal)
           }
 
           function fallbackCopyWithExecCommand() {

@@ -326,33 +326,42 @@ async function copy() {
         let cleanedHtmlFinal = ``
 
         if (copyMode.value === `txt` || copyMode.value === `html`) {
-          tempDoc.querySelectorAll(`a`).forEach((a) => {
-            const href = a.getAttribute(`href`)
-            if (href && href.startsWith(`#`)) {
-              a.setAttribute(`data-anchor-id`, href.slice(1))
-              a.removeAttribute(`href`)
-            }
-            else if (href && href.startsWith(`http`) && !href.startsWith(`https://mp.weixin.qq.com`)) {
-              const span = tempDoc.createElement(`span`)
-              span.className = a.className
-              span.style.cssText = a.style.cssText
-
-              Array.from(a.attributes).forEach((attr) => {
-                if (attr.name.startsWith(`data-`)) {
-                  span.setAttribute(attr.name, attr.value)
-                }
-              })
-              while (a.firstChild) {
-                span.appendChild(a.firstChild)
+          if (copyMode.value === `txt`) {
+            tempDoc.querySelectorAll(`a`).forEach((a) => {
+              const href = a.getAttribute(`href`)
+              if (href && href.startsWith(`#`)) {
+                a.setAttribute(`data-anchor-id`, href.slice(1))
+                a.removeAttribute(`href`)
               }
-              a.replaceWith(span)
-            }
-          })
+              else if (href && href.startsWith(`http`) && !href.startsWith(`https://mp.weixin.qq.com`)) {
+                const span = tempDoc.createElement(`span`)
+                span.className = a.className
+                span.style.cssText = a.style.cssText
 
-          cleanedHtmlFinal = tempDoc.body.innerHTML
+                Array.from(a.attributes).forEach((attr) => {
+                  if (attr.name.startsWith(`data-`)) {
+                    span.setAttribute(attr.name, attr.value)
+                  }
+                })
+                while (a.firstChild) {
+                  span.appendChild(a.firstChild)
+                }
+                a.replaceWith(span)
+              }
+            })
+          }
+
           if (copyMode.value === `html`) {
             // 仅编辑器部分的 html 代码，你可以拷贝到你其他 html 代码中
+            // 需要恢复正常的链接！
+            if (store.isCiteStatus) {
+              store.citeStatusChanged()
+              changeCiteStatusWhenCopy = true
+              await copy()
+              return
+            }
           }
+          cleanedHtmlFinal = tempDoc.body.innerHTML
         }
         else if (copyMode.value === `zhihu`) {
           if (store.isCiteStatus) {
