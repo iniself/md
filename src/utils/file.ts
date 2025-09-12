@@ -119,6 +119,7 @@ async function ghFileUpload(content: string, filename: string) {
 // -----------------------------------------------------------------------
 
 async function giteeUpload(content: any, filename: string) {
+  const store = useStore()
   const useDefault = localStorage.getItem(`imgHost`) === `default`
   const { username, repo, branch, accessToken } = getConfig(useDefault, `gitee`)
   const dir = getDir()
@@ -146,6 +147,9 @@ async function giteeUpload(content: any, filename: string) {
     },
   })
   res.content = res.data?.content || res.content
+  if (!store.useWsrv) {
+    return res.content.download_url
+  }
   return `https://wsrv.nl?url=${encodeURIComponent(res.content.download_url)}`
 }
 
@@ -373,7 +377,8 @@ async function mpFileUpload(file: File) {
   }
 
   let imageUrl = res.url
-  if (proxyOrigin && window.location.href.startsWith(`http`)) {
+  const store = useStore()
+  if (proxyOrigin && window.location.href.startsWith(`http`) && store.useWsrv) {
     imageUrl = `https://wsrv.nl?url=${encodeURIComponent(imageUrl)}`
   }
 

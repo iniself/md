@@ -11,6 +11,7 @@ import readingTime from 'reading-time'
 import type { ExtendedProperties, IOpts, ThemeStyles } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 
+import { delwsrv } from '@/utils'
 import { getStyleString } from '.'
 import markedAdmonitionExtension from './admonition/index.ts'
 // @ts-expect-error: not ts
@@ -400,11 +401,16 @@ export function initRenderer(opts: IOpts): RendererAPI {
     },
 
     image({ href, title, text }: Tokens.Image): string {
+      const store = useStore()
       const styleParts = []
 
       let { relHref, width, height, fit } = extractImageInfo(href)
       if (relHref) {
         href = relHref.trim()
+        if (!store.useWsrv) {
+          href = delwsrv(href)
+        }
+
         const isNumeric = (value: string) => /^-?\d+(?:\.\d+)?$/.test(value)
         width = width?.trim() || ``
         height = height?.trim() || ``

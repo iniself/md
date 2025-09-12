@@ -640,3 +640,19 @@ export function modifyHtmlContent(content: string, renderer: RendererAPI): strin
   })
   return postProcessHtml(html, readingTimeResult, renderer)
 }
+
+export function delwsrv(src: string): string {
+  if (src.includes(`wsrv.nl`) && src.includes(`url=`)) {
+    try {
+      const urlParam = new URL(src).searchParams.get(`url`)
+      if (urlParam) {
+        const decoded = decodeURIComponent(urlParam)
+        return decoded
+      }
+    }
+    catch (err) {
+      console.warn(`无法解析图片 URL:`, src, err)
+    }
+  }
+  return src
+}

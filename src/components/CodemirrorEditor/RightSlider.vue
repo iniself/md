@@ -141,6 +141,26 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
       </div>
 
       <div class="space-y-2">
+        <h2>启用 wsrv 图片代理</h2>
+        <div class="grid grid-cols-5 justify-items-center gap-2">
+          <Button
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': store.useWsrv,
+            }" @click="!store.useWsrv && store.useWsrvChanged()"
+          >
+            开启
+          </Button>
+          <Button
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': !store.useWsrv,
+            }" @click="store.useWsrv && store.useWsrvChanged()"
+          >
+            关闭
+          </Button>
+        </div>
+      </div>
+
+      <div class="space-y-2">
         <h2>Mac 代码块</h2>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button

@@ -63,6 +63,10 @@ export const useStore = defineStore(`store`, () => {
   const isCiteStatus = useStorage(`isCiteStatus`, defaultStyleConfig.isCiteStatus)
   const toggleCiteStatus = useToggle(isCiteStatus)
 
+  // 是否启用 wsrv 图片代理
+  const useWsrv = useStorage(`useWsrv`, true)
+  const toggleUseWsrv = useToggle(useWsrv)
+
   // 是否开启 AI 工具箱
   const showAIToolbox = useStorage(`showAIToolbox`, true)
   const toggleAIToolbox = useToggle(showAIToolbox)
@@ -591,6 +595,10 @@ export const useStore = defineStore(`store`, () => {
     toggleCiteStatus()
   })
 
+  const useWsrvChanged = withAfterRefresh(() => {
+    toggleUseWsrv()
+  })
+
   const countStatusChanged = withAfterRefresh(() => {
     toggleCountStatus()
   })
@@ -722,6 +730,8 @@ export const useStore = defineStore(`store`, () => {
     isMacCodeBlock,
     isCiteStatus,
     citeStatusChanged,
+    useWsrv,
+    useWsrvChanged,
     showAIToolbox,
     showAIAssistant,
     showPublish,
@@ -858,6 +868,7 @@ export function getAllStoreStates() {
     isEditOnLeft: store.isEditOnLeft,
     isMacCodeBlock: store.isMacCodeBlock,
     isCiteStatus: store.isCiteStatus,
+    useWsrv: store.useWsrv,
     showAIToolbox: store.showAIToolbox,
     showAIAssistant: store.showAIAssistant,
     showPublish: store.showPublish,
