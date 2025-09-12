@@ -11,7 +11,7 @@ function generateHelpContent() {
   const title = `Markdown语法`
   const parentId = null
   if (store.posts.some(post => post.title === title))
-    return toast.error(`语法文档已存在`)
+    return toast.error(`语法文档已存在。删掉可以重新生成`)
   const newPost: any = {
     id: uuid(),
     title,
