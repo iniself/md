@@ -361,6 +361,11 @@ export function initRenderer(opts: IOpts): RendererAPI {
       return styledContent(`codespan`, escapedText, `code`)
     },
 
+    del({ text }: Tokens.Del): string {
+      const store = useStore()
+      return `<del style="text-decoration-style: double; text-decoration-color:  ${store.primaryColor};">${text}</del>`
+    },
+
     list({ ordered, items, start = 1 }: Tokens.List) {
       listOrderedStack.push(ordered)
       listCounters.push(Number(start))
