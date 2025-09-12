@@ -14,7 +14,7 @@ interface MapContent {
 }
 const fnMap = new Map<string, MapContent>()
 
-export default function markedFootnotes(title: string, hr: string, linkCss: string): MarkedExtension {
+export default function markedFootnotes(styledContent: (styleLabel: string, content: string, tagName?: string) => string, styles: (tag: string, addition?: string) => string): MarkedExtension {
   return {
     extensions: [
       {
@@ -41,6 +41,11 @@ export default function markedFootnotes(title: string, hr: string, linkCss: stri
           return undefined
         },
         renderer(token: Tokens.Generic) {
+          const store = useStore()
+          const tag = `h4`
+          const content = `文章注释`
+          const title = `<${tag} ${/^h\d$/.test(tag) ? `data-heading="true"` : ``} ${styles(tag, `;color: ${store.primaryColor}`)}>${content}</${tag}>`
+          const hr = styledContent(`hr`, ``)
           const { index, text, fnId } = token
           const fnInner = `
                 <code>${index}.</code> 
@@ -81,8 +86,10 @@ export default function markedFootnotes(title: string, hr: string, linkCss: stri
         renderer(token: Tokens.Generic) {
           const { fnId } = token
           const { index } = fnMap.get(fnId) as MapContent
-          return `<span ${linkCss}><sup style="color: var(--md-primary-color);">
-                    <a href="#fnDef-${fnId}" id="fnRef-${fnId}">\[注释${index}\]</a>
+          const linkCss = styles(`link`)
+          const store = useStore()
+          return `<span ${linkCss}><sup>
+                    <a href="#fnDef-${fnId}" style="color: ${store.primaryColor};" id="fnRef-${fnId}">\[注释${index}\]</a>
                 </sup></span>`
         },
       },

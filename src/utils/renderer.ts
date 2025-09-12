@@ -429,6 +429,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
     },
 
     link({ href, title, text, tokens }: Tokens.Link): string {
+      const store = useStore()
       const parsedText = this.parser.parseInline(tokens)
       if (href.startsWith(`https://mp.weixin.qq.com`)) {
         return `<a href="${href}" title="${title || text}" ${styles(`wx_link`)}>${parsedText}</a>`
@@ -438,7 +439,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
       }
       if (opts.citeStatus) {
         const ref = addFootnote(title || text, href)
-        return `<span ${styles(`link`)}>${parsedText}<sup>[链接${ref}]</sup></span>`
+        return `<span ${styles(`link`)}>${parsedText}<sup style="color: ${store.primaryColor};">[链接${ref}]</sup></span>`
       }
       return `<a href="${href}" title="${title || text}" ${styles(`link`)}>${parsedText}</a>`
     },
@@ -517,7 +518,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
     MDKatex({ nonStandard: true }, styles(`inline_katex`, `;vertical-align: middle; line-height: 1;`), styles(`block_katex`, `;text-align: center;`),
     ),
   )
-  marked.use(markedFootnotes(styledContent(`h4`, `文章注释`), styledContent(`hr`, ``), styles(`link`)))
+  marked.use(markedFootnotes(styledContent, styles))
   marked.use(markedAbbr())
   marked.use(markedZhihuLinkCard(styles(`wx_link`), styles(`link`)))
   marked.use(markedExtendedtables(styles))
