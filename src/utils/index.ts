@@ -583,7 +583,7 @@ export function renderMarkdown(raw: string, renderer: RendererAPI) {
   let html = marked.parse(markdownContent) as string
 
   // XSS 处理
-  html = DOMPurify.sanitize(html, { ADD_TAGS: [`mp-common-profile`] })
+  html = DOMPurify.sanitize(html, { ADD_TAGS: [`mp-common-profile`], ADD_ATTR: [`target`, `rel`] })
 
   return { html, readingTime }
 }
@@ -637,6 +637,7 @@ export function modifyHtmlContent(content: string, renderer: RendererAPI): strin
   let html = marked.parse(markdownContent) as string
   html = DOMPurify.sanitize(html, {
     ADD_TAGS: [`mp-common-profile`],
+    ADD_ATTR: [`target`, `rel`],
   })
   return postProcessHtml(html, readingTimeResult, renderer)
 }

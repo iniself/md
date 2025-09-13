@@ -452,7 +452,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
         const ref = addFootnote(title || text, href)
         return `<span ${styles(`link`)}>${parsedText}<sup style="color: ${store.primaryColor};">[链接${ref}]</sup></span>`
       }
-      return `<a href="${href}" title="${title || text}" ${styles(`link`)}>${parsedText}</a>`
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer" title="${title || text}" ${styles(`link`)}>${parsedText}</a>`
     },
 
     strong({ tokens }: Tokens.Strong): string {
