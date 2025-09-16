@@ -104,6 +104,11 @@ function inlineAdmonitionForWechat(container: HTMLElement) {
       iconSpan.innerHTML = ``
       iconSpan.setAttribute(`style`, style)
       iconSpan.style.removeProperty(`background-color`)
+
+      iconSpan.style.removeProperty(`-webkit-mask-image`)
+      iconSpan.style.removeProperty(`-webkit-mask-repeat`)
+      iconSpan.style.removeProperty(`-webkit-mask-size`)
+
       iconSpan.appendChild(svgEl)
 
       // 把背景色应用到 SVG 的 path 上
@@ -123,14 +128,18 @@ function inlineAdmonitionForWechat(container: HTMLElement) {
       iconSpan.appendChild(svgEl)
       title.prepend(iconSpan)
     }
+    title.removeAttribute(`class`)
+    title.setAttribute(`admonition`, `title`)
+    adm.removeAttribute(`class`)
+    adm.setAttribute(`admonition`, `container`)
   })
 }
 
 function inlineAdmonitionForZhihu(container: Document) {
-  const admonitions = container.querySelectorAll<HTMLElement>(`.admonition`)
+  const admonitions = container.querySelectorAll<HTMLElement>(`[admonition="container"]`)
   admonitions.forEach((adm) => {
-    const titleText = adm.querySelector(`.admonition-title span:last-child`)?.textContent?.trim() || ``
-    const contentText = adm.querySelector(`p:not(.admonition-title)`)?.textContent?.trim() || ``
+    const titleText = adm.querySelector(`[admonition="title"] span:last-child`)?.textContent?.trim() || ``
+    const contentText = adm.querySelector(`p:not([admonition="title"])`)?.textContent?.trim() || ``
     const p = container.createElement(`p`)
     const strong = container.createElement(`strong`)
     strong.textContent = titleText
