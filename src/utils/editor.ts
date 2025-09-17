@@ -124,7 +124,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
       })
     },
 
-    [`${ctrlKey}-J`]: function italic(editor) {
+    [`${ctrlKey}-J`]: function moretextstyle(editor) {
       toggleFormat(editor, {
         prefix: `=:: `,
         suffix: `=`,
@@ -157,7 +157,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
       })
     },
 
-    [`${ctrlKey}-${altKey}-K`]: function link(editor) {
+    [`${ctrlKey}-${altKey}-K`]: function linkcard(editor) {
       toggleFormat(editor, {
         prefix: `[`,
         suffix: `[](https://)]`,
@@ -166,12 +166,12 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
       })
     },
 
-    [`${ctrlKey}-${altKey}-A`]: function link(editor) {
+    [`${ctrlKey}-${altKey}-A`]: function admonition(editor) {
       toggleFormat(editor, {
-        prefix: `!!! note\n\n`,
+        prefix: `!!! note 标题 `,
         suffix: `!!!`,
         check: s => s.startsWith(`!!! note`) && s.endsWith(`!!!`),
-        afterInsertCursorOffset: 1,
+        afterInsertCursorOffset: -3,
       })
     },
 
