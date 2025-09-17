@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import fetch from '@/utils/fetch'
+
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -14,11 +17,29 @@ function onUpdate(val: boolean) {
   }
 }
 
-const links = [
+const links = ref([
   { label: `桌面应用`, url: `https://github.com/iniself/md/releases` },
   { label: `Github`, url: `https://github.com/iniself/md/` },
-  { label: `了解更多`, url: `assets/doc/help.html` },
-]
+  { label: `了解更多`, url: `` },
+])
+
+const validLinks = computed(() => links.value.filter(link => !!link.url))
+
+async function getAddress() {
+  try {
+    const data = (await fetch.get(
+      `https://just.auiapps.top/moredetail.json`,
+    )) as { url: string }
+    links.value = links.value.map(link => link.label === `了解更多` ? { ...link, url: data.url } : link)
+  }
+  catch (error) {
+    console.error(`请求失败:`, error)
+  }
+}
+
+onMounted(() => {
+  getAddress()
+})
 
 function onRedirect(url: string) {
   window.open(url, `_blank`)
@@ -43,7 +64,7 @@ function onRedirect(url: string) {
       </div>
       <DialogFooter class="sm:justify-evenly">
         <Button
-          v-for="link in links"
+          v-for="link in validLinks"
           :key="link.url"
           @click="onRedirect(link.url)"
         >
