@@ -14,7 +14,7 @@ onMounted(() => {
       v-if="loading"
       class="loading"
     >
-      <strong>让 Markdown 更简单</strong>
+      <strong>致力于让 Markdown 更简单</strong>
     </div>
   </transition>
 </template>
