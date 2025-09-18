@@ -115,6 +115,16 @@ const formatItems = [
     cmd: `${ctrlKey}-${altKey}-O`,
   },
   {
+    label: `上标`,
+    kbd: [ctrlSign, altSign, `P`],
+    cmd: `${ctrlKey}-${altKey}-P`,
+  },
+  {
+    label: `下标`,
+    kbd: [ctrlSign, altSign, `B`],
+    cmd: `${ctrlKey}-${altKey}-B`,
+  },
+  {
     label: `格式化`,
     kbd: [altSign, shiftSign, `F`],
     cmd: `formatContent`,
