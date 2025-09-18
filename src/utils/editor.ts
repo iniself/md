@@ -182,7 +182,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
 
     [`${ctrlKey}-${altKey}-P`]: function sup(editor) {
       toggleFormat(editor, {
-        prefix: `^:上标`,
+        prefix: `^:`,
         suffix: `^`,
         check: s => s.startsWith(`^:`) && s.endsWith(`^`),
         afterInsertCursorOffset: -1,
@@ -190,7 +190,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
     },
     [`${ctrlKey}-${altKey}-B`]: function sub(editor) {
       toggleFormat(editor, {
-        prefix: `~:下标`,
+        prefix: `~:`,
         suffix: `~`,
         check: s => s.startsWith(`~:`) && s.endsWith(`~`),
         afterInsertCursorOffset: -1,
