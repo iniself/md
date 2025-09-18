@@ -113,6 +113,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
         prefix: `**`,
         suffix: `**`,
         check: s => s.startsWith(`**`) && s.endsWith(`**`),
+        afterInsertCursorOffset: -2,
       })
     },
 
@@ -121,6 +122,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
         prefix: `*`,
         suffix: `*`,
         check: s => s.startsWith(`*`) && s.endsWith(`*`),
+        afterInsertCursorOffset: -1,
       })
     },
 
@@ -129,6 +131,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
         prefix: `=:: `,
         suffix: `=`,
         check: s => s.startsWith(`=:: `) && s.endsWith(`=`),
+        afterInsertCursorOffset: -1,
       })
     },
 
@@ -137,6 +140,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
         prefix: `~~`,
         suffix: `~~`,
         check: s => s.startsWith(`~~`) && s.endsWith(`~~`),
+        afterInsertCursorOffset: -2,
       })
     },
 
@@ -145,6 +149,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
         prefix: `++`,
         suffix: `++`,
         check: s => s.startsWith(`++`) && s.endsWith(`++`),
+        afterInsertCursorOffset: -2,
       })
     },
 
