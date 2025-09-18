@@ -20,14 +20,14 @@ export default function markedSupSub(): MarkedExtension {
           return src.indexOf(`^`)
         },
         tokenizer(src: string) {
-          const match = src.match(/^\^([a-z]+:)?(.+?)\^/i)
+          const match = src.match(/^\^([a-z]+:|:)?(.+?)\^/i)
           if (match) {
             const [, colorPart, text] = match
             return {
               type: `sup`,
               raw: match[0],
               text,
-              color: colorPart ? colorPart.replace(/:$/, ``) : ``,
+              color: colorPart && colorPart !== `:` ? colorPart.replace(/:$/, ``) : ``,
             }
           }
         },
@@ -49,14 +49,14 @@ export default function markedSupSub(): MarkedExtension {
           return src.indexOf(`~`)
         },
         tokenizer(src: string) {
-          const match = src.match(/^~([a-z]+:)?(.+?)~/i)
+          const match = src.match(/^~([a-z]+:|:)?(.+?)~/i)
           if (match) {
             const [, colorPart, text] = match
             return {
               type: `sub`,
               raw: match[0],
               text,
-              color: colorPart ? colorPart.replace(/:$/, ``) : ``,
+              color: colorPart && colorPart !== `:` ? colorPart.replace(/:$/, ``) : ``,
             }
           }
         },
