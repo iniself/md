@@ -22,6 +22,7 @@ import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
 import { MDKatex } from './MDKatex'
 import markedSlider from './MDSlider'
+import markedSupSub from './MDSupSub'
 import markedTextExtension from './MDTextExtension'
 import markedUnderlineExtension from './MDUnderlineExtension'
 import markedZhihuLinkCard from './MDZhihuLinkCard'
@@ -533,6 +534,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
   marked.use(markedAbbr())
   marked.use(markedZhihuLinkCard(styles(`wx_link`), styles(`link`)))
   marked.use(markedExtendedtables(styles))
+  marked.use(markedSupSub())
 
   return {
     buildAddition,
