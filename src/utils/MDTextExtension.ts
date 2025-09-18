@@ -36,6 +36,10 @@ export default function markedTextExtension(): MarkedExtension {
           const { color, bgColor, fontSize } = token
           const tokens = token.tokens ?? []
           const styles: string[] = []
+          if (color === `default`) {
+            return `<span style="color: rgb(128, 128, 128); font-size: 90%; ">${this.parser.parseInline(tokens)}</span>`
+          }
+
           if (color)
             styles.push(`color: ${color === `theme` ? primaryColor.value : color}`)
           if (bgColor)
