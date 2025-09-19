@@ -21,7 +21,6 @@
     "build:h5-netlify:only": "cross-env SERVER_ENV=NETLIFY_WEB vite build",
     "build:electron": "run-p type-check \"build:electron:only {@}\" --",
     "build:electron:only": "cross-env SERVER_ENV=NETLIFY_ELECTRON vite build",
-
     "build:cli": "npm run build && npx shx rm -rf md-cli/dist && npx shx rm -rf dist/**/*.map && npx shx cp -r dist md-cli/ && cd md-cli && npm pack",
     "build:analyze": "cross-env ANALYZE=true vite build",
     "compile:extension": "npm --prefix ./src/extension run compile",
@@ -44,6 +43,7 @@
     "@vee-validate/yup": "^4.15.0",
     "@vueuse/core": "^12.5.0",
     "axios": "^1.8.4",
+    "browser-image-compression": "^2.0.2",
     "buffer-from": "^1.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
