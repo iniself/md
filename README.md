@@ -1,10 +1,5 @@
-<div align="center">
 
-[![doocs-md](https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/logo-2.png)](https://github.com/doocs/md)
-
-</div>
-
-<h1 align="center">微信 Markdown 编辑器</h1>
+<h1 align="center">多功能 Markdown 编辑器</h1>
 
 <div align="center">
 
@@ -14,180 +9,67 @@
 
 ## 项目介绍
 
-Markdown 文档自动即时渲染为微信图文，让你不再为微信内容排版而发愁！只要你会基本的 Markdown 语法（现在有了 AI，你甚至不需要会 Markdown），就能做出一篇样式简洁而又美观大方的微信图文。
+Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs/md)。应用内及[这里](https://docs.auiapps.top)有完整的语法介绍和渲染效果展示。对比 Doocs，Doc<sup style="color:red">+</sup> 增加/删改了如下内容。
 
-欢迎给项目点个 ⭐️，我们会持续更新和维护。
 
-## 在线编辑器地址
 
-[https://md.doocs.org](https://md.doocs.org)
+#### 特点
+1. 项目完全自依赖，运行时不需要外部资源。可以保持完全离线使用。
+2. 已打包 macos 和 windows 的桌面应用，安装即用，同时自带了微信图床的代理服务。请到 [release](/releases/) 下载。
+3. 也可以 git clone 本仓库后按照 [Doocs](https://github.com/doocs/md?tab=readme-ov-file#%E5%A6%82%E4%BD%95%E5%BC%80%E5%8F%91%E5%92%8C%E9%83%A8%E7%BD%B2) 介绍自行构建 Web App。但是微信图床代理服务需要自己搭建。
 
-注：推荐使用 Chrome 浏览器，效果最佳。
+#### 增加
 
-## 为何开发这款编辑器
+1. 优化多种格式的统一表现。适配了微信、知乎、HTML 等多种场景。同时兼顾了各特点：比如知乎有卡片样式链接，对锚点支持也较好但知乎排版限制较多；微信虽不支持这些，但是有更丰富的文本效果；而 HTML 不受任何影响，需要保持 markdown 渲染后的完整样式。
+2. 注释和链接。
+     * 微信：脚注 `[^1]`会展示在注释区，而链接`[]()`会展示在链接区。
+     * 知乎的脚注和链接功能会遵循知乎排版展示。同时`[[](https://)]` 语法复制到知乎后会展示为知乎卡片链接。 快捷键：`Command + Option + K`
+     * HTML 展示不受任何功能限制。
+3. 对于加粗、斜体、代码、标题、列表这些基本 markdown 元素，微信、HTML 表现一致；知乎对 HTML 的渲染有自己的固定的要求，所以主题和配色对于知乎都失效，但基本 markdown 渲染效果还是在的。
+4. 支持更多对文字样式的设置。 `=white:theme:12 文字内容...=` 这样的语法会渲染出白色文字，主题色背景，`12px` 大小的一段文字。注意微信和 HTML 支持，知乎不支持。快捷键：`Command + J`。
+5. 增加波浪下划线，样式跟随主题色。微信和 HTML支持，知乎不支持。快捷键：`Command + U`。
+6. 增加上标下标语法。`Docs^red:+^` 上标语法，颜色设置成`theme`可以跟随主题色`Docs^+^`不设置颜色。`H~red:2~O^`下标语法，颜色同上标。微信和 HTML支持，知乎不支持。快捷键：`Command + Option + P` 和 `Command + Option + B`。
+7. 增加 Admonition：
+`abstract/attention/bug/caution/danger/error/example/failure/hint/info/note/question/quote/success/tip/warning`。微信和 HTML 支持，知乎不支持。快捷键：`Command + Option + A`。
+1. 删除线随主题色改变，同时加粗。
+2. 增加对纯英文的格式支持。
+3. 增加了配置图片 `width`、`height`、`object-fit` 的语法。比如下面分别会设置图片为宽度 `200px` 高度 `300px` object-fit `cover`；和宽度为 `50%` object-fit `contain`
+      ```
+      <!-- 单位为 px -->
+    https://example.com/image.png =200x300 @cover
 
-现有的开源微信 Markdown 编辑器样式繁杂，排版过程中往往需要额外调整，影响使用效率。为了解决这一问题，我们打造了一款更加简洁、优雅的编辑器，提供更流畅的排版体验。
+    <!-- 单位为 % -->
+    https://example.com/image.png =50% @cotain
 
-欢迎各位朋友随时提交 PR，让这款微信 Markdown 编辑器变得更好！如果你有新的想法，也欢迎在 [Discussions 讨论区](https://github.com/doocs/md/discussions)反馈。
+      ```
+4.  表格语法扩展。支持合并单元格等操作。详见[这里](https://docs.auiapps.top)
+5.  增加配置：
+      * 提供隐藏不必要功能的选项：AI助手、AI工具箱、发布按钮。
+      * 样式类配置：段落对齐方式、表头文字是否居中。
+6.  增加 `gitee` 图床支持。
 
-## 功能特性
+#### 删减
+1. 删除 google analytics
+2. 外部依赖全部本地化。
 
-- [x] 支持 Markdown 所有基础语法、数学公式
-- [x] 提供对 Mermaid 图表的渲染和 [GFM 警告块](https://github.com/orgs/community/discussions/16925)的支持
-- [x] 丰富的代码块高亮主题，提升代码可读性
-- [x] 允许自定义主题色和 CSS 样式，灵活定制展示效果
-- [x] 提供多图上传功能，并可自定义配置图床
-- [x] 便捷的文件导入、导出功能，提升工作效率
-- [x] 内置本地内容管理功能，支持草稿自动保存
-- [x] 集成主流 AI 模型（如 DeepSeek、OpenAI、通义千问、腾讯混元、火山方舟 等等），辅助内容创作
 
-## 目前支持哪些图床
+#### 修复问题
+1. 引用外部样式文件时导出成 `HTML` 和复制到微信时会丢失样式。
+2. 列表恢复成浏览器默认标签。否则会导致复制到知乎等地方时出现重复列表符号。
+3. 引用里段落间不能空行问题。
+4. 导出 `HTML` 和复制 `HTML` 样式效果不一致
+5. 样式表现和语义逻辑矛盾，比如 H1 和 H2 一样大
+6. 更多略
+#### 其他
+1. “大纲”从预览页面移动到左侧文件列表处切换显示。保证预览页面的清爽干净。
+2. 统一链接在新标签中打开。桌面应用中的链接也统一采用系统浏览器打开。
 
-| #   | 图床                                                   | 使用时是否需要配置                                                         | 备注                                                                                                                   |
-| --- | ------------------------------------------------------ | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| 1   | 默认                                                   | 否                                                                         | -                                                                                                                      |
-| 2   | [GitHub](https://github.com)                           | 配置 `Repo`、`Token` 参数                                                  | [如何获取 GitHub token？](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) |
-| 3   | [阿里云](https://www.aliyun.com/product/oss)           | 配置 `AccessKey ID`、`AccessKey Secret`、`Bucket`、`Region` 参数           | [如何使用阿里云 OSS？](https://help.aliyun.com/document_detail/31883.html)                                             |
-| 4   | [腾讯云](https://cloud.tencent.com/act/pro/cos)        | 配置 `SecretId`、`SecretKey`、`Bucket`、`Region` 参数                      | [如何使用腾讯云 COS？](https://cloud.tencent.com/document/product/436/38484)                                           |
-| 5   | [七牛云](https://www.qiniu.com/products/kodo)          | 配置 `AccessKey`、`SecretKey`、`Bucket`、`Domain`、`Region` 参数           | [如何使用七牛云 Kodo？](https://developer.qiniu.com/kodo)                                                              |
-| 6   | [MinIO](https://min.io/)                               | 配置 `Endpoint`、`Port`、`UseSSL`、`Bucket`、`AccessKey`、`SecretKey` 参数 | [如何使用 MinIO？](http://docs.minio.org.cn/docs/master/)                                                              |
-| 7   | [公众号](https://mp.weixin.qq.com/)                    | 配置 `appID`、`appsecret`、`代理域名` 参数                                 | [如何使用公众号图床？](https://md-pages.doocs.org/tutorial)                                                            |
-| 8   | [Cloudflare R2](https://developers.cloudflare.com/r2/) | 配置 `AccountId`、`AccessKey`、`SecretKey`、`Bucket`、`Domain` 参数        | [如何使用 S3 API 操作 R2？](https://developers.cloudflare.com/r2/api/s3/api/)                                          |
-| 9   | [又拍云](https://www.upyun.com/)                       | 配置 `Bucket`、`Operator`、`Password`、`Domain` 参数                       | [如何使用 又拍云？](https://help.upyun.com/)                                                                           |
-| 10  | [Telegram](https://core.telegram.org/api)              | 配置 `Bot Token`、`Chat ID` 参数                                           | [如何使用 Telegram 图床？](https://github.com/doocs/md/blob/main/docs/telegram-usage.md)                               |
-| 11  | [Cloudinary](https://cloudinary.com/)                  | 配置 `Cloud Name`、`API Key`、`API Secret` 参数                            | [如何使用 Cloudinary？](https://cloudinary.com/documentation/upload_images)                                            |
-| 12  | 自定义上传                                             | 是                                                                         | [如何自定义上传？](/docs/custom-upload.md)                                                                             |
 
-![demo1](https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/demo1.gif)
+#### TODO
+1. 渲染引擎和 mdbook 结合
+2. 增加本地图床 
+3. 完善 PDF 导出功能
 
-![demo2](https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/demo2.gif)
+### 联系
 
-![demo3](https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/demo3.gif)
-
-![demo4](https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/demo4.gif)
-
-## 如何开发和部署
-
-```sh
-# 安装 node 版本
-nvm i && nvm use
-
-# 安装依赖
-npm i
-
-# 启动开发模式
-npm start
-
-# 部署在 /md 目录
-npm run build
-# 访问 http://127.0.0.1:9000/md
-
-# 部署在根目录
-npm run build:h5-netlify
-# 访问 http://127.0.0.1:9000/
-
-# Chrome 插件启动及调试
-npm run ext:dev
-# 访问 chrome://extensions/ 打开开发者模式，加载已解压的扩展程序，选择 .output/chrome-mv3-dev 目录
-
-# Chrome 插件打包
-npm run ext:zip
-
-# Firefox 扩展打包(how to build Firefox addon)
-npm run firefox:zip # output zip file at in .output/md-{version}-firefox.zip
-```
-
-## 快速搭建私有服务
-
-### 方式 1. 使用 npm cli
-
-通过我们的 npm cli 你可以轻易搭建属于自己的微信 Markdown 编辑器。
-
-```sh
-# 安装
-npm i -g @doocs/md-cli
-
-# 启动
-md-cli
-
-# 访问
-open http://127.0.0.1:8800/md/
-
-# 启动并指定端口
-md-cli port=8899
-
-# 访问
-open http://127.0.0.1:8899/md/
-```
-
-md-cli 支持以下命令行参数：
-
-- `port` 指定端口号，默认 8800，如果被占用会随机使用一个新端口。
-- `spaceId` dcloud 服务空间配置
-- `clientSecret` dcloud 服务空间配置
-
-### 方式 2. 使用 Docker 镜像
-
-如果你是 Docker 用户，也可以直接使用一条命令，启动完全属于你的、私有化运行的实例。
-
-```sh
-docker run -d -p 8080:80 doocs/md:latest
-```
-
-容器运行起来之后，打开浏览器，访问 http://localhost:8080 即可。
-
-关于本项目 Docker 镜像的更多详细信息，可以关注 https://github.com/doocs/docker-md
-
-## 谁在使用
-
-请查看 [USERS.md](USERS.md) 文件，了解使用本项目的公众号。
-
-## 贡献指南
-
-我们欢迎任何形式的贡献！请查看 [CONTRIBUTING.md](./CONTRIBUTING.md) 获取提交 PR、Issue 的流程与规范。
-
-## 支持我们
-
-如果本项目对你有所帮助，可以通过以下方式支持我们的持续开发。
-
-<table style="margin: 0 auto">
-  <tbody>
-    <tr>
-      <td align="center" style="width: 260px">
-        <img
-          src="https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/support1.jpg"
-          style="width: 200px"
-        /><br />
-      </td>
-      <td align="center" style="width: 260px">
-        <img
-          src="https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/support2.jpg"
-          style="width: 200px"
-        /><br />
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-## 反馈与交流
-
-如果你在使用过程中遇到问题，或者有好的建议，欢迎在 [Issues](https://github.com/doocs/md/issues) 中反馈。你也可以加入我们的交流群，和我们一起讨论，若群二维码失效，请添加好友，备注 `md`，我们会拉你进群。
-
-<table style="margin: 0 auto">
-  <tbody>
-    <tr>
-      <td align="center" style="width: 260px">
-        <img
-          src="https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/doocs-md-wechat-group.jpg"
-          style="width: 200px"
-        /><br />
-      </td>
-      <td align="center" style="width: 260px">
-        <img
-          src="https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/wechat-ylb.jpg"
-          style="width: 200px"
-        /><br />
-      </td>
-    </tr>
-  </tbody>
-</table>
+加我微信聊天: **Aui_Team**
