@@ -1,12 +1,14 @@
-# 探索 Markdown 的奇妙世界
+# Doc^red:+^ 基础 Markdown 语法
 
-欢迎来到 Markdown 的奇妙世界！无论你是写作爱好者、开发者、博主，还是想要简单记录点什么的人，Markdown 都能成为你新的好伙伴。它不仅让写作变得简单明了，还能轻松地将内容转化为漂亮的网页格式。今天，我们将全面探讨 Markdown 的基础和进阶语法，让你在这个过程中充分享受写作的乐趣！
+<center style="font-size:90%"><i>Doc<sup style="color:red;">+</sup> 基于 <a href="https://github.com/doocs/md" target="_blank" rel="noopener noreferrer">Doocs</a></i></center>
 
-Markdown 是一种轻量级标记语言，用于格式化纯文本。它以简单、直观的语法而著称，可以快速地生成 HTML。Markdown 是写作与代码的完美结合，既简单又强大。
+## 前言
 
-## Markdown 基础语法
+> We believe that writing is about content, about what you want to say – not about fancy formatting.
+> 我们坚信写作写的是内容，所思所想，而不是花样格式。— Ulysses for Mac
 
-### 1. 标题：让你的内容层次分明
+
+## 标题
 
 用 `#` 号来创建标题。标题从 `#` 开始，`#` 的数量表示标题的级别。
 
@@ -22,22 +24,37 @@ Markdown 是一种轻量级标记语言，用于格式化纯文本。它以简�
 
 以上代码将渲染出一组层次分明的标题，使你的内容井井有条。
 
-### 2. 段落与换行：自然流畅
+## 段落与换行
 
 Markdown 中的段落就是一行接一行的文本。要创建新段落，只需在两行文本之间空一行。
 
-### 3. 字体样式：强调你的文字
+## 文字样式
 
-- **粗体**：用两个星号或下划线包裹文字，如 `**粗体**` 或 `__粗体__`。
-- _斜体_：用一个星号或下划线包裹文字，如 `*斜体*` 或 `_斜体_`。
-- ~~删除线~~：用两个波浪线包裹文字，如 `~~删除线~~`。
+- **粗体**：用两个星号或下划线包裹文字或`Command + B`，如 `**粗体**` 或 `__粗体__`。 
+- _斜体_：用一个星号或下划线包裹文字或`Command + I`，如 `*斜体*` 或 `_斜体_`。
+- ~~删除线~~：用两个波浪线包裹文字或`Command + D`，如 `~~删除线~~`。
+- ++下划线++：用两个 `+` 包裹文字或`Command + U`，如 `++下划线++`。
 
-这些简单的标记可以让你的内容更有层次感和重点突出。
+这些简单的标记可以让你的内容更有层次感和重点突出。另外还提供额外的样式设置，快捷键：`Command + J`
 
-### 4. 列表：整洁有序
+=white:theme:12 白色文字，主题色背景，12px 大小的文字=
 
-- **无序列表**：用 `-`、`*` 或 `+` 加空格开始一行。
-- **有序列表**：使用数字加点号（`1.`、`2.`）开始一行。
+=white:black:12 白色文字，黑色背景，12px 大小的文字=
+
+## 上标下标
+
+- **上标**：用`^`包裹上标并可通过`:`指定颜色。`Command + Option + P`
+` Docs^red:+^ ` ： Docs^red:+^ 。 
+` Docs^theme:+^ `：跟随主题色。Docs^theme:+^
+- **下标**：用`～`包裹上标并可通过`:`指定颜色。`Command + Option + B`
+` H~red:2~O^ ` ： H~red:2~O 。 
+` H~theme:2~O^ `：跟随主题色。H~theme:2~O^。 
+
+## 列表
+
+- **无序列表**：用 `-`、`*` 或 `+` 加空格开始一行。`Command + Option + U`
+- **有序列表**：使用数字加点号（`1.`、`2.`）开始一行。`Command + Option + O`
+
 
 在列表中嵌套其他内容？只需缩进即可实现嵌套效果。
 
@@ -49,24 +66,18 @@ Markdown 中的段落就是一行接一行的文本。要创建新段落，只�
 1. 有序列表项 1
 2. 有序列表项 2
 
-### 5. 链接与图片：丰富内容
+## 链接与图片
 
-- **链接**：用方括号和圆括号创建链接 `[显示文本](链接地址)`。
-- **图片**：和链接类似，只需在前面加上 `!`，如 `![描述文本](图片链接)`。
-
-[访问 Doocs](https://github.com/doocs)
-
-![doocs](https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/logo-2.png)
-
-轻松实现富媒体内容展示！
-
-> 因微信公众号平台不支持除公众号内容以外的链接，故其他平台的链接，会呈现链接样式但无法点击跳转。
-
-> 对于这些链接请注意明文书写，或点击左上角「格式->微信外链接转底部引用」开启引用，这样就可以在底部观察到链接指向。
-
+- **链接**：用方括号和圆括号创建链接 `Command + K`
+`[访问 Docs^red:+^ ](https://github.com/iniself/md)`。[访问 Docs^red:+^ ](https://github.com/iniself/md)。
+ =rgb(128, 128, 128)::90% 微信公众号平台不支持除公众号内容以外的链接。或点击左上角「格式->微信外链接转底部引用」开启引用，这样就可以在底部++引用链接++处看到链接指向。=
+- **知乎卡片链接**：链接外层再叠加括号 `[[显示文本](链接地址)]`。`Command + Option + K`
+- **图片**：和链接类似，只需在前面加上 `!`。Docs^red:+^ 支持定义图片长宽（`px` | `%`）和填充方式（`contain` | `cover` | `fill` ...）：
+``![nori 项目](https://docs.auiapps.top/resource/img/nori.png =200)``
+![nori 项目](https://docs.auiapps.top/resource/img/nori.png =200)
 另外，使用 `<![alt](url),![alt](url)>` 语法可以创建横屏滑动幻灯片，支持微信公众号平台。建议使用相似尺寸的图片以获得最佳显示效果。
 
-### 6. 引用：引用名言或引人深思的句子
+## 引用
 
 使用 `>` 来创建引用，只需在文本前面加上它。多层引用？在前一层 `>` 后再加一个就行。
 
@@ -76,74 +87,126 @@ Markdown 中的段落就是一行接一行的文本。要创建新段落，只�
 
 这让你的引用更加富有层次感。
 
-### 7. 代码块：展示你的代码
+## 代码块
 
-- **行内代码**：用反引号包裹，如 `code`。
+- **行内代码**：用反引号包裹，如 `` `code` `` ：code`。
 - **代码块**：用三个反引号包裹，并指定语言，如：
+    ```js    
+    console.log("Hello, You!");
+    ```
 
-```js
-console.log("Hello, Doocs!");
+## 提示块
+
+Docs^red:+^ 支持 Admonition 语法， `Command + Option + A`。包括如下提示类型：
+`abstract/attention/bug/caution/danger/error/example/failure/hint/info/note/question/quote/success/tip/warning`
+
+!!! bug 越界访问，索引 3 不存在 
+```rust
+fn main() {
+    let nums = vec![1, 2, 3];
+    println!("{}", nums[3]); 
+}
 ```
+!!!
 
-语法高亮让你的代码更易读。
-
-### 8. 分割线：分割内容
+## 分割线
 
 用三个或更多的 `-`、`*` 或 `_` 来创建分割线。
 
 ---
 
-为你的内容添加视觉分隔。
 
-### 9. 表格：清晰展示数据
+## 注释
+不想渲染出来的  markdown 内容可以通过 `<!--  -->` 进行注释
 
-Markdown 支持简单的表格，用 `|` 和 `-` 分隔单元格和表头。
+<!-- # 被注释的内容 -->
 
-| 项目人员                                    | 邮箱                   | 微信号       |
-| ------------------------------------------- | ---------------------- | ------------ |
-| [yanglbme](https://github.com/yanglbme)     | contact@yanglibin.info | YLB0109      |
-| [YangFong](https://github.com/YangFong)     | yangfong2022@gmail.com | yq2419731931 |
-| [thinkasany](https://github.com/thinkasany) | thinkasany@gmail.com   | thinkasany   |
+## 表格
 
-这样的表格让数据展示更为清爽！
+Markdown 最简单的表格语法是，用 `|` 和 `-` 分隔单元格和表头。通过左上方点击「编辑->插入表格」，可快速生成表格。
 
-> 手动编写标记太麻烦？我们提供了便捷方式。左上方点击「编辑->插入表格」，即可快速实现表格渲染。
+### 基本表格
 
-## Markdown 进阶技巧
+| 成员 | 性别 | 年龄 |
+| --- | --- | --- |
+|张三       | 男      |  28      |
+|李四       | 男      |  33     |
+|王五       | 女      |  21     |
 
-### 1. LaTeX 公式：完美展示数学表达式
+另外 Docs^red:+^ 还提供了更高级的表格用法：
+
+
+### 合并列
+
+
+| 成都      | 绵阳      | 自贡      |
+|---------|---------|---------|
+|四川省  |||
+
+
+### 合并行
+
+| 省          | 城市      |
+|--------------|---------|
+| 四川    | 成都  |
+| ^| 绵阳  |
+| ^|  自贡  |
+
+### 合并行和列
+
+| 这个表头合并   || 表头 A |
+|了两行和两列^|| 表头 B |
+|-------------|------------|----------|
+| 单元格 A      |单元格 B     |单元格 C   |
+
+### 指定列宽
+
+|列一|列二|列三|
+|--10%-----|-- 40% ---|:---50%-----|
+|10% 宽度|40%宽度|50%宽度|
+
+### 列样式
+
+|cols       |       |
+| --- | --- |
+|⭐️⭐️⭐️⭐️⭐️|主数据管理|
+|⭐️⭐️|元数据管理|
+|⭐️⭐️⭐️⭐|数据标准建设|
+|⭐️⭐️⭐️⭐️⭐️|数据质量监控|
+
+
+# Doc^red:+^ 进阶 Markdown 语法
+
+## LaTeX 公式：完美展示数学表达式
 
 Markdown 允许嵌入 LaTeX 语法展示数学公式：
 
-- **行内公式**：用 `$` 包裹公式，如 $E = mc^2$。
+- **行内公式**：用 `$` 包裹公式，如 `$E = mc^2$` $E = mc^2$。
 - **块级公式**：用 `$$` 包裹公式，如：
 
-$$
-\begin{aligned}
-d_{i, j} &\leftarrow d_{i, j} + 1 \\
-d_{i, y + 1} &\leftarrow d_{i, y + 1} - 1 \\
-d_{x + 1, j} &\leftarrow d_{x + 1, j} - 1 \\
-d_{x + 1, y + 1} &\leftarrow d_{x + 1, y + 1} + 1
-\end{aligned}
-$$
+  $$
+  \begin{aligned}
+  d_{i, j} &\leftarrow d_{i, j} + 1 \\
+  d_{i, y + 1} &\leftarrow d_{i, y + 1} - 1 \\
+  d_{x + 1, j} &\leftarrow d_{x + 1, j} - 1 \\
+  d_{x + 1, y + 1} &\leftarrow d_{x + 1, y + 1} + 1
+  \end{aligned}
+  $$
 
 1. 列表内块公式 1
-
-  $$
-  \chi^2 = \sum \frac{(O - E)^2}{E}
-  $$
+    $$
+    \chi^2 = \sum \frac{(O - E)^2}{E}
+    $$
     
 2. 列表内块公式 2
-
-  $$
-  \chi^2 = \sum \frac{(|O - E| - 0.5)^2}{E}
-  $$
-
+    $$
+    \chi^2 = \sum \frac{(|O - E| - 0.5)^2}{E}
+    $$
 
 
-这是展示复杂数学表达的利器！
 
-### 2. Mermaid 流程图：可视化流程
+
+## Mermaid 流程图：可视化流程
 
 Mermaid 是强大的可视化工具，可以在 Markdown 中创建流程图、时序图等。
 
@@ -157,6 +220,7 @@ graph LR
   C --> C1[流程控制]
   D --> D1[消息传递]
 ```
+---
 
 ```mermaid
 graph TD;
@@ -166,6 +230,8 @@ graph TD;
   C-->D;
 ```
 
+---
+
 ```mermaid
 pie
   title Key elements in Product X
@@ -174,35 +240,11 @@ pie
   "Magnesium" : 10.01
   "Iron" : 5
 ```
-
-```mermaid
-pie
-  title 为什么总是宅在家里？
-  "喜欢宅" : 45
-  "天气太热" : 70
-  "穷" : 500
-  "没人约" : 95
-```
-
-这种方式不仅能直观展示流程，还能提升文档的专业性。
-
+---
 > 更多用法，参见：[Mermaid User Guide](https://mermaid.js.org/intro/getting-started.html)。
 
 ## 结语
 
-Markdown 是一种简单、强大且易于掌握的标记语言，通过学习基础和进阶语法，你可以快速创作内容并有效传达信息。无论是技术文档、个人博客还是项目说明，Markdown 都是你的得力助手。希望这篇内容能够带你全面了解 Markdown 的潜力，让你的写作更加丰富多彩！
+淘汰一切以打印为目的的文档格式。内容和样式分离才是面向 AI 时代正确的写作方式。加我微信 **Aui_Team** 聊天。
 
-现在，拿起 Markdown 编辑器，开始创作吧！探索 Markdown 的世界，你会发现它远比想象中更精彩！
-
-#### 推荐阅读
-
-- [阿里又一个 20k+ stars 开源项目诞生，恭喜 fastjson！](https://mp.weixin.qq.com/s/RNKDCK2KoyeuMeEs6GUrow)
-- [刷掉 90% 候选人的互联网大厂海量数据面试题（附题解 + 方法总结）](https://mp.weixin.qq.com/s/rjGqxUvrEqJNlo09GrT1Dw)
-- [好用！期待已久的文本块功能究竟如何在 Java 13 中发挥作用？](https://mp.weixin.qq.com/s/kalGv5T8AZGxTnLHr2wDsA)
-- [2019 GitHub 开源贡献排行榜新鲜出炉！微软谷歌领头，阿里跻身前 12！](https://mp.weixin.qq.com/s/_q812aGD1b9QvZ2WFI0Qgw)
-
----
-
-<center>
-    <img src="https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/1648303220922-7e14aefa-816e-44c1-8604-ade709ca1c69.png" style="width: 100px;">
-</center>
+![加我微信聊天](https://docs.auiapps.top/resource/img/wechat.png =30%)
