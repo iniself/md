@@ -74,19 +74,30 @@ function togglePostExpanded(postId: string) {
     targetPost.collapsed = !targetPost.collapsed
   }
 }
+
+/*
+ * 判断文章是否有子文章
+ */
+function isHasChild(postId: string) {
+  return props.sortedPosts.some(p => p.parentId === postId)
+}
 </script>
 
 <template>
   <div v-for="post in props.sortedPosts.filter(p => (props.parentId == null && p.parentId == null) || p.parentId === props.parentId)" :key="post.id">
     <!-- 根文章外层容器 -->
     <a
-      class="hover:text-primary-foreground hover:bg-primary w-full inline-flex cursor-pointer items-center gap-1 rounded p-2 text-sm transition-colors"
-      :class="{
-        'bg-primary text-primary-foreground shadow': store.currentPostId === post.id,
-        'opacity-50': props.dragSourceId === post.id,
-        'outline-2 outline-dashed outline-primary  border-gray-200 bg-gray-400/50 dark:border-gray-200 dark:bg-gray-500/50':
-          props.dropTargetId === post.id,
-      }"
+      class="w-full inline-flex cursor-pointer items-center gap-1 rounded p-2 text-sm transition-colors"
+      :class="[
+        // eslint-disable-next-line vue/prefer-separate-static-class
+        'hover:text-primary-foreground hover:bg-primary',
+        {
+          'bg-primary text-primary-foreground shadow-sm': store.currentPostId === post.id,
+          'opacity-50': props.dragSourceId === post.id,
+          'outline-2 outline-dashed outline-primary  border-gray-200 bg-gray-400/50 dark:border-gray-200 dark:bg-gray-500/50':
+            props.dropTargetId === post.id,
+        },
+      ]"
       draggable="true"
       @dragstart="handleDragStart(post.id, $event)"
       @dragend="props.handleDragEnd"
@@ -100,7 +111,8 @@ function togglePostExpanded(postId: string) {
         size="xs"
         variant="ghost"
         class="h-max p-0.5"
-        @click.stop="togglePostExpanded(post.id)"
+        :class="isHasChild(post.id) ? 'opacity-100' : 'opacity-0'"
+        @click.stop="isHasChild(post.id) && togglePostExpanded(post.id)"
       >
         <ChevronRight
           class="size-4 transition-transform"
@@ -142,17 +154,10 @@ function togglePostExpanded(postId: string) {
     </a>
 
     <div
-      v-if="!post.collapsed"
+      v-if="isHasChild(post.id) && !post.collapsed"
       class="space-y-1 ml-4 mt-1 border-l-2 border-gray-300 pl-1 dark:border-gray-700"
     >
-      <span
-        v-if="!props.sortedPosts.some((p) => p.parentId === post.id)"
-        class="ml-2 text-xs"
-      >
-        暂无内容
-      </span>
       <PostItem
-        v-else
         :parent-id="post.id"
         :sorted-posts="props.sortedPosts"
         :start-rename-post="props.startRenamePost"
