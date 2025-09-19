@@ -450,7 +450,7 @@ onUnmounted(() => {
             :max-size="store.isOpenLeftSlider && store.isOpenTocSlider ? 30 : 0"
             :min-size="store.isOpenLeftSlider && store.isOpenTocSlider ? 10 : 0"
           >
-            <div class="overflow-auto p-4">
+            <div class="overflow-auto p-4" style="max-height: 100%;">
               <h3 class="mb-2 font-bold">
                 目录
               </h3>
