@@ -290,7 +290,7 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
                   }
                   @media (min-width: 768px) {
                     body {
-                    max-width: 700px;
+                    max-width: 80ch;
                     margin: 0 auto;
                     }
                   }
