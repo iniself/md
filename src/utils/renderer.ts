@@ -37,6 +37,15 @@ marked.setOptions({
 marked.use(markedSlider())
 marked.use(markedAdmonitionExtension())
 
+let __mermaidIdCounter = 0
+
+function genMermaidId(): string {
+  const ts = Date.now() // 毫秒
+  __mermaidIdCounter = (__mermaidIdCounter + 1) % 10000 // 防止无限增大，循环 0000-9999
+  const counter = __mermaidIdCounter.toString().padStart(4, `0`)
+  return `${ts}${counter}`
+}
+
 function buildTheme({ theme: _theme, fonts, size, isUseIndent }: IOpts): ThemeStyles {
   const theme = cloneDeep(_theme)
   const base = toMerged(theme.base, {
@@ -361,8 +370,9 @@ export function initRenderer(opts: IOpts): RendererAPI {
           }
         }
 
-        const svgId = `mermaid-${Date.now()}`
-        const preId = `mermaid-pre-${Date.now()}`
+        const svgId = `mermaid-${genMermaidId()}`
+        const preId = `mermaid-pre-${genMermaidId()}`
+
         const figureHTML = `<figure style="text-align:center; ${style}">
           <pre class="mermaid" data-processed="true" id="${preId}">${text}</pre>
           ${caption}
