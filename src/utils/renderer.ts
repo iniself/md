@@ -211,7 +211,6 @@ export function initRenderer(opts: IOpts): RendererAPI {
   const footnotes: [number, string, string][] = []
   let footnoteIndex: number = 0
   let styleMapping: ThemeStyles = buildTheme(opts)
-  let codeIndex: number = 0
   const listOrderedStack: boolean[] = []
   const listCounters: number[] = []
 
@@ -334,16 +333,60 @@ export function initRenderer(opts: IOpts): RendererAPI {
         return `<p lang="en" ${styles(`p`, `;text-align: justify;hyphens: auto; word-wrap: break-word !important;padding-right: 0.5em;`)}>${marked.parseInline(text)}</p>`
       }
       if (lang.startsWith(`mermaid`)) {
-        clearTimeout(codeIndex)
-        codeIndex = setTimeout(() => {
-          mermaid.initialize({
-            securityLevel: `loose`,
-            htmlLabels: false,
-          })
-          mermaid.run()
-        }, 0) as any as number
-        return `<pre class="mermaid">${text}</pre>`
+        // 提取尺寸参数: 支持 px 或 %
+        // 格式支持：
+        //   mermaid 400x300
+        //   mermaid 500
+        //   mermaid 80%
+        //   mermaid 100%x400
+
+        // eslint-disable-next-line regexp/no-super-linear-backtracking
+        const match = lang.match(/^mermaid(?:\s+([0-9%]+(?:x[0-9%]+)?))?(?:\s+(.*))?$/)
+        let style = `width:80%;margin:0 auto;display:block;`
+        let caption = ``
+        if (match) {
+          const size = match[1]
+          const cap = match[2]
+          if (size) {
+            if (size.includes(`x`)) {
+              const [w, h] = size.split(`x`)
+              style = `width:${w.endsWith(`%`) ? w : `${w}px`};height:${h.endsWith(`%`) ? h : `${h}px`};margin:0 auto;display:block;`
+            }
+            else {
+              style = `width:${size.endsWith(`%`) ? size : `${size}px`};margin:0 auto;display:block;`
+            }
+          }
+          if (cap) {
+            caption = `<figcaption style="text-align:center; color: rgb(128, 128, 128); font-size:0.8em">${cap}</figcaption>`
+          }
+        }
+
+        const svgId = `mermaid-${Date.now()}`
+        const preId = `mermaid-pre-${Date.now()}`
+        const figureHTML = `<figure style="text-align:center; ${style}">
+          <pre class="mermaid" data-processed="true" id="${preId}">${text}</pre>
+          ${caption}
+        </figure>`
+        mermaid.render(svgId, text).then(({ svg }) => {
+          const container = document.getElementById(preId)
+          if (container) {
+            container.innerHTML
+            = container.innerHTML = svg.replace(
+                /<svg([^>]*)>/,
+                (_, attrs) => {
+                  if (/style="/.test(attrs)) {
+                    return `<svg${attrs.replace(/style="(.*?)"/, `style="display:block;margin:0 auto;$1"`)}>`
+                  }
+                  else {
+                    return `<svg${attrs} style="display:block;margin:0 auto;">`
+                  }
+                },
+              )
+          }
+        })
+        return figureHTML
       }
+
       const langText = lang.split(` `)[0]
       const language = hljs.getLanguage(langText) ? langText : `plaintext`
       let highlighted = hljs.highlight(text, { language }).value
