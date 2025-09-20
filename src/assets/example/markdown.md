@@ -117,7 +117,7 @@ fn main() {
 
 
 ## 注释
-不想渲染出来的  markdown 内容可以通过 `<!--  -->` 进行注释。`Command + /`
+不想渲染出来的 markdown 内容可以通过 `<!--  -->` 进行注释。`Command + /`
 
 <!-- # 被注释的内容 -->
 
@@ -208,9 +208,9 @@ Markdown 允许嵌入 LaTeX 语法展示数学公式：
 
 ## Mermaid 流程图：可视化流程
 
-Mermaid 是强大的可视化工具，可以在 Markdown 中创建流程图、时序图等。
+Mermaid 是强大的可视化工具，可以在 Markdown 中创建流程图、时序图等。Doc^red:+^ 支持设置图形大小和标题。
 
-```mermaid
+```mermaid 横向流程图
 graph LR
   A[GraphCommand] --> B[update]
   A --> C[goto]
@@ -222,7 +222,7 @@ graph LR
 ```
 ---
 
-```mermaid
+```mermaid 60% 纵向流程图
 graph TD;
   A-->B;
   A-->C;
@@ -232,7 +232,7 @@ graph TD;
 
 ---
 
-```mermaid
+```mermaid 70% 饼图
 pie
   title Key elements in Product X
   "Calcium" : 42.96
@@ -241,6 +241,7 @@ pie
   "Iron" : 5
 ```
 ---
+
 > 更多用法，参见：[Mermaid User Guide](https://mermaid.js.org/intro/getting-started.html)。
 
 ## 结语

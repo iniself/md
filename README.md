@@ -31,9 +31,9 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 6. 增加上标下标语法。`Docs^red:+^` 上标语法，颜色设置成`theme`可以跟随主题色`Docs^+^`不设置颜色。`H~red:2~O^`下标语法，颜色同上标。微信和 HTML支持，知乎不支持。快捷键：`Command + Option + P` 和 `Command + Option + B`。
 7. 增加 Admonition：
 `abstract/attention/bug/caution/danger/error/example/failure/hint/info/note/question/quote/success/tip/warning`。微信和 HTML 支持，知乎不支持。快捷键：`Command + Option + A`。
-1. 删除线随主题色改变，同时加粗。
-2. 增加对纯英文的格式支持。
-3. 增加了配置图片 `width`、`height`、`object-fit` 的语法。比如下面分别会设置图片为宽度 `200px` 高度 `300px` object-fit `cover`；和宽度为 `50%` object-fit `contain`
+8. 删除线随主题色改变，同时加粗。
+9. 增加对纯英文的格式支持。
+10. 增加了配置图片 `width`、`height`、`object-fit` 的语法。比如下面分别会设置图片为宽度 `200px` 高度 `300px` object-fit `cover`；和宽度为 `50%` object-fit `contain`
       ```
       <!-- 单位为 px -->
     https://example.com/image.png =200x300 @cover
@@ -42,11 +42,12 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
     https://example.com/image.png =50% @cotain
 
       ```
-4.  表格语法扩展。支持合并单元格等操作。详见[这里](https://docs.auiapps.top)
-5.  增加配置：
+11.  表格语法扩展。支持合并单元格等操作。详见[这里](https://docs.auiapps.top)
+12.  `mermaid` 支持设置图形大小、居中和标题。
+13.  增加配置：
       * 提供隐藏不必要功能的选项：AI助手、AI工具箱、发布按钮。
       * 样式类配置：段落对齐方式、表头文字是否居中。
-6.  增加 `gitee` 图床支持。
+14.  增加 `gitee` 图床支持。
 
 #### 删减
 1. 删除 google analytics
