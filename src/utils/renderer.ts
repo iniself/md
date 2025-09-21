@@ -341,6 +341,9 @@ export function initRenderer(opts: IOpts): RendererAPI {
       if (lang.startsWith(`en`)) {
         return `<p lang="en" ${styles(`p`, `;text-align: justify;hyphens: auto; word-wrap: break-word !important;padding-right: 0.5em;`)}>${marked.parseInline(text)}</p>`
       }
+      if (lang.startsWith(`center`)) {
+        return `<p ${styles(`p`, `;text-align: center`)}>${marked.parseInline(text)}</p>`
+      }
       if (lang.startsWith(`mermaid`)) {
         // 提取尺寸参数: 支持 px 或 %
         // 格式支持：
