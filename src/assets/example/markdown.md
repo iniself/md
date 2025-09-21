@@ -1,6 +1,6 @@
-# Doc^red:+^ 基础 Markdown 语法
+# Docs^red:+^ 基础 Markdown 语法
 
-<center style="font-size:90%"><i>Doc<sup style="color:red;">+</sup> 基于 <a href="https://github.com/doocs/md" target="_blank" rel="noopener noreferrer">Doocs</a></i></center>
+<center style="font-size:90%"><i>Docs<sup style="color:red;">+</sup> 基于 <a href="https://github.com/doocs/md" target="_blank" rel="noopener noreferrer">Doocs</a></i></center>
 
 ## 前言
 
@@ -35,7 +35,7 @@ Markdown 中的段落就是一行接一行的文本。要创建新段落，只�
 - ~~删除线~~：用两个波浪线包裹文字或`Command + D`，如 `~~删除线~~`。
 - ++下划线++：用两个 `+` 包裹文字或`Command + U`，如 `++下划线++`。
 
-这些简单的标记可以让你的内容更有层次感和重点突出。另外 Doc^red:+^ 还提供额外的样式设置，快捷键：`Command + J`
+这些简单的标记可以让你的内容更有层次感和重点突出。另外 Docs^red:+^ 还提供额外的样式设置，快捷键：`Command + J`
 
 =white:theme:12 白色文字，主题色背景，12px 大小的文字=
 
@@ -94,6 +94,14 @@ Markdown 中的段落就是一行接一行的文本。要创建新段落，只�
     ```js    
     console.log("Hello, You!");
     ```
+- **纯英语排版**：用三个反引号包裹，语言用 `en`，如：
+	```en
+    Digital businesses will not long survive processes that rely on ++individual heroes++. To satisfy the demands of, say, a typical user of an app, mobile transactions must be reliable and seamless. This means that, to play in the digital economy, companies need to replace their dysfunctional systems and processes with an operational backbone.
+    ```
+- **居中文字**：用三个反引号包裹，语言用 `center`，如：
+  ```center
+  =default:: *居中文字*=
+  ```
 
 ## 提示块
 
@@ -175,7 +183,7 @@ Markdown 最简单的表格语法是，用 `|` 和 `-` 分隔单元格和表头�
 |⭐️⭐️⭐️⭐️⭐️|数据质量监控|
 
 
-# Doc^red:+^ 进阶 Markdown 语法
+# Docs^red:+^ 进阶 Markdown 语法
 
 ## LaTeX 公式：完美展示数学表达式
 
