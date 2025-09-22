@@ -294,6 +294,12 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
                     margin: 0 auto;
                     }
                   }
+                  @media print {
+                    * {
+                      -webkit-print-color-adjust: exact;
+                      print-color-adjust: exact;
+                    }
+                  }
                   `
                 head.appendChild(style)
                 cleanedHtmlFinal = tempDoc.documentElement.outerHTML
