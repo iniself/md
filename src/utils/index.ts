@@ -11,10 +11,12 @@ import * as prettierPluginMarkdown from 'prettier/plugins/markdown'
 import * as prettierPluginCss from 'prettier/plugins/postcss'
 import { format } from 'prettier/standalone'
 import { prefix } from '@/config/prefix'
+import pagedjs from '@/lib/paged.min.js?raw'
 import type { Block, ExtendedProperties, Inline, Theme } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 import { addSpacingToMarkdown } from '@/utils/autoSpace'
 import admonition_css from './admonition/index.css?inline'
+
 import markedAlert from './MDAlert'
 
 import { MDKatex } from './MDKatex'
@@ -415,6 +417,11 @@ export function exportPDF(primaryColor: string, title: string = `untitled`) {
         
         @media print {
           body { margin: 0; }
+          * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            }
+          }
         }
       </style>
     </head>
@@ -423,19 +430,22 @@ export function exportPDF(primaryColor: string, title: string = `untitled`) {
         ${htmlStr}
       </div>
     </body>
+    <script>
+      ${pagedjs}
+      document.addEventListener("DOMContentLoaded", async () => {
+        const previewer = new PagedModule.Previewer()
+        await previewer.preview()
+        window.onafterprint = () => window.close()
+        window.print()
+        setTimeout(() => {
+          try { window.close() } catch (e) {}
+        }, 50)
+      })
+    </script>
     </html>
   `)
 
   printWindow.document.close()
-
-  // 等待内容加载完成后自动打开打印对话框
-  printWindow.onload = () => {
-    printWindow.print()
-    // 打印完成后关闭窗口
-    printWindow.onafterprint = () => {
-      printWindow.close()
-    }
-  }
 }
 
 export function checkImage(file: File) {
