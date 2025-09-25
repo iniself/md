@@ -589,7 +589,7 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
     <!-- 左侧菜单：移动端隐藏 -->
     <div class="space-x-2 hidden sm:flex">
       <Menubar class="menubar">
-        <TocMenu />
+        <TocMenu v-if="store.isOpenLeftSlider" />
         <!-- <FileDropdown /> -->
         <FileDropdown
           @start-copy="fileDropDownStartCopy"
