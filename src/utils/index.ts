@@ -400,7 +400,7 @@ export function exportPDF(content: string) {
     topCenter = `
       @top-center {
         content: "${safeTitle}";
-        font-size: 12px;
+        font-size: 10px;
         color: #666;
         font-style: italic;
       }
@@ -412,7 +412,7 @@ export function exportPDF(content: string) {
     topLeft = `
       @top-left {
         content: "${store.topLeft}";
-        font-size: 12px;
+        font-size: 10px;
         color: #666;
         font-style: italic;
       }
@@ -424,7 +424,7 @@ export function exportPDF(content: string) {
     topRight = `
       @top-right {
         content: "${store.topRight}";
-        font-size: 12px;
+        font-size: 10px;
         color: #666;
         font-style: italic;
       }
