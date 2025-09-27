@@ -1,5 +1,5 @@
 import type { EmitFn } from 'vue'
-import { processClipboardContent } from '@/utils'
+import { processClipboardContent, solveWeChatImage } from '@/utils'
 
 const { copy: copyContent } = useClipboard({
   legacy: true,
@@ -250,6 +250,7 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
                   a.replaceWith(span)
                 }
               })
+              solveWeChatImage(tempDoc, mode)
             }
 
             cleanedHtmlFinal = tempDoc.body.innerHTML

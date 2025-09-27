@@ -9,7 +9,7 @@ import {
 } from 'lucide-vue-next'
 import { altKey, altSign, ctrlKey, ctrlSign, shiftSign } from '@/config'
 import { useStore } from '@/stores'
-import { addPrefix, processClipboardContent } from '@/utils'
+import { addPrefix, processClipboardContent, solveWeChatImage } from '@/utils'
 import TocMenu from '../TocMenu.vue'
 
 const emit = defineEmits([`startCopy`, `endCopy`])
@@ -368,6 +368,7 @@ async function copy() {
                 a.replaceWith(span)
               }
             })
+            solveWeChatImage(tempDoc, copyMode.value)
           }
 
           if (copyMode.value === `html`) {

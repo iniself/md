@@ -609,25 +609,25 @@ export function removeLeft(str: string) {
   return lines.map(item => item.slice(minSpaceNum)).join(`\n`)
 }
 
-export function solveWeChatImage() {
-  const clipboardDiv = document.getElementById(`output`)!
-  const images = clipboardDiv.getElementsByTagName(`img`)
-
-  Array.from(images).forEach((image) => {
-    const src = image.getAttribute(`src`) || ``
-    if (src.includes(`wsrv.nl`) && src.includes(`url=`)) {
-      try {
-        const urlParam = new URL(src).searchParams.get(`url`)
-        if (urlParam) {
-          const decoded = decodeURIComponent(urlParam)
-          image.setAttribute(`src`, decoded)
+export function solveWeChatImage(doc: Document, mode: string) {
+  const images = doc.getElementsByTagName(`img`)
+  if (mode === `txt`) {
+    Array.from(images).forEach((image) => {
+      const src = image.getAttribute(`src`) || ``
+      if (src.includes(`wsrv.nl`) && src.includes(`url=`) && src.includes(`qpic`)) {
+        try {
+          const urlParam = new URL(src).searchParams.get(`url`)
+          if (urlParam) {
+            const decoded = decodeURIComponent(urlParam)
+            image.setAttribute(`src`, decoded)
+          }
+        }
+        catch (err) {
+          console.warn(`无法解析图片 URL:`, src, err)
         }
       }
-      catch (err) {
-        console.warn(`无法解析图片 URL:`, src, err)
-      }
-    }
-  })
+    })
+  }
 }
 
 function mergeCss(html: string): string {
@@ -679,9 +679,6 @@ export function processClipboardContent(primaryColor: string) {
       /<span class="edgeLabel"([^>]*)><p[^>]*>(.*?)<\/p><\/span>/g,
       `<span class="edgeLabel"$1>$2</span>`,
     )
-
-  // 处理图片大小
-  solveWeChatImage()
 
   // 添加空白节点用于兼容 SVG 复制
   const beforeNode = createEmptyNode()
