@@ -375,18 +375,82 @@ export function toBase64(file: Blob) {
 
 /**
  * 导出 PDF 文档
- * @param {string} primaryColor - 主色调
- * @param {string} title - 文档标题
+ * @param {string} content
  */
-export function exportPDF(primaryColor: string, title: string = `untitled`) {
-  const htmlStr = processHtmlContent(primaryColor)
-  const safeTitle = sanitizeTitle(title)
+export function exportPDF(content: string) {
+  const store = useStore()
+  const htmlStr = content
+  let safeTitle = ``
+
+  if (store.currentPdfTitle) {
+    safeTitle = sanitizeTitle(store.currentPdfTitle)
+  }
 
   // 创建新窗口用于打印
   const printWindow = window.open(``, `_blank`)
   if (!printWindow) {
     console.error(`无法打开打印窗口`)
     return
+  }
+
+  const printMargin = store.printMargin ? store.printMargin : `0px`
+
+  let topCenter = ``
+  if (safeTitle) {
+    topCenter = `
+      @top-center {
+        content: "${safeTitle}";
+        font-size: 12px;
+        color: #666;
+        font-style: italic;
+      }
+    `
+  }
+
+  let topLeft = ``
+  if (store.topLeft) {
+    topLeft = `
+      @top-left {
+        content: "${store.topLeft}";
+        font-size: 12px;
+        color: #666;
+        font-style: italic;
+      }
+    `
+  }
+
+  let topRight = ``
+  if (store.topRight) {
+    topRight = `
+      @top-right {
+        content: "${store.topRight}";
+        font-size: 12px;
+        color: #666;
+        font-style: italic;
+      }
+    `
+  }
+
+  let bottomLeft = ``
+  if (store.bottomLeft) {
+    bottomLeft = `
+      @bottom-left {
+        content: "${store.bottomLeft}";
+        font-size: 10px;
+        color: #999;
+      }
+    `
+  }
+
+  let bottomRight = ``
+  if (store.bottomRight) {
+    bottomRight = `
+      @bottom-right {
+        content: ${store.bottomRight};
+        font-size: 10px;
+        color: #999;
+      }
+    `
   }
 
   // 写入HTML内容，包含自定义页眉页脚
@@ -398,29 +462,56 @@ export function exportPDF(primaryColor: string, title: string = `untitled`) {
       <title>${safeTitle}</title>
       <style>
         @page {
-          @top-center {
-            content: "${safeTitle}";
-            font-size: 12px;
-            color: #666;
-          }
-          @bottom-left {
-            content: "微信 Markdown 编辑器";
-            font-size: 10px;
-            color: #999;
-          }
-          @bottom-right {
-            content: "第 " counter(page) " 页，共 " counter(pages) " 页";
-            font-size: 10px;
-            color: #999;
-          }
+          size: A4;
+          margin: ${printMargin};
+          ${topLeft}
+          ${topRight}
+          ${topCenter}
+          ${bottomLeft}
+          ${bottomRight}
         }
         
         @media print {
-          body { margin: 0; }
+          body { 
+            margin: 0; 
+          }
           * {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            }
+          }
+          .no-print, nav, footer, .buttons, .ads {
+            display: none !important;
+          }
+          a[href]:after {
+            content: " (" attr(href) ")";
+            font-size: 10pt;
+          }
+          img {
+            max-width: 100%;
+            page-break-inside: avoid;
+          }
+          table {
+            page-break-inside: avoid;
+          }
+          tr, td, th {
+            page-break-inside: avoid;
+          }
+          tfoot {
+            display: table-footer-group;
+          }
+          thead {
+            display: table-header-group;
+          }
+          h1 {
+            page-break-after: avoid;
+            page-break-inside: avoid;
+            page-break-before: always;
+          }
+          h1:first-child {
+            page-break-before: auto;
+          }
+          .page-break {
+            page-break-before: always; /* 强制换页 */
           }
         }
       </style>

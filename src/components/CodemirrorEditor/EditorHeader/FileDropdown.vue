@@ -16,10 +16,11 @@ const {
   exportEditorContent2PureHTML,
   exportEditorContent2MD,
   downloadAsCardImage,
-  exportEditorContent2PDF,
+  export2PDF,
 } = store
 
 const editorStateDialogVisible = ref(false)
+const exportPdfDialogVisible = ref(false)
 
 const importMarkdownContent = useImportMarkdownContent()
 </script>
@@ -46,7 +47,7 @@ const importMarkdownContent = useImportMarkdownContent()
         <FileCode class="mr-2 size-4" />
         导出 .html（无样式）
       </MenubarItem>
-      <MenubarItem @click="exportEditorContent2PDF()">
+      <MenubarItem @click="exportPdfDialogVisible = true">
         <FileText class="mr-2 size-4" />
         导出 .pdf
       </MenubarItem>
@@ -72,4 +73,6 @@ const importMarkdownContent = useImportMarkdownContent()
 
   <!-- 各弹窗挂载 -->
   <EditorStateDialog :visible="editorStateDialogVisible" @close="editorStateDialogVisible = false" />
+
+  <ExportPdfDialog :visible="exportPdfDialogVisible" @startpdf="export2PDF(emit)" @close="exportPdfDialogVisible = false" />
 </template>

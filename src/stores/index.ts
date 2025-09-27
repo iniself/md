@@ -12,6 +12,14 @@ import {
   widthOptions,
 } from '@/config'
 import {
+  DEFAULT_BOTTOM_LEFT,
+  DEFAULT_BOTTOM_RIGHT,
+  DEFAULT_PRINT_MARGIN,
+  DEFAULT_TOP_LEFT,
+  DEFAULT_TOP_RIGHT,
+} from '@/constants/PDFConfig'
+
+import {
   addPrefix,
   downloadFile,
   downloadMD,
@@ -21,6 +29,7 @@ import {
   formatDoc,
   sanitizeTitle,
 } from '@/utils'
+
 import { css2json, customCssWithTemplate, customizeTheme, postProcessHtml, renderMarkdown } from '@/utils/'
 import { copyPlain } from '@/utils/clipboard'
 import copy from '@/utils/contentExporter'
@@ -661,9 +670,10 @@ export const useStore = defineStore(`store`, () => {
   }
 
   // 导出编辑器内容为 PDF
-  const exportEditorContent2PDF = () => {
-    exportPDF(primaryColor.value, posts.value[currentPostIndex.value].title)
-    document.querySelector(`#output`)!.innerHTML = output.value
+  async function export2PDF(emit: any) {
+    // 放入拷贝 html 的逻辑代码
+    const fullHtml = await copy(`outhtml`, emit)
+    exportPDF(fullHtml!)
   }
 
   // 导出编辑器内容到本地
@@ -718,6 +728,35 @@ export const useStore = defineStore(`store`, () => {
   // 重置样式
   const resetStyleConfirm = () => {
     isOpenConfirmDialog.value = true
+  }
+
+  const printMargin = useStorage<string>(`print_margin`, DEFAULT_PRINT_MARGIN)
+  // const topCenter = useStorage<string>(`print_top_center`, DEFAULT_TOP_CENTER)
+  const topLeft = useStorage<string>(`print_top_left`, DEFAULT_TOP_LEFT)
+  const topRight = useStorage<string>(`print_top_right`, DEFAULT_TOP_RIGHT)
+  const bottomLeft = useStorage<string>(`print_bottom_left`, DEFAULT_BOTTOM_LEFT)
+  const bottomRight = useStorage<string>(`print_bottom_right`, DEFAULT_BOTTOM_RIGHT)
+
+  const pdfTitle = ref<string | undefined>(undefined)
+  const currentPdfTitle = computed<string>({
+    get() {
+      const idx = currentPostIndex.value
+      return pdfTitle.value === undefined
+        ? posts.value[idx].title
+        : pdfTitle.value
+    },
+    set(val: string) {
+      pdfTitle.value = val
+    },
+  })
+
+  function resetPdfConfig() {
+    printMargin.value = DEFAULT_PRINT_MARGIN
+    topLeft.value = DEFAULT_TOP_LEFT
+    topRight.value = DEFAULT_TOP_RIGHT
+    bottomLeft.value = DEFAULT_BOTTOM_LEFT
+    bottomRight.value = DEFAULT_BOTTOM_RIGHT
+    pdfTitle.value = undefined
   }
 
   return {
@@ -778,7 +817,7 @@ export const useStore = defineStore(`store`, () => {
     export2HTML,
     exportEditorContent2PureHTML,
     exportEditorContent2MD,
-    exportEditorContent2PDF,
+    export2PDF,
     downloadAsCardImage,
 
     importDefaultContent,
@@ -817,6 +856,14 @@ export const useStore = defineStore(`store`, () => {
     updatePostParentId,
     collapseAllPosts,
     expandAllPosts,
+    pdfTitle,
+    currentPdfTitle,
+    printMargin,
+    topLeft,
+    topRight,
+    bottomLeft,
+    bottomRight,
+    resetPdfConfig,
   }
 })
 
