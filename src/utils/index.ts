@@ -419,16 +419,35 @@ export function exportPDF(content: string) {
     `
   }
 
+  let pdfchapter = ``
+
   let topRight = ``
   if (store.topRight) {
-    topRight = `
-      @top-right {
-        content: "${store.topRight}";
-        font-size: 10px;
-        color: #666;
-        font-style: italic;
-      }
-    `
+    if (store.topRight === `h1` || store.topRight === `h2`) {
+      pdfchapter = `
+        ${store.topRight} {
+          string-set: chapter content();
+        }
+      `
+      topRight = `
+        @top-right {
+          content: string(chapter);
+          font-size: 10px;
+          color: #666;
+          font-style: italic;
+        }
+      `
+    }
+    else {
+      topRight = `
+        @top-right {
+          content: "${store.topRight}";
+          font-size: 10px;
+          color: #666;
+          font-style: italic;
+        }
+      `
+    }
   }
 
   let bottomLeft = ``
@@ -461,6 +480,7 @@ export function exportPDF(content: string) {
       <meta charset="utf-8">
       <title>${safeTitle}</title>
       <style>
+        ${pdfchapter}
         @page {
           size: A4;
           margin: ${printMargin};
@@ -470,8 +490,20 @@ export function exportPDF(content: string) {
           ${bottomLeft}
           ${bottomRight}
         }
-        
+        @page :blank {
+          @top-left { content: none; }
+          @top-center { content: none; }
+          @top-right { content: none; }
+          @bottom-left { content: none; }
+          @bottom-center { content: none; }
+          @bottom-right { content: none; }
+        }          
         @media print {
+          html, body {
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+          }
           body { 
             margin: 0; 
           }
@@ -511,7 +543,7 @@ export function exportPDF(content: string) {
             page-break-before: auto;
           }
           .page-break {
-            page-break-before: always; /* 强制换页 */
+            page-break-before: always;
           }
         }
       </style>
