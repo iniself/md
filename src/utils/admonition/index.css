@@ -1,7 +1,7 @@
 .admonition {
   background-color: var(--bg-color);
   border-radius: 0.5rem;
-  box-shadow: 0 0 0.4rem 0 var(--bg);
+  border: 0.2rem solid var(--bg-title);
   color: var(--color);
   display: flow-root;
   font-size: 1rem;
