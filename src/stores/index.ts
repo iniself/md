@@ -156,6 +156,11 @@ export const useStore = defineStore(`store`, () => {
   // 是否为移动端
   const isMobile = useStorage(`isMobile`, false)
 
+  // 是否 Electron 环境
+  const isElectron = useStorage(`isElectron`, typeof navigator === `object` && typeof navigator.userAgent === `string` && navigator.userAgent.toLowerCase().includes(`electron`))
+  // 是否 Tauri 环境
+  const isTauri = useStorage(`isTauri`, typeof window !== `undefined` && `__TAURI__` in window)
+
   function handleResize() {
     isMobile.value = window.innerWidth <= 768
   }
@@ -853,6 +858,8 @@ export const useStore = defineStore(`store`, () => {
 
     titleList,
     isMobile,
+    isElectron,
+    isTauri,
     updatePostParentId,
     collapseAllPosts,
     expandAllPosts,
