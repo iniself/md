@@ -768,7 +768,7 @@ export function exportPDFByTauri(content: string) {
     </script>
     </html>
   `);
-  (window as any).__TAURI__.core.invoke(`print_html`, { print_html: printHtml })
+  (window as any).__TAURI__.core.invoke(`print_html`, { html: printHtml })
 }
 
 export function checkImage(file: File) {
