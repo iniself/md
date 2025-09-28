@@ -25,6 +25,7 @@ import {
   downloadMD,
   exportHTML,
   exportPDF,
+  exportPDFByTauri,
   exportPureHTML,
   formatDoc,
   sanitizeTitle,
@@ -678,7 +679,12 @@ export const useStore = defineStore(`store`, () => {
   async function export2PDF(emit: any) {
     // 放入拷贝 html 的逻辑代码
     const fullHtml = await copy(`outhtml`, emit)
-    exportPDF(fullHtml!)
+    if (isTauri.value) {
+      exportPDFByTauri(fullHtml!)
+    }
+    else {
+      exportPDF(fullHtml!)
+    }
   }
 
   // 导出编辑器内容到本地

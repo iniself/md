@@ -514,7 +514,208 @@ export function exportPDF(content: string) {
           .no-print, nav, footer, .buttons, .ads {
             display: none !important;
           }
-          a[href]:after {
+          a[href]:not([href^="#"]):after {
+            content: " (" attr(href) ")";
+            font-size: 10pt;
+          }
+          img {
+            max-width: 100%;
+            page-break-inside: avoid;
+          }
+          table {
+            page-break-inside: avoid;
+          }
+          tr, td, th {
+            page-break-inside: avoid;
+          }
+          tfoot {
+            display: table-footer-group;
+          }
+          thead {
+            display: table-header-group;
+          }
+          h1 {
+            page-break-after: avoid;
+            page-break-inside: avoid;
+            page-break-before: always;
+          }
+          h1:first-child {
+            page-break-before: auto;
+          }
+          .page-break {
+            page-break-before: always;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div style="width: 100%; max-width: 750px; margin: auto;">
+        ${htmlStr}
+      </div>
+    </body>
+    <script>
+      ${pagedjs}
+      document.addEventListener("DOMContentLoaded", async () => {
+        const previewer = new PagedModule.Previewer()
+        await previewer.preview()
+        if(${store.isElectron}){
+          if(window.electronAPI){
+            await window.electronAPI.printToPdf()
+            window.close()
+          }else{
+            console.warn('⚠️ electronAPI 不存在，执行原生打印');
+            window.onafterprint = () => window.close()
+            window.print()
+            setTimeout(() => {
+              try { window.close() } catch (e) {}
+            }, 50)
+          }
+        }else{
+          window.onafterprint = () => window.close()
+          window.print()
+          setTimeout(() => {
+            try { window.close() } catch (e) {}
+          }, 50)
+        }
+      })
+    </script>
+    </html>
+  `)
+
+  printWindow.document.close()
+}
+
+export function exportPDFByTauri(content: string) {
+  const store = useStore()
+  const htmlStr = content
+  let safeTitle = ``
+
+  if (store.currentPdfTitle) {
+    safeTitle = sanitizeTitle(store.currentPdfTitle)
+  }
+
+  const printMargin = store.printMargin ? store.printMargin : `0px`
+
+  let topCenter = ``
+  if (safeTitle) {
+    topCenter = `
+      @top-center {
+        content: "${safeTitle}";
+        font-size: 10px;
+        color: #666;
+        font-style: italic;
+      }
+    `
+  }
+
+  let topLeft = ``
+  if (store.topLeft) {
+    topLeft = `
+      @top-left {
+        content: "${store.topLeft}";
+        font-size: 10px;
+        color: #666;
+        font-style: italic;
+      }
+    `
+  }
+
+  let pdfchapter = ``
+
+  let topRight = ``
+  if (store.topRight) {
+    if (store.topRight === `h1` || store.topRight === `h2`) {
+      pdfchapter = `
+        ${store.topRight} {
+          string-set: chapter content();
+        }
+      `
+      topRight = `
+        @top-right {
+          content: string(chapter);
+          font-size: 10px;
+          color: #666;
+          font-style: italic;
+        }
+      `
+    }
+    else {
+      topRight = `
+        @top-right {
+          content: "${store.topRight}";
+          font-size: 10px;
+          color: #666;
+          font-style: italic;
+        }
+      `
+    }
+  }
+
+  let bottomLeft = ``
+  if (store.bottomLeft) {
+    bottomLeft = `
+      @bottom-left {
+        content: "${store.bottomLeft}";
+        font-size: 10px;
+        color: #999;
+      }
+    `
+  }
+
+  let bottomRight = ``
+  if (store.bottomRight) {
+    bottomRight = `
+      @bottom-right {
+        content: ${store.bottomRight};
+        font-size: 10px;
+        color: #999;
+      }
+    `
+  }
+
+  // 写入HTML内容，包含自定义页眉页脚
+  const printHtml = (`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${safeTitle}</title>
+      <style>
+        ${pdfchapter}
+        @page {
+          size: A4;
+          margin: ${printMargin};
+          ${topLeft}
+          ${topRight}
+          ${topCenter}
+          ${bottomLeft}
+          ${bottomRight}
+        }
+        @page :blank {
+          @top-left { content: none; }
+          @top-center { content: none; }
+          @top-right { content: none; }
+          @bottom-left { content: none; }
+          @bottom-center { content: none; }
+          @bottom-right { content: none; }
+        }          
+        @media print {
+          html, body {
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+          }
+          body { 
+            margin: 0; 
+          }
+          * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .no-print, nav, footer, .buttons, .ads {
+            display: none !important;
+          }
+          a[href]:not([href^="#"]):after {
             content: " (" attr(href) ")";
             font-size: 10pt;
           }
@@ -566,9 +767,8 @@ export function exportPDF(content: string) {
       })
     </script>
     </html>
-  `)
-
-  printWindow.document.close()
+  `);
+  (window as any).__TAURI__.core.invoke(`print_html`, { print_html: printHtml })
 }
 
 export function checkImage(file: File) {
