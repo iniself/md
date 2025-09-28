@@ -15,8 +15,9 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 
 #### 特点
 1. 项目完全自依赖，运行时不需要外部资源。可以保持完全离线使用。
-2. 已打包 macos 和 windows 的桌面应用，安装即用，同时自带了微信图床的代理服务。请到 [release](/releases/) 下载。
-3. 也可以 git clone 本仓库后按照 [Doocs](https://github.com/doocs/md?tab=readme-ov-file#%E5%A6%82%E4%BD%95%E5%BC%80%E5%8F%91%E5%92%8C%E9%83%A8%E7%BD%B2) 介绍自行构建 Web App。但是微信图床代理服务需要自己搭建。
+2. 追求多端统一的样式效果：html、pdf（借助 pagedjs）、微信公众号、知乎文章等。
+3. 已打包 macos 和 windows 的桌面应用，安装即用，同时自带了微信图床的代理服务。请到 [release](/releases/) 下载。
+4. 也可以 git clone 本仓库后按照 [Doocs](https://github.com/doocs/md?tab=readme-ov-file#%E5%A6%82%E4%BD%95%E5%BC%80%E5%8F%91%E5%92%8C%E9%83%A8%E7%BD%B2) 介绍自行构建 Web App。但是微信图床代理服务需要自己搭建。
 
 #### 增加
 
