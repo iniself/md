@@ -78,15 +78,15 @@ export const useStore = defineStore(`store`, () => {
   const toggleUseWsrv = useToggle(useWsrv)
 
   // 是否开启 AI 工具箱
-  const showAIToolbox = useStorage(`showAIToolbox`, true)
+  const showAIToolbox = useStorage(`showAIToolbox`, false)
   const toggleAIToolbox = useToggle(showAIToolbox)
 
   // 是否开启 AI 助手
-  const showAIAssistant = useStorage(`showAIAssistant`, true)
+  const showAIAssistant = useStorage(`showAIAssistant`, false)
   const toggleAIAssistant = useToggle(showAIAssistant)
 
   // 是否显示 发布 按钮
-  const showPublish = useStorage(`showPublish`, true)
+  const showPublish = useStorage(`showPublish`, false)
   const togglePublish = useToggle(showPublish)
 
   // 是否统计字数和阅读时间
