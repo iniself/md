@@ -28,7 +28,7 @@ const validLinks = computed(() => links.value.filter(link => !!link.url))
 async function getAddress() {
   try {
     const data = (await fetch.get(
-      `https://just.auiapps.top/moredetail.json`,
+      `https://docs.auiapps.top/moredetail.json`,
     )) as { url: string }
     links.value = links.value.map(link => link.label === `了解更多` ? { ...link, url: data.url } : link)
   }
