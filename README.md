@@ -68,9 +68,8 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 
 
 #### TODO
-1. 渲染引擎和 mdbook 结合
-2. 增加本地图床 
-3. 完善 PDF 导出功能
+1. 增加本地图床 
+2. 渲染引擎和 mdbook 结合
 
 ### 联系
 
