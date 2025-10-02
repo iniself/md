@@ -3,12 +3,53 @@ import { toTypedSchema } from '@vee-validate/yup'
 import { UploadCloud } from 'lucide-vue-next'
 import { Field, Form } from 'vee-validate'
 import * as yup from 'yup'
-import { useDisplayStore } from '@/stores'
+import { useDisplayStore, useStore } from '@/stores'
 import { checkImage } from '@/utils'
 
 const emit = defineEmits([`uploadImage`])
 
 const displayStore = useDisplayStore()
+const store = useStore()
+
+// local
+const localSchema = toTypedSchema(yup.object({
+  port: yup.string(),
+  imagePath: yup.string(),
+}))
+
+const localConfig = ref(localStorage.getItem(`localConfig`)
+  ? JSON.parse(localStorage.getItem(`localConfig`)!)
+  : { port: ``, imagePath: `` })
+
+function localSubmit(formValues: any) {
+  if (store.isElectron && (window as any).electronAPI) {
+    (window as any).electronAPI.setLocalImageArgs(formValues)
+  }
+
+  if (store.isTauri && (window as any).__TAURI__) {
+    (window as any).__TAURI__.core.invoke(`set_local_image_args`, { path: formValues.imagePath, port: formValues.port })
+  }
+
+  localStorage.setItem(`localConfig`, JSON.stringify(formValues))
+  localConfig.value = formValues
+  toast.success(`保存成功`)
+}
+
+// let localImageServerPort: Ref<string> = ref(``)
+// let localImageServerPath: Ref<string> = ref(``)
+
+// function getLocalImageServeSettings(){
+//   if(store.isElectron && (window as any).electronAPI){
+//     // (window as any).electronAPI.setLocalImageArgs(formValues);
+//   }
+
+//   if(store.isTauri && (window as any).__TAURI__){
+//     (window as any).__TAURI__.core.invoke('get_local_image_args').then((settings: any)=> {
+//       localImageServerPort.value = settings.port
+//       localImageServerPath.value = settings.path
+//     }).catch((err: any) => console.error(err))
+//   }
+// }
 
 // github
 const githubSchema = toTypedSchema(yup.object({
@@ -316,9 +357,10 @@ function cloudinarySubmit(formValues: any) {
 }
 
 const options = [
+  ...((store.isElectron || store.isTauri) ? [{ value: `local`, label: `本地图床` }] : []),
   {
     value: `default`,
-    label: `默认`,
+    label: `默认Github`,
   },
   {
     value: `github`,
@@ -368,7 +410,10 @@ const options = [
   },
 ]
 
-const imgHost = ref(`default`)
+let imgHost = ref(`github`)
+if (store.isElectron || store.isTauri) {
+  imgHost = ref(`local`)
+}
 const useCompression = ref(false)
 const activeName = ref(`upload`)
 
@@ -500,6 +545,35 @@ function onDrop(e: DragEvent) {
               <strong>点击上传</strong>
             </p>
           </div>
+        </TabsContent>
+
+        <TabsContent value="local">
+          <Form :validation-schema="localSchema" :initial-values="localConfig" @submit="localSubmit">
+            <Field v-slot="{ field, errorMessage }" name="port">
+              <FormItem label="端口" :error="errorMessage">
+                <Input
+                  v-bind="field"
+                  v-model="field.value"
+                  placeholder="如：8092，可不填，默认 8092"
+                />
+              </FormItem>
+            </Field>
+
+            <Field v-slot="{ field, errorMessage }" name="imagePath">
+              <FormItem label="图片存储路径" :error="errorMessage">
+                <Input
+                  v-bind="field"
+                  v-model="field.value"
+                  placeholder="默认用户目录下的 docs-images"
+                />
+              </FormItem>
+            </Field>
+            <FormItem>
+              <Button type="submit">
+                保存配置
+              </Button>
+            </FormItem>
+          </Form>
         </TabsContent>
 
         <TabsContent value="github">

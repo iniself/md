@@ -1,8 +1,22 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { Toaster } from '@/components/ui/sonner'
 import CodemirrorEditor from '@/views/CodemirrorEditor.vue'
 
 const store = useStore()
+
+onMounted(() => {
+  const raw = localStorage.getItem(`localConfig`)
+  const config = raw ? JSON.parse(raw) : null
+  if (config && (config.port || config.imagePath)) {
+    if (store.isElectron && (window as any).electronAPI) {
+      (window as any).electronAPI.setLocalImageArgs(config)
+    }
+    if (store.isTauri && (window as any).__TAURI__) {
+      (window as any).__TAURI__.core.invoke(`set_local_image_args`, { path: config.imagePath, port: config.port })
+    }
+  }
+})
 </script>
 
 <template>

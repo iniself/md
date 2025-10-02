@@ -8,6 +8,7 @@ import * as qiniu from 'qiniu-js'
 import OSS from 'tiny-oss'
 import { v4 as uuidv4 } from 'uuid'
 import { giteeConfig, githubConfig } from '@/config'
+import { localImageServer } from '@/config/local-image-server'
 import fetch from '@/utils/fetch'
 import * as tokenTools from '@/utils/tokenTools'
 import { base64encode, safe64, utf16to8 } from '@/utils/tokenTools'
@@ -76,6 +77,26 @@ function getDateFilename(filename: string) {
   // 获取最后一个点号后的内容作为文件扩展名
   const fileSuffix = filename.split(`.`).pop()
   return `${currentTimestamp}-${uuidv4()}.${fileSuffix}`
+}
+
+async function localUpload(file: File) {
+  const { port } = JSON.parse(
+    localStorage.getItem(`localConfig`)!,
+  )
+  const finalPort = port || localImageServer.port
+  const url = `http://127.0.0.1:${finalPort}/upload`
+  const formData = new FormData()
+  formData.append(`file`, file, file.name || `upload.png`)
+  const res = await fetch<any, any>(url, {
+    method: `POST`,
+    data: formData,
+  })
+
+  if (!res) {
+    throw new Error(`Upload failed`)
+  }
+  // data = { url: "http://127.0.0.1:8092/static/2025-09-30/xxx.png" }
+  return `${res.url}`
 }
 
 // -----------------------------------------------------------------------
@@ -620,6 +641,8 @@ export function fileUpload(content: string, file: File) {
     localStorage.setItem(`imgHost`, `default`)
   }
   switch (imgHost) {
+    case `local`:
+      return localUpload(file)
     case `aliOSS`:
       return aliOSSFileUpload(file)
     case `minio`:
@@ -645,9 +668,7 @@ export function fileUpload(content: string, file: File) {
     case `formCustom`:
       return formCustomUpload(content, file)
     default:
-      // return file.size / 1024 < 1024
-      //     ? giteeUpload(content, file.name)
-      //     : ghFileUpload(content, file.name);
+      // 默认本地图床
       return ghFileUpload(content, file.name)
   }
 }
