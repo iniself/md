@@ -445,7 +445,7 @@ function beforeImageUpload(file: File) {
   }
   // check image host
   let imgHost = localStorage.getItem(`imgHost`)
-  imgHost = imgHost || `default`
+  imgHost = imgHost || `github`
   localStorage.setItem(`imgHost`, imgHost)
 
   const config = localStorage.getItem(`${imgHost}Config`)

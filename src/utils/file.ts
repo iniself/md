@@ -638,7 +638,7 @@ async function formCustomUpload(content: string, file: File) {
 export function fileUpload(content: string, file: File) {
   const imgHost = localStorage.getItem(`imgHost`)
   if (!imgHost) {
-    localStorage.setItem(`imgHost`, `default`)
+    localStorage.setItem(`imgHost`, `github`)
   }
   switch (imgHost) {
     case `local`:
