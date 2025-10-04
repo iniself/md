@@ -343,6 +343,39 @@ const changeTimer = ref<NodeJS.Timeout>()
 
 const editorRef = useTemplateRef<HTMLTextAreaElement>(`editorRef`)
 
+function tableToMarkdown(text: string): string {
+  const rows = text.split(`\n`).map(row => row.split(`\t`))
+  let markdown = ``
+
+  // 标记第一列是否有表头
+  const hasFirstColHeader = rows[0][0]?.trim() !== ``
+
+  rows.forEach((cells, rowIndex) => {
+    const line = cells.map((cell, colIndex) => {
+      const trimmed = cell.trim()
+
+      if (trimmed !== ``) {
+        return trimmed
+      }
+      else {
+        if (colIndex === 0 && hasFirstColHeader && rowIndex > 0) {
+          return `^`
+        }
+        return ``
+      }
+    }).join(`|`)
+
+    markdown += `|${line}|\n`
+
+    if (rowIndex === 0) {
+      const sep = cells.map(() => `---`).join(`|`)
+      markdown += `|${sep}|\n`
+    }
+  })
+
+  return markdown
+}
+
 function createFormTextArea(dom: HTMLTextAreaElement) {
   const textArea = fromTextArea(dom, {
     mode: `text/x-markdown`,
@@ -371,17 +404,31 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
     }, 300)
   })
 
+  // textArea.on(`drop`, async (_editor, event) => {
+  // 拖动图片上传的处理逻辑
+  // })
+
   // 粘贴上传图片并插入
   textArea.on(`paste`, (_editor, event) => {
     if (!(event.clipboardData?.items) || isImgLoading.value) {
       return
     }
 
-    const items = [...event.clipboardData.items].map(item => item.getAsFile()).filter(item => item != null && beforeUpload(item)) as File[]
-
-    for (const item of items) {
-      uploadImage(item)
+    const tableContent = event.clipboardData.getData(`text/plain`)
+    if (tableContent && tableContent.includes(`\t`)) {
+      // 是表格
+      const markdownTable = tableToMarkdown(tableContent)
+      const cursor = editor.value!.getCursor()
       event.preventDefault()
+      toRaw(store.editor!).replaceSelection(`${markdownTable}\n`, cursor as any)
+    }
+    else {
+      const items = [...event.clipboardData.items].map(item => item.getAsFile()).filter(item => item != null && beforeUpload(item)) as File[]
+
+      for (const item of items) {
+        uploadImage(item)
+        event.preventDefault()
+      }
     }
   })
 

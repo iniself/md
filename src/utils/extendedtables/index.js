@@ -130,7 +130,7 @@ export default function (stylesFN, { interruptPatterns = [], skipEmptyRows = tru
           const store = useStore() // eslint-disable-line no-undef
           const { isCenterHeader, primaryColor } = storeToRefs(store) // eslint-disable-line no-undef
           let i, j, row, cell, col, text
-          let output = `<section style="padding:0 8px; max-width: 100%; overflow: auto"><table class="preview-table">`
+          let output = `<section style="padding:0 8px; max-width: 100%; overflow: auto"><table class="preview-table" style="border-collaps: collapse">`
           const isTable = token.header[0][0].text !== `cols`
           if (isTable) {
             output += `<thead ${stylesFN(`thead`)}>`
