@@ -132,7 +132,7 @@ async function ghFileUpload(content: string, filename: string) {
     data: {
       content,
       branch,
-      message: `Upload by ${window.location.href}`,
+      message: `Upload by ${filename}`,
     },
   })
   const githubResourceUrl = `raw.githubusercontent.com/${username}/${repo}/${branch}/`
@@ -172,7 +172,7 @@ async function giteeUpload(content: any, filename: string) {
       content,
       branch,
       access_token: accessToken,
-      message: `Upload by ${window.location.href}`,
+      message: `Upload ${filename}`,
     },
   })
   res.content = res.data?.content || res.content
