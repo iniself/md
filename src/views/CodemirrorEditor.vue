@@ -197,11 +197,41 @@ async function compressImage(file: File) {
   return compressedFile
 }
 
+const isUploadWithDefaultImageHostConfirmDialog = ref(false)
+const pendingFile = ref<File | null>(null)
+const pendingCb = ref<((url: any) => void) | undefined>()
+
 async function uploadImage(
   file: File,
   cb?: { (url: any): void, (arg0: unknown): void } | undefined,
 ) {
+  const imgHost = localStorage.getItem(`imgHost`)
+  if (imgHost === `default`) {
+    pendingFile.value = file
+    pendingCb.value = cb
+    isUploadWithDefaultImageHostConfirmDialog.value = true
+  }
+  else {
+    uploadImageReal(file, cb)
+  }
+}
+
+function confirmUploadWithDefaultHost() {
+  if (pendingFile.value) {
+    uploadImageReal(pendingFile.value, pendingCb.value)
+  }
+  isUploadWithDefaultImageHostConfirmDialog.value = false
+  pendingFile.value = null
+  pendingCb.value = undefined
+}
+
+async function uploadImageReal(
+  file?: File,
+  cb?: { (url: any): void, (arg0: unknown): void } | undefined,
+) {
   try {
+    if (!file)
+      return
     isImgLoading.value = true
 
     // compress image if useCompression is true
@@ -224,7 +254,16 @@ async function uploadImage(
   }
   finally {
     isImgLoading.value = false
+    pendingFile.value = null
+    pendingCb.value = undefined
+    isUploadWithDefaultImageHostConfirmDialog.value = false
   }
+}
+
+function cancelUpload() {
+  pendingFile.value = null
+  pendingCb.value = undefined
+  isUploadWithDefaultImageHostConfirmDialog.value = false
 }
 
 // 从文件列表中查找一个 md 文件并解析
@@ -645,6 +684,23 @@ onUnmounted(() => {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction @click="store.resetStyle()">
+              确认
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog v-model:open="isUploadWithDefaultImageHostConfirmDialog">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>提示</AlertDialogTitle>
+            <AlertDialogDescription>你将上传图片到公开的 Github 仓库，你确定吗？</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel @click="cancelUpload">
+              取消
+            </AlertDialogCancel>
+            <AlertDialogAction @click="confirmUploadWithDefaultHost">
               确认
             </AlertDialogAction>
           </AlertDialogFooter>
