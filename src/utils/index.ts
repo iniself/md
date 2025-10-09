@@ -560,7 +560,7 @@ export function exportPDF(content: string) {
         await previewer.preview()
         if(${store.isElectron}){
           if(window.electronAPI){
-            await window.electronAPI.printToPdf()
+            await window.electronAPI.printToPdf("${store.posts[store.currentPostIndex].title}")
             window.close()
           }else{
             console.warn('⚠️ electronAPI 不存在，执行原生打印');
