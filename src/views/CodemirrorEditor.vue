@@ -176,7 +176,9 @@ function uploaded(imageUrl: string) {
     toast.error(`上传图片未知异常`)
     return
   }
-  toggleShowUploadImgDialog(false)
+  setTimeout(() => {
+    toggleShowUploadImgDialog(false)
+  }, 1000)
   // 上传成功，获取光标
   const cursor = editor.value!.getCursor()
   const markdownImage = `![](${imageUrl})`
@@ -200,25 +202,28 @@ async function compressImage(file: File) {
 const isUploadWithDefaultImageHostConfirmDialog = ref(false)
 const pendingFile = ref<File | null>(null)
 const pendingCb = ref<((url: any) => void) | undefined>()
+const pendingApplyUrl = ref<boolean | undefined>(true)
 
 async function uploadImage(
   file: File,
-  cb?: { (url: any): void, (arg0: unknown): void } | undefined,
+  cb?: { (url: any, data: string): void, (arg0: unknown): void } | undefined,
+  applyUrl?: boolean,
 ) {
   const imgHost = localStorage.getItem(`imgHost`)
   if (imgHost === `default`) {
     pendingFile.value = file
     pendingCb.value = cb
+    pendingApplyUrl.value = applyUrl
     isUploadWithDefaultImageHostConfirmDialog.value = true
   }
   else {
-    uploadImageReal(file, cb)
+    await uploadImageReal(file, cb, applyUrl)
   }
 }
 
-function confirmUploadWithDefaultHost() {
+async function confirmUploadWithDefaultHost() {
   if (pendingFile.value) {
-    uploadImageReal(pendingFile.value, pendingCb.value)
+    await uploadImageReal(pendingFile.value, pendingCb.value, pendingApplyUrl.value)
   }
   isUploadWithDefaultImageHostConfirmDialog.value = false
   pendingFile.value = null
@@ -227,7 +232,8 @@ function confirmUploadWithDefaultHost() {
 
 async function uploadImageReal(
   file?: File,
-  cb?: { (url: any): void, (arg0: unknown): void } | undefined,
+  cb?: { (url: any, data: string): void, (arg0: unknown): void } | undefined,
+  applyUrl?: boolean,
 ) {
   try {
     if (!file)
@@ -243,10 +249,13 @@ async function uploadImageReal(
     const base64Content = await toBase64(file)
     const url = await fileUpload(base64Content, file)
     if (cb) {
-      cb(url)
+      cb(url, base64Content)
     }
     else {
       uploaded(url)
+    }
+    if (applyUrl) {
+      return uploaded(url)
     }
   }
   catch (err) {
@@ -381,7 +390,7 @@ function mdLocalToRemote() {
 const changeTimer = ref<NodeJS.Timeout>()
 
 const editorRef = useTemplateRef<HTMLTextAreaElement>(`editorRef`)
-
+const progressValue = ref(0)
 function tableToMarkdown(text: string): string {
   const rows = text.split(`\n`).map(row => row.split(`\t`))
   let markdown = ``
@@ -448,11 +457,10 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
   // })
 
   // 粘贴上传图片并插入
-  textArea.on(`paste`, (_editor, event) => {
+  textArea.on(`paste`, async (_editor, event) => {
     if (!(event.clipboardData?.items) || isImgLoading.value) {
       return
     }
-
     const tableContent = event.clipboardData.getData(`text/plain`)
     if (tableContent && tableContent.includes(`\t`)) {
       // 是表格
@@ -463,11 +471,30 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
     }
     else {
       const items = [...event.clipboardData.items].map(item => item.getAsFile()).filter(item => item != null && beforeUpload(item)) as File[]
-
-      for (const item of items) {
-        uploadImage(item)
-        event.preventDefault()
+      if (items.length === 0) {
+        return
       }
+      // start progress
+      const intervalId = setInterval(() => {
+        const newProgress = progressValue.value + 1
+        if (newProgress >= 100) {
+          return
+        }
+        progressValue.value = newProgress
+      }, 100)
+      for (const item of items) {
+        event.preventDefault()
+        await uploadImage(item)
+      }
+      const cleanup = () => {
+        clearInterval(intervalId)
+        progressValue.value = 100 // 设置完成状态
+        // 可选：延迟一段时间后重置进度
+        setTimeout(() => {
+          progressValue.value = 0
+        }, 1000)
+      }
+      cleanup()
     }
   })
 
@@ -525,11 +552,17 @@ onMounted(() => {
 // 销毁，清理定时器
 onUnmounted(() => {
   clearTimeout(historyTimer.value)
+  clearTimeout(timeout.value)
+  clearTimeout(changeTimer.value)
+
+  // 清理全局事件监听器 - 防止全局事件触发已销毁的组件
+  document.removeEventListener(`keydown`, handleGlobalKeydown)
 })
 </script>
 
 <template>
   <div class="container flex flex-col">
+    <Progress v-model="progressValue" class="absolute left-0 right-0 rounded-none" style="height: 2px;" />
     <EditorHeader
       @start-copy="startCopy"
       @end-copy="endCopy"

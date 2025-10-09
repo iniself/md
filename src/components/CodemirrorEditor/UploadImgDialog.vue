@@ -470,7 +470,7 @@ onChange((files) => {
 
   const file = files[0]
 
-  beforeImageUpload(file) && emit(`uploadImage`, file)
+  beforeImageUpload(file) && emitUploads(file)
   reset()
 })
 
@@ -478,7 +478,35 @@ function onDrop(e: DragEvent) {
   dragover.value = false
   e.stopPropagation()
   const file = Array.from(e.dataTransfer!.files)[0]
-  beforeImageUpload(file) && emit(`uploadImage`, file)
+  beforeImageUpload(file) && emitUploads(file)
+}
+const progressValue = ref(0)
+const imageUrl = ref(``)
+function emitUploads(file: File) {
+  progressValue.value = 0
+  const intervalId = setInterval(() => {
+    const newProgress = progressValue.value + 1
+    if (newProgress >= 100) {
+      return
+    }
+    progressValue.value = newProgress
+  }, 100)
+
+  // 监听上传完成事件，在真正完成后清除定时器和设置100%
+  const cleanup = (_url: string, data: string) => {
+    clearInterval(intervalId)
+    progressValue.value = 100
+    if (data) {
+      imageUrl.value = `data:image/png;base64,${data}`
+    }
+    // 可选：延迟一段时间后重置进度
+    setTimeout(() => {
+      progressValue.value = 0
+      imageUrl.value = ``
+    }, 1000)
+  }
+
+  emit(`uploadImage`, file, cleanup, true)
 }
 </script>
 
@@ -530,7 +558,7 @@ function onDrop(e: DragEvent) {
             />
           </Label>
           <div
-            class="bg-clip-padding mt-4 h-50 flex flex-col cursor-pointer items-center justify-evenly border-2 rounded border-dashed transition-colors hover:border-gray-700 hover:bg-gray-400/50 dark:hover:border-gray-200 dark:hover:bg-gray-500/50"
+            class="bg-clip-padding relative mt-4 h-50 flex flex-col cursor-pointer items-center justify-evenly border-2 rounded border-dashed transition-colors hover:border-gray-700 hover:bg-gray-400/50 dark:hover:border-gray-200 dark:hover:bg-gray-500/50"
             :class="{
               'border-gray-700 bg-gray-400/50 dark:border-gray-200 dark:bg-gray-500/50': dragover,
             }"
@@ -539,11 +567,15 @@ function onDrop(e: DragEvent) {
             @dragover.prevent="dragover = true"
             @dragleave.prevent="dragover = false"
           >
+            <Progress v-model="progressValue" class="absolute left-0 right-0 rounded-none" style="top: -24px; height: 2px;" />
             <UploadCloud class="size-20" />
             <p>
               将图片拖到此处，或
               <strong>点击上传</strong>
             </p>
+            <div v-if="imageUrl" class="absolute left-0 right-0 h-full w-full flex items-center justify-center bg-white dark:bg-black">
+              <img :src="imageUrl" class="object-contain max-h-40">
+            </div>
           </div>
         </TabsContent>
 
