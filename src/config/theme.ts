@@ -192,7 +192,7 @@ const defaultTheme: Theme = {
     // 有序列表
     ol: {
       'list-style': `decimal`,
-      'padding-left': `1em`,
+      'padding-left': `1.2em`,
       'margin-left': `0`,
       'color': `hsl(var(--foreground))`,
     },
@@ -200,7 +200,7 @@ const defaultTheme: Theme = {
     // 无序列表
     ul: {
       'list-style': `square`,
-      'padding-left': `1em`,
+      'padding-left': `1.2em`,
       'margin-left': `0`,
       'color': `hsl(var(--foreground))`,
     },
