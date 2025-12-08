@@ -287,7 +287,7 @@ const defaultTheme: Theme = {
       'border': `1px solid #dfdfdf`,
       'padding': `0.25em 0.5em`,
       'color': `hsl(var(--foreground))`,
-      'word-break': `keep-all`,
+      'word-break': `break-all`,
       'background': `rgba(0, 0, 0, 0.05)`,
     },
 
@@ -295,7 +295,7 @@ const defaultTheme: Theme = {
       'border': `1px solid #dfdfdf`,
       'padding': `0.25em 0.5em`,
       'color': `hsl(var(--foreground))`,
-      'word-break': `keep-all`,
+      'word-break': `break-all`,
     },
 
     footnote: {
