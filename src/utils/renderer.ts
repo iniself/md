@@ -14,6 +14,7 @@ import type { RendererAPI } from '@/types/renderer-types'
 import { delwsrv } from '@/utils'
 import { getStyleString } from '.'
 import markedAdmonitionExtension from './admonition/index.ts'
+import renderCsvTable from './extendedtables/csv2table.ts'
 // @ts-expect-error: not ts
 import markedExtendedtables from './extendedtables/index.js'
 import markedAbbr from './MDAbbr'
@@ -338,6 +339,9 @@ export function initRenderer(opts: IOpts): RendererAPI {
     },
 
     code({ text, lang = `` }: Tokens.Code): string {
+      if (lang === `csv`) {
+        return renderCsvTable(text, styles)
+      }
       if (lang.startsWith(`en`)) {
         return `<p lang="en" ${styles(`p`, `;text-align: justify;hyphens: auto; word-wrap: break-word !important;padding-right: 0.5em;`)}>${marked.parseInline(text)}</p>`
       }
