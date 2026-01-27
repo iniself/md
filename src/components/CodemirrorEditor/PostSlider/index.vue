@@ -26,8 +26,12 @@ function openAddPostDialog(id: string) {
 function addPost() {
   if (!addPostInputVal.value.trim())
     return toast.error(`内容标题不可为空`)
-  if (store.posts.some(post => post.title === addPostInputVal.value.trim()))
-    return toast.error(`内容标题已存在`)
+  for (const post of store.posts) {
+    // eslint-disable-next-line eqeqeq
+    if (post.title === addPostInputVal.value.trim() && post.parentId == parentId.value) {
+      return toast.error(`内容标题已在`)
+    }
+  }
   store.addPost(addPostInputVal.value.trim(), parentId.value)
   isOpenAddDialog.value = false
   toast.success(`内容新增成功`)
