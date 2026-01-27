@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download, FileCode, FileCog, FileText, Upload } from 'lucide-vue-next'
+import { Download, FileCode, FileCog, FileText, FolderOpen, Upload } from 'lucide-vue-next'
 import { useStore } from '@/stores'
 
 const emit = defineEmits([`startCopy`, `endCopy`])
@@ -9,6 +9,7 @@ const store = useStore()
 const {
   isDark,
   isEditOnLeft,
+  isOpenFolderPanel,
 } = storeToRefs(store)
 
 const {
@@ -31,6 +32,11 @@ const importMarkdownContent = useImportMarkdownContent()
       文件
     </MenubarTrigger>
     <MenubarContent align="start">
+      <!-- 本地文件夹 -->
+      <MenubarItem @click="isOpenFolderPanel = !isOpenFolderPanel">
+        <FolderOpen class="mr-2 size-4" />
+        本地文件夹
+      </MenubarItem>
       <MenubarItem @click="importMarkdownContent()">
         <Upload class="mr-2 size-4" />
         导入 .md

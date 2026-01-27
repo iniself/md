@@ -133,6 +133,7 @@ export const useStore = defineStore(`store`, () => {
   const isOpenRightSlider = useStorage(addPrefix(`is_open_right_slider`), false)
   const isOpenLeftSlider = useStorage(addPrefix(`is_open_left_slider`), true)
   const isOpenPostSlider = useStorage(addPrefix(`is_open_post_slider`), true)
+  const isOpenFolderPanel = useStorage(addPrefix(`is_open_folder_panel`), false)
   const isOpenTocSlider = useStorage(addPrefix(`is_open_toc_slider`), false)
 
   /*******************************
@@ -218,6 +219,22 @@ export const useStore = defineStore(`store`, () => {
       content: `# ${title}`,
       history: [
         { datetime: new Date().toLocaleString(`zh-cn`), content: `# ${title}` },
+      ],
+      createDatetime: new Date(),
+      updateDatetime: new Date(),
+      parentId,
+    }
+    posts.value.push(newPost)
+    currentPostId.value = newPost.id
+  }
+
+  const addLocalPost = (title: string, content: string, parentId: string | null = null) => {
+    const newPost: Post = {
+      id: uuid(),
+      title,
+      content,
+      history: [
+        { datetime: new Date().toLocaleString(`zh-cn`), content },
       ],
       createDatetime: new Date(),
       updateDatetime: new Date(),
@@ -855,10 +872,12 @@ export const useStore = defineStore(`store`, () => {
     currentPostIndex,
     getPostById,
     addPost,
+    addLocalPost,
     renamePost,
     delPost,
     isOpenLeftSlider,
     isOpenPostSlider,
+    isOpenFolderPanel,
     isOpenTocSlider,
     isOpenRightSlider,
 
@@ -939,6 +958,7 @@ export function getAllStoreStates() {
     isOpenRightSlider: store.isOpenRightSlider,
     isOpenLeftSlider: store.isOpenLeftSlider,
     isOpenPostSlider: store.isOpenPostSlider,
+    isOpenFolderPanel: store.isOpenFolderPanel,
     isOpenTocSlider: store.isOpenTocSlider,
     theme: store.theme,
     fontFamily: store.fontFamily,

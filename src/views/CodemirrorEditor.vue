@@ -9,6 +9,7 @@ import {
   AIPolishPopover,
   useAIPolish,
 } from '@/components/AIPolish'
+import FolderSourcePanel from '@/components/CodemirrorEditor/FolderSourcePanel.vue'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -603,6 +604,14 @@ onUnmounted(() => {
             </div>
           </ResizablePanel>
           <ResizableHandle />
+          <ResizablePanel
+            :default-size="store.isOpenFolderPanel ? 15 : 0"
+            :max-size="store.isOpenFolderPanel ? 25 : 0"
+            :min-size="store.isOpenFolderPanel ? 10 : 0"
+          >
+            <FolderSourcePanel />
+          </ResizablePanel>
+          <ResizableHandle v-if="store.isOpenFolderPanel" class="hidden md:block" />
           <ResizablePanel class="flex">
             <div
               v-show="!store.isMobile || (store.isMobile && showEditor)"
