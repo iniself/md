@@ -89,6 +89,10 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
       })
     },
 
+    // [`${ctrlKey}-S`]: function saveToFile(editor) {
+    //   const value = editor.getValue()
+    // },
+
     [`${ctrlKey}-Z`]: function undo(editor) {
       editor.undo()
     },

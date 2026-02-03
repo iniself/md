@@ -54,6 +54,9 @@ interface Post {
   parentId?: string | null
   // 展开状态
   collapsed?: boolean
+  isFolder?: boolean
+  localFile?: string | null
+  nodePath?: string | null
 }
 
 export const useStore = defineStore(`store`, () => {
@@ -104,6 +107,10 @@ export const useStore = defineStore(`store`, () => {
   // 表头文字是否居中
   const isCenterHeader = useStorage(`isCenterHeader`, true)
   const toggleHeaderStyle = useToggle(isCenterHeader)
+
+  // 是否自动保存到文件
+  const isAutoSync = useStorage(`isAutoSync`, false)
+  const toggleAutoSync = useToggle(isAutoSync)
 
   const output = ref(``)
 
@@ -228,7 +235,7 @@ export const useStore = defineStore(`store`, () => {
     currentPostId.value = newPost.id
   }
 
-  const addLocalPost = (title: string, content: string, parentId: string | null = null) => {
+  const addLocalPost = (title: string, content: string, parentId: string | null = null, isFolder: boolean = false, localFile: string | null = null, nodePath: string | null = null) => {
     const newPost: Post = {
       id: uuid(),
       title,
@@ -239,9 +246,20 @@ export const useStore = defineStore(`store`, () => {
       createDatetime: new Date(),
       updateDatetime: new Date(),
       parentId,
+      isFolder,
+      localFile,
+      nodePath,
     }
     posts.value.push(newPost)
     currentPostId.value = newPost.id
+  }
+
+  // 同步文件到文章
+  const syncFileToPost = (id: string, content: string) => {
+    const post = getPostById(id)
+    if (post)
+      post.content = content
+    editor.value && toRaw(editor.value).setValue(content)
   }
 
   const renamePost = (id: string, title: string) => {
@@ -647,6 +665,10 @@ export const useStore = defineStore(`store`, () => {
     toggleHeaderStyle()
   })
 
+  const autoSyncChanged = withAfterRefresh(() => {
+    toggleAutoSync()
+  })
+
   const aiToolboxChanged = withAfterRefresh(() => {
     toggleAIToolbox()
   })
@@ -814,6 +836,9 @@ export const useStore = defineStore(`store`, () => {
     isCenterHeader,
     centerHeaderChanged,
 
+    isAutoSync,
+    autoSyncChanged,
+
     isCountStatus,
     countStatusChanged,
 
@@ -873,6 +898,7 @@ export const useStore = defineStore(`store`, () => {
     getPostById,
     addPost,
     addLocalPost,
+    syncFileToPost,
     renamePost,
     delPost,
     isOpenLeftSlider,
@@ -955,6 +981,7 @@ export function getAllStoreStates() {
     isUseIndent: store.isUseIndent,
     isJustify: store.isJustify,
     isCenterHeader: store.isCenterHeader,
+    isAutoSync: store.isAutoSync,
     isOpenRightSlider: store.isOpenRightSlider,
     isOpenLeftSlider: store.isOpenLeftSlider,
     isOpenPostSlider: store.isOpenPostSlider,
@@ -967,6 +994,7 @@ export function getAllStoreStates() {
     codeBlockTheme: store.codeBlockTheme,
     legend: store.legend,
     currentPostId: store.currentPostId,
+    syncFileToPost: store.syncFileToPost,
     currentPostIndex: store.currentPostIndex,
     posts: store.posts,
     cssContentConfig: store.cssContentConfig,

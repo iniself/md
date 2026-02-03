@@ -3,10 +3,13 @@ import {
   ChevronRight,
   Edit3,
   Ellipsis,
+  Folder,
   History,
+  Paperclip,
   PlusSquare,
   Trash2,
 } from 'lucide-vue-next'
+import { watch } from 'vue'
 import { useStore } from '@/stores'
 
 interface Post {
@@ -23,6 +26,9 @@ interface Post {
   parentId?: string | null
   // 展开状态
   collapsed?: boolean
+  isFolder?: boolean
+  localFile?: string | null
+  nodePath?: string | null
 }
 
 const props = defineProps<{
@@ -48,6 +54,10 @@ const props = defineProps<{
   handleDragEnd: () => void
   // 以添加子文章的方式打开对话框
   openAddPostDialog: (parentId: string) => void
+}>()
+
+const emit = defineEmits<{
+  (e: `selectPost`, postId: string): void
 }>()
 
 const store = useStore()
@@ -104,7 +114,7 @@ function isHasChild(postId: string) {
       @drop.prevent="props.handleDrop(post.id)"
       @dragover.stop.prevent="props.setDropTargetId(post.id)"
       @dragleave.prevent="props.setDropTargetId(null)"
-      @click="store.currentPostId = post.id"
+      @click="emit('selectPost', post.id)"
     >
       <!-- 折叠展开图标 -->
       <Button
@@ -120,7 +130,7 @@ function isHasChild(postId: string) {
         />
       </Button>
 
-      <span class="line-clamp-1">{{ post.title }}</span>
+      <span class="line-clamp-1"><Paperclip v-if="post.localFile && !post.isFolder" class="mr-2 inline size-4" /><Folder v-else-if="post.isFolder" class="mr-2 inline size-4" /> {{ post.title }}</span>
 
       <!-- 每条文章操作 -->
       <DropdownMenu>
@@ -170,6 +180,7 @@ function isHasChild(postId: string) {
         :handle-drag-end="props.handleDragEnd"
         :handle-drop="props.handleDrop"
         :open-add-post-dialog="props.openAddPostDialog"
+        @select-post="emit('selectPost', $event)"
       />
     </div>
   </div>

@@ -4,6 +4,7 @@ import type { ComponentPublicInstance } from 'vue'
 import imageCompression from 'browser-image-compression'
 import { fromTextArea } from 'codemirror'
 import { Eye, Pen } from 'lucide-vue-next'
+import { onMounted, onUnmounted, watch } from 'vue'
 import {
   AIPolishButton,
   AIPolishPopover,
@@ -16,11 +17,13 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { SearchTab } from '@/components/ui/search-tab'
+import { useFolderSourceStore } from '@/stores/folderSource'
 import { checkImage, toBase64 } from '@/utils'
 import { createExtraKeys } from '@/utils/editor'
 import { fileUpload } from '@/utils/file'
 
 const store = useStore()
+const folderSourceStore = useFolderSourceStore()
 const displayStore = useDisplayStore()
 
 const { isDark, output, editor } = storeToRefs(store)
@@ -142,6 +145,11 @@ function handleGlobalKeydown(e: KeyboardEvent) {
     searchTabRef.value.showSearchTab = false
     e.preventDefault()
     editor.value?.focus()
+  }
+
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === `s`) {
+    e.preventDefault()
+    folderSourceStore.startSavePostToFile = true
   }
 }
 

@@ -1,3 +1,5 @@
+import { runtime_folder_info } from '@/utils/IndexedDB'
+
 /**
  * 文件系统节点接口
  */
@@ -23,11 +25,12 @@ interface RuntimeFolderInfo {
  * 负责管理本地文件夹的访问、文件树结构和文件读写
  */
 export const useFolderSourceStore = defineStore(`folderSource`, () => {
-  // 内存中的运行时文件夹信息（不持久化）
-  const runtimeFolderMap = new Map<string, RuntimeFolderInfo>()
-
   // 当前激活的文件夹 ID（不持久化）
   const currentFolderId = ref<string | null>(null)
+
+  const currentFilePath = ref<string | null>(null)
+
+  const clearSync = ref(false)
 
   // 当前文件夹的文件树（不持久化，因为包含不可序列化的 handle）
   const fileTree = ref<FileSystemNode[]>([])
@@ -38,25 +41,42 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
   // 是否正在加载
   const isLoading = ref(false)
 
+  // 是否需要同步
+  const startSavePostToFile = ref(false)
+  const startSyncFileToPostWhenEdit = ref(false)
+  const startSyncFileToPost = ref(false)
+  const openConfirmDialog = ref(false)
+
   // 加载错误信息
   const loadError = ref<string>(``)
 
-  // 当前运行时文件夹
-  const currentRuntimeFolder = computed(() => {
-    if (!currentFolderId.value)
-      return null
-    return runtimeFolderMap.get(currentFolderId.value) || null
-  })
+  // currentRuntimeFolder 当前文件夹的 RuntimeFolderInfo
 
-  // 兼容旧代码的属性
-  const folderHandles = computed(() => {
-    return Array.from(runtimeFolderMap.values()).map(folder => ({
-      id: folder.id,
-      name: folder.name,
-      handle: folder.handle,
-      permission: true,
-    }))
-  })
+  const currentRuntimeFolder = ref<RuntimeFolderInfo | null>(null)
+
+  async function setCurrentRuntimeFolder() {
+    if (!currentFolderId.value) {
+      currentRuntimeFolder.value = null
+      return
+    }
+    const folder = await runtime_folder_info.get(currentFolderId.value)
+    // 检查权限
+    if (folder) {
+      const perm = await checkFolderPermission(folder.handle)
+      if (perm !== `granted`) {
+        return 0
+      }
+    }
+    else {
+      // 权限信息丢失
+      return -1
+    }
+    currentRuntimeFolder.value = folder || null
+    if (currentRuntimeFolder.value) {
+      await loadFileTree(currentRuntimeFolder.value.handle)
+    }
+    return 1
+  }
 
   const currentFolderHandle = computed(() => {
     if (!currentRuntimeFolder.value)
@@ -92,24 +112,31 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
 
       const handle = await window.showDirectoryPicker({
         mode: `readwrite`,
-        startIn: `documents`,
       })
 
-      // 请求权限
-      const permission = await handle.requestPermission({ mode: `readwrite` })
-      if (permission !== `granted`) {
+      // 健壮目的
+      const perm = await handle.queryPermission({ mode: `readwrite` })
+      if (perm !== `granted`) {
         toast.error(`未授予文件夹访问权限`)
         return
       }
 
       // 检查是否已经打开过这个文件夹
       let folderId: string
-      const existingFolder = Array.from(runtimeFolderMap.values()).find(f => f.name === handle.name)
+      // 先查看是否已经授权！metaer
+      const runtimeFolderMap = await runtime_folder_info.getAllAsMap()
+
+      let existingFolder = null
+
+      for (const f of runtimeFolderMap.values()) {
+        if (await f.handle.isSameEntry(handle)) {
+          existingFolder = f
+          break
+        }
+      }
 
       if (existingFolder) {
         folderId = existingFolder.id
-        // 更新 handle
-        existingFolder.handle = handle
       }
       else {
         // 创建新文件夹信息
@@ -119,12 +146,14 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
           name: handle.name,
           handle,
         }
-        runtimeFolderMap.set(folderId, folderInfo)
+        await runtime_folder_info.set(folderId, folderInfo)
       }
 
       currentFolderId.value = folderId
+      setCurrentRuntimeFolder()
 
       // 加载文件树
+      // folder handle
       await loadFileTree(handle)
 
       toast.success(`文件夹「${handle.name}」已打开`)
@@ -132,6 +161,7 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
     catch (error: any) {
       if (error.name === `AbortError`) {
         // 用户取消了选择
+        toast.error(`未授予文件夹访问权限`)
         return
       }
       loadError.value = error.message || `打开文件夹失败`
@@ -155,7 +185,7 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
    * 从列表中移除文件夹
    */
   function removeFolder(folderId: string) {
-    runtimeFolderMap.delete(folderId)
+    runtime_folder_info.delete(folderId)
 
     // 如果关闭的是当前文件夹，清空当前状态
     if (currentFolderId.value === folderId) {
@@ -258,6 +288,28 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
     }
   }
 
+  // 检查权限
+  async function checkFolderPermission(currentHandle: FileSystemDirectoryHandle) {
+    let perm = await currentHandle.queryPermission({ mode: `readwrite` })
+    if (perm !== `granted`) {
+      perm = await currentHandle.requestPermission({ mode: `readwrite` })
+      if (perm !== `granted`) {
+        toast.error(`没有权限，文件不会同步`)
+      }
+    }
+    return perm
+  }
+
+  async function diffPostAndPFile(postContent: string) {
+    if (currentFilePath.value) {
+      const fileContent = await readFile(currentFilePath.value)
+      if (fileContent !== postContent) {
+        return true
+      }
+      return false
+    }
+  }
+
   /**
    * 写入文件内容
    */
@@ -270,7 +322,10 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
       // 解析路径，找到对应的目录句柄
       const pathParts = filePath.split(`/`).slice(1) // 移除第一部分（文件夹名）
       let currentHandle = currentRuntimeFolder.value.handle as FileSystemDirectoryHandle
-
+      const perm = await checkFolderPermission(currentHandle)
+      if (perm !== `granted`) {
+        return
+      }
       // 遍历路径，创建不存在的目录
       for (let i = 0; i < pathParts.length - 1; i++) {
         const dirName = pathParts[i]
@@ -339,14 +394,16 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
   }
 
   return {
-    // State
-    folderHandles, // 兼容旧代码
     currentFolderHandle, // 兼容旧代码
     savedFolders,
     fileTree,
     selectedFilePath,
     isLoading,
     loadError,
+    startSavePostToFile,
+    startSyncFileToPostWhenEdit,
+    startSyncFileToPost,
+    openConfirmDialog,
 
     // Computed
     isFileSystemAPISupported,
@@ -357,8 +414,14 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
     removeFolder,
     loadFileTree,
     readFile,
+    checkFolderPermission,
+    diffPostAndPFile,
+    currentFolderId,
+    currentFilePath,
+    clearSync,
     writeFile,
     findNodeByPath,
     getAllMarkdownFiles,
+    setCurrentRuntimeFolder,
   }
 })

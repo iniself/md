@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import { ArrowUpNarrowWide, ChevronsDownUp, ChevronsUpDown, PlusSquare } from 'lucide-vue-next'
+import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useStore } from '@/stores'
+import { useFolderSourceStore } from '@/stores/folderSource'
 import { addPrefix } from '@/utils'
+import { runtime_folder_info } from '@/utils/IndexedDB'
+
+const { confirm, dialog } = useConfirmDialog()
 
 const store = useStore()
+const folderSourceStore = useFolderSourceStore()
 
 /* ============ 新增内容 ============ */
 const parentId = ref<string | null>(null)
@@ -183,6 +189,86 @@ function handleDragEnd() {
   dropTargetId.value = null
   dragover.value = false
 }
+
+onMounted(async () => {
+  const post = store.posts.find(post => post.id === store.currentPostId) || null
+  if (post && post.localFile && !post.isFolder) {
+    const folder = await runtime_folder_info.get(post.localFile)
+    if (folder) {
+      confirm({
+        title: `本地文件`,
+        description: `当前内容同步于文件。手动点击该文章标题检查同步。`,
+        cancelText: `知道了！`,
+        dialogType: `alert`,
+      })
+    }
+    else {
+      // 没有历史 Handle，需要重新打开文件夹获取
+      toast.error(`丢失文件权限，内容不再与文件同步`)
+      post.localFile = null
+    }
+  }
+})
+
+// 监控 post 内容改变并触发同步操作
+watch(
+  () => ({
+    id: store.posts[store.currentPostIndex]?.id,
+    content: store.posts[store.currentPostIndex]?.content,
+  }),
+  (newVal, oldVal) => {
+    if (newVal.id === oldVal?.id) {
+      // 同一个 post，内容变了，才 sync
+      if (store.isAutoSync) {
+        if (newVal.content !== oldVal?.content) {
+          folderSourceStore.startSyncFileToPostWhenEdit = true
+        }
+      }
+    }
+  },
+  { deep: false },
+)
+
+async function handleSelectPost(postId: string) {
+  // 点击 post 时要执行的逻辑
+  // 1. 检查权限
+  // 2. 是否需要同步
+
+  store.currentPostId = postId
+  folderSourceStore.clearSync = true
+  const post = store.posts.find(post => post.id === store.currentPostId) || null
+
+  if (post && post.localFile && post.nodePath && !post.isFolder) {
+    folderSourceStore.currentFolderId = post.localFile
+    folderSourceStore.currentFilePath = post.nodePath
+    const currentRuntimeFolder = await folderSourceStore.setCurrentRuntimeFolder()
+    if (currentRuntimeFolder === -1) {
+      toast.error(`丢失文件权限，内容不再与文件同步`)
+      post.localFile = null
+    }
+    else if (currentRuntimeFolder === 1) {
+      const needSync = await folderSourceStore.diffPostAndPFile(post.content)
+      if (needSync) {
+        const ok = await confirm({
+          title: ` 内容不同！`,
+          description: `文件和内容需要同步`,
+          confirmText: `从文件同步`,
+          cancelText: `保存到文件`,
+        })
+        if (ok) {
+          folderSourceStore.startSyncFileToPost = true
+        }
+        else {
+          folderSourceStore.startSavePostToFile = true
+        }
+      }
+    }
+  }
+  else {
+    folderSourceStore.currentFolderId = null
+    folderSourceStore.currentFilePath = null
+  }
+}
 </script>
 
 <template>
@@ -322,6 +408,7 @@ function handleDragEnd() {
           :handle-drop="handleDrop"
           :handle-drag-end="handleDragEnd"
           :open-add-post-dialog="openAddPostDialog"
+          @select-post="handleSelectPost"
         />
       </div>
 
@@ -423,4 +510,5 @@ function handleDragEnd() {
       </Dialog>
     </nav>
   </div>
+  <component :is="dialog" />
 </template>

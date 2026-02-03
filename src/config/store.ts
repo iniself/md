@@ -7,6 +7,7 @@ export const storeLabels: Record<string, string> = {
   isCountStatus: `字数统计状态`,
   isUseIndent: `使用缩进`,
   isCenterHeader: `表头文字居中`,
+  isAutoSync: `自动保存到文件`,
   isOpenRightSlider: `开启右侧滑块`,
   isOpenLeftSlider: `显示左侧滑块`,
   isOpenPostSlider: `开启左侧发布滑块`,

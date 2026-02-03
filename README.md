@@ -52,6 +52,7 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 15.  增加本地图床服务。
 16.  直接粘贴 excel 表格会自动转化为 markdown 表格，同时支持 Docs<sup style="color:red">+</sup> 扩展表格语法。也就是支持合并单元格等。
 17.  增加 csv 格式转成表格的语法。
+18.  增加打开本地文件及同步功能。
 
 #### 删减
 1. 删除 google analytics

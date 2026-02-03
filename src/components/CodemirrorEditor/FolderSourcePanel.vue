@@ -10,16 +10,15 @@ import {
   RefreshCw,
   Trash2,
 } from 'lucide-vue-next'
+import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useFolderFileSync } from '@/composables/useFolderFileSync'
 import { useStore } from '@/stores'
 import { useFolderSourceStore } from '@/stores/folderSource'
 import FolderTree from './FolderTree.vue'
-// import { usePostStore } from '@/stores/post'
 
 const store = useStore()
 
 const folderSourceStore = useFolderSourceStore()
-// const postStore = usePostStore()
 const { setCurrentFilePath } = useFolderFileSync()
 
 const {
@@ -34,6 +33,8 @@ const {
 const {
   isOpenFolderPanel,
 } = storeToRefs(store)
+
+const { confirm, dialog } = useConfirmDialog()
 
 const expandedPaths = ref<Set<string>>(new Set())
 
@@ -65,48 +66,92 @@ async function handleRefreshFolder() {
 }
 
 async function handleCloseFolder() {
-  // const store = useStore()
-  // store.isOpenFolderPanel = !store.isOpenFolderPanel
   folderSourceStore.closeFolder()
   expandedPaths.value.clear()
   setCurrentFilePath(null)
+}
+
+function createRootFolder(rootFolderName: string) {
+  const rootFolder = store.posts.find(
+    post => post.isFolder && post.localFile === currentFolderHandle.value?.id,
+  )
+  if (rootFolder) {
+    return rootFolder.id
+  }
+  else {
+    store.addLocalPost(rootFolderName, `本地文件夹：${rootFolderName}`, null, true, currentFolderHandle.value?.id, rootFolderName)
+    return store.currentPostId
+  }
+}
+
+function createParentFolder(parentFolder: string[]) {
+  let parentID: string
+  let pathInfo: string
+
+  pathInfo = parentFolder[0]
+  parentID = createRootFolder(parentFolder.shift()!)
+
+  for (const folderName of parentFolder) {
+    const folder = store.posts.find(
+      post => post.isFolder && post.title === folderName,
+    )
+    if (folder) {
+      parentID = folder.id
+    }
+    else {
+      pathInfo = `${pathInfo}/${folderName}`
+      store.addLocalPost(folderName, `本地文件夹：${pathInfo}`, parentID, true, currentFolderHandle.value?.id, pathInfo)
+      parentID = store.currentPostId
+    }
+  }
+  return parentID
 }
 
 async function handleOpenFile(node: any) {
   const store = useStore()
   try {
     const content = await folderSourceStore.readFile(node.path)
-    const foldName = path.basename(path.dirname(node.path)).trim()
+
+    const parentFolder: string[] = path.dirname(node.path).split(path.sep)
+
+    const folderID = createParentFolder(parentFolder)
+
     // 从文件名中提取标题（移除 .md 扩展名）
     const title = node.name.replace(/\.md$/i, ``)
 
-    const existedPost = store.posts.find(
-      post => post.title === foldName,
-    )
-
-    let foldId: string | null
-
-    if (existedPost) {
-      foldId = existedPost.id
-    }
-    else {
-      store.addLocalPost(foldName, `本地文件夹：${node.path}`, null)
-      foldId = store.currentPostId
-    }
-
+    setCurrentFilePath(node.path)
     // 创建新文章并设置内容
     for (const post of store.posts) {
       // eslint-disable-next-line eqeqeq
-      if (post.title === title.trim() && post.parentId == foldId) {
-        return toast.error(`内容标题已在`)
+      if (post.title === title.trim() && post.parentId == folderID) {
+        // 定位已经打开的文件
+        store.currentPostId = post.id
+        // 更新现有文件
+        if (post.content !== content) {
+          // 提示内容不同需要同步
+          const ok = await confirm({
+            title: ` 内容不同！`,
+            description: `文件和内容需要同步`,
+            confirmText: `从文件同步`,
+            cancelText: `保存到文件`,
+          })
+          if (ok) {
+            folderSourceStore.startSyncFileToPost = true
+          }
+          else {
+            folderSourceStore.startSavePostToFile = true
+          }
+        }
+
+        post.localFile = currentFolderHandle.value?.id ?? null
+        return
       }
     }
 
-    store.addLocalPost(title, content, foldId)
-    // postStore.updatePostContent(postStore.currentPostId, content)
-
-    // 记录当前文件路径以便自动同步
-    setCurrentFilePath(node.path)
+    // 同时存储当前的 handle id
+    if (currentFolderHandle.value) {
+      store.addLocalPost(title, content, folderID, false, currentFolderHandle.value.id, node.path)
+    }
 
     toast.success(`已加载文件: ${node.name}`)
   }
@@ -238,6 +283,7 @@ async function handleOpenFile(node: any) {
       </div>
     </div>
   </div>
+  <component :is="dialog" />
 </template>
 
 <style scoped>

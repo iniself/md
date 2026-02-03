@@ -20,6 +20,9 @@ interface FileSystemDirectoryHandle {
   // Permission management
   requestPermission: (descriptor?: { mode?: `read` | `readwrite` }) => Promise<PermissionState>
 
+  // Permission query
+  queryPermission: (descriptor?: { mode?: `read` | `readwrite` }) => Promise<PermissionState>
+
   // Directory operations
   getDirectoryHandle: (name: string, options?: { create?: boolean }) => Promise<FileSystemDirectoryHandle>
   getFileHandle: (name: string, options?: { create?: boolean }) => Promise<FileSystemFileHandle>
