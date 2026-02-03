@@ -57,7 +57,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: `selectPost`, postId: string): void
+  selectPost: [postId: string]
 }>()
 
 const store = useStore()
