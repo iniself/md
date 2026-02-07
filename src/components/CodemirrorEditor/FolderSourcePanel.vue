@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import path from 'node:path'
 import {
   ArrowLeftFromLine,
   FolderClosed,
@@ -14,6 +13,7 @@ import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useFolderFileSync } from '@/composables/useFolderFileSync'
 import { useStore } from '@/stores'
 import { useFolderSourceStore } from '@/stores/folderSource'
+import { splitPath, withMinDuration } from '@/utils/index'
 import FolderTree from './FolderTree.vue'
 
 const store = useStore()
@@ -49,6 +49,27 @@ function handleToggleExpand(path: string) {
   expandedPaths.value = new Set(expandedPaths.value)
 }
 
+async function handleSelectFolderWhenSaveAsFile() {
+  await folderSourceStore.selectFolderWhenSaveAsFile()
+  // 等待下一个 tick，确保 fileTree 已经更新
+  await nextTick()
+  // 展开根节点
+  if (fileTree.value.length > 0) {
+    expandedPaths.value.add(fileTree.value[0].path)
+  }
+}
+
+watch(
+  () => folderSourceStore.startSelectFolderWhenSaveAsFile,
+  async (newVal) => {
+    if (newVal) {
+      folderSourceStore.startSelectFolderWhenSaveAsFile = false
+      await handleSelectFolderWhenSaveAsFile()
+    }
+  },
+  { deep: false },
+)
+
 async function handleSelectFolder() {
   await folderSourceStore.selectFolder()
   // 等待下一个 tick，确保 fileTree 已经更新
@@ -61,7 +82,16 @@ async function handleSelectFolder() {
 
 async function handleRefreshFolder() {
   if (currentFolderHandle.value) {
-    await folderSourceStore.loadFileTree(currentFolderHandle.value.handle)
+    isLoading.value = true
+    try {
+      await withMinDuration(
+        folderSourceStore.loadFileTree(currentFolderHandle.value.handle),
+        400,
+      )
+    }
+    finally {
+      isLoading.value = false
+    }
   }
 }
 
@@ -112,7 +142,7 @@ async function handleOpenFile(node: any) {
   try {
     const content = await folderSourceStore.readFile(node.path)
 
-    const parentFolder: string[] = path.dirname(node.path).split(path.sep)
+    const { parentFolder } = splitPath(node.path, `/`)
 
     const folderID = createParentFolder(parentFolder)
 

@@ -43,6 +43,9 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
 
   // 是否需要同步
   const startSavePostToFile = ref(false)
+  const startSelectFolderWhenSaveAsFile = ref(false)
+  const showDialogWhenSaveAsFile = ref(false)
+  const startSavePostAsFile = ref(false)
   const startSyncFileToPostWhenEdit = ref(false)
   const startSyncFileToPost = ref(false)
   const openConfirmDialog = ref(false)
@@ -159,6 +162,80 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
       toast.success(`文件夹「${handle.name}」已打开`)
     }
     catch (error: any) {
+      if (error.name === `AbortError`) {
+        // 用户取消了选择
+        toast.error(`未授予文件夹访问权限`)
+        return
+      }
+      loadError.value = error.message || `打开文件夹失败`
+      toast.error(`打开文件夹失败: ${error.message}`)
+    }
+    finally {
+      isLoading.value = false
+    }
+  }
+
+  async function selectFolderWhenSaveAsFile() {
+    if (!isFileSystemAPISupported.value) {
+      toast.error(`您的浏览器不支持 File System Access API`)
+      return
+    }
+
+    try {
+      isLoading.value = true
+      loadError.value = ``
+
+      const handle = await window.showDirectoryPicker({
+        mode: `readwrite`,
+      })
+
+      // 健壮目的
+      const perm = await handle.queryPermission({ mode: `readwrite` })
+      if (perm !== `granted`) {
+        toast.error(`未授予文件夹访问权限`)
+        return
+      }
+
+      // 检查是否已经打开过这个文件夹
+      let folderId: string
+      // 先查看是否已经授权！metaer
+      const runtimeFolderMap = await runtime_folder_info.getAllAsMap()
+
+      let existingFolder = null
+
+      for (const f of runtimeFolderMap.values()) {
+        if (await f.handle.isSameEntry(handle)) {
+          existingFolder = f
+          break
+        }
+      }
+
+      if (existingFolder) {
+        folderId = existingFolder.id
+      }
+      else {
+        // 创建新文件夹信息
+        folderId = generateFolderId()
+        const folderInfo: RuntimeFolderInfo = {
+          id: folderId,
+          name: handle.name,
+          handle,
+        }
+        await runtime_folder_info.set(folderId, folderInfo)
+      }
+
+      currentFolderId.value = folderId
+      setCurrentRuntimeFolder()
+
+      // 加载文件树
+      // folder handle
+      await loadFileTree(handle)
+
+      toast.success(`文件夹「${handle.name}」已打开`)
+      showDialogWhenSaveAsFile.value = true
+    }
+    catch (error: any) {
+      showDialogWhenSaveAsFile.value = false
       if (error.name === `AbortError`) {
         // 用户取消了选择
         toast.error(`未授予文件夹访问权限`)
@@ -321,6 +398,7 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
     try {
       // 解析路径，找到对应的目录句柄
       const pathParts = filePath.split(`/`).slice(1) // 移除第一部分（文件夹名）
+      // ['other', 'third', '1.md']
       let currentHandle = currentRuntimeFolder.value.handle as FileSystemDirectoryHandle
       const perm = await checkFolderPermission(currentHandle)
       if (perm !== `granted`) {
@@ -403,6 +481,8 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
     startSavePostToFile,
     startSyncFileToPostWhenEdit,
     startSyncFileToPost,
+    startSavePostAsFile,
+    startSelectFolderWhenSaveAsFile,
     openConfirmDialog,
 
     // Computed
@@ -410,6 +490,8 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
 
     // Actions
     selectFolder,
+    selectFolderWhenSaveAsFile,
+    showDialogWhenSaveAsFile,
     closeFolder,
     removeFolder,
     loadFileTree,

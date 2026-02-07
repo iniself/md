@@ -11,6 +11,7 @@ import {
   useAIPolish,
 } from '@/components/AIPolish'
 import FolderSourcePanel from '@/components/CodemirrorEditor/FolderSourcePanel.vue'
+import SaveAsFile from '@/components/CodemirrorEditor/SaveAsFile.vue'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -145,11 +146,6 @@ function handleGlobalKeydown(e: KeyboardEvent) {
     searchTabRef.value.showSearchTab = false
     e.preventDefault()
     editor.value?.focus()
-  }
-
-  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === `s`) {
-    e.preventDefault()
-    folderSourceStore.startSavePostToFile = true
   }
 }
 
@@ -581,6 +577,7 @@ onUnmounted(() => {
       <div
         class="container-main-section border-radius-10 relative flex flex-1 overflow-hidden border-1"
       >
+        <SaveAsFile v-model:open="folderSourceStore.showDialogWhenSaveAsFile" />
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel
             :default-size="10"

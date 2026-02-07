@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { Download, FileCode, FileCog, FileText, FolderOpen, Upload } from 'lucide-vue-next'
+import { Download, FileCode, FileCog, FileText, FolderOpen, Save, Upload } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { ctrlSign } from '@/config/'
 import { useStore } from '@/stores'
+import { useFolderSourceStore } from '@/stores/folderSource'
 
 const emit = defineEmits([`startCopy`, `endCopy`])
 
 const store = useStore()
+const folderSourceStore = useFolderSourceStore()
 
 const {
   isDark,
@@ -36,7 +40,20 @@ const importMarkdownContent = useImportMarkdownContent()
       <MenubarItem @click="isOpenFolderPanel = !isOpenFolderPanel">
         <FolderOpen class="mr-2 size-4" />
         本地文件夹
+        <MenubarShortcut>
+          <kbd class="mx-1">{{ ctrlSign }}</kbd>
+          <kbd class="mx-1">O</kbd>
+        </MenubarShortcut>
       </MenubarItem>
+      <MenubarItem @click="folderSourceStore.startSavePostToFile = true">
+        <Save class="mr-2 size-4" />
+        保存到文件
+        <MenubarShortcut>
+          <kbd class="mx-1">{{ ctrlSign }}</kbd>
+          <kbd class="mx-1">S</kbd>
+        </MenubarShortcut>
+      </MenubarItem>
+      <MenubarSeparator />
       <MenubarItem @click="importMarkdownContent()">
         <Upload class="mr-2 size-4" />
         导入 .md

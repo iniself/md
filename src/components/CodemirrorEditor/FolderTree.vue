@@ -11,6 +11,7 @@ interface Props {
 
 interface Emits {
   (e: `select`, node: FileSystemNode): void
+  (e: `selectFolder`, pathnode: FileSystemNode): void
   (e: `toggleExpand`, path: string): void
 }
 
@@ -32,6 +33,7 @@ function handleNodeClick(node: FileSystemNode, event: MouseEvent) {
   }
   else {
     emit(`toggleExpand`, node.path)
+    emit(`selectFolder`, node)
   }
 }
 
@@ -89,6 +91,7 @@ function handleToggleClick(node: FileSystemNode, event: MouseEvent) {
         :expanded-paths="expandedPaths"
         :level="level + 1"
         @select="emit('select', $event)"
+        @select-folder="emit('selectFolder', $event)"
         @toggle-expand="emit('toggleExpand', $event)"
       />
     </template>

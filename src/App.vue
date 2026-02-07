@@ -1,9 +1,23 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { Toaster } from '@/components/ui/sonner'
+import { useFolderSourceStore } from '@/stores/folderSource'
 import CodemirrorEditor from '@/views/CodemirrorEditor.vue'
 
 const store = useStore()
+const folderSourceStore = useFolderSourceStore()
+
+function handleKeydown(e: KeyboardEvent) {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === `s`) {
+    e.preventDefault()
+    folderSourceStore.startSavePostToFile = true
+  }
+
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === `o`) {
+    e.preventDefault()
+    store.isOpenFolderPanel = !store.isOpenFolderPanel
+  }
+}
 
 onMounted(() => {
   const raw = localStorage.getItem(`localConfig`)
@@ -16,6 +30,7 @@ onMounted(() => {
       (window as any).__TAURI__.core.invoke(`set_local_image_args`, { path: config.imagePath, port: config.port })
     }
   }
+  document.addEventListener(`keydown`, handleKeydown)
 })
 </script>
 

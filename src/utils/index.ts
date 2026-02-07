@@ -987,3 +987,39 @@ export function delwsrv(src: string): string {
   }
   return src
 }
+
+export async function withMinDuration<T>(
+  task: Promise<T>,
+  minMs = 300,
+): Promise<T> {
+  const start = Date.now()
+  const result = await task
+  const elapsed = Date.now() - start
+
+  if (elapsed < minMs) {
+    await new Promise(resolve => setTimeout(resolve, minMs - elapsed))
+  }
+
+  return result
+}
+
+export function splitPath(p: string, sep: string) {
+  const isDir = p.endsWith(sep)
+
+  const normalized = p.replace(new RegExp(`${sep}+$`), ``)
+  const parts: string[] = normalized.split(sep).filter(Boolean)
+
+  if (isDir) {
+    return {
+      type: `dir`,
+      parentFolder: parts,
+      filename: null,
+    }
+  }
+
+  return {
+    type: `file`,
+    parentFolder: parts.slice(0, -1),
+    filename: parts.at(-1) ?? null,
+  }
+}

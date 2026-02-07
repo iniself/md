@@ -40,7 +40,7 @@ import { initRenderer } from '@/utils/renderer'
 /**********************************
  * Post 结构接口
  *********************************/
-interface Post {
+export interface Post {
   id: string
   title: string
   content: string

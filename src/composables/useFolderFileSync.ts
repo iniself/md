@@ -1,5 +1,7 @@
 import { useStore } from '@/stores'
+import type { Post } from '@/stores'
 import { useFolderSourceStore } from '@/stores/folderSource'
+import { splitPath } from '@/utils/index'
 
 /**
  * 文件夹文件同步 Composable
@@ -8,6 +10,46 @@ import { useFolderSourceStore } from '@/stores/folderSource'
 export function useFolderFileSync() {
   const store = useStore()
   const folderStore = useFolderSourceStore()
+
+  const {
+    currentFolderHandle,
+  } = storeToRefs(folderStore)
+
+  const createRootFolder = (rootFolderName: string) => {
+    const rootFolder = store.posts.find(
+      post => post.isFolder && post.localFile === currentFolderHandle.value?.id,
+    )
+    if (rootFolder) {
+      return rootFolder.id
+    }
+    else {
+      store.addLocalPost(rootFolderName, `本地文件夹：${rootFolderName}`, null, true, currentFolderHandle.value?.id, rootFolderName)
+      return store.currentPostId
+    }
+  }
+
+  const createParentFolder = (parentFolder: string[]) => {
+    let parentID: string
+    let pathInfo: string
+
+    pathInfo = parentFolder[0]
+    parentID = createRootFolder(parentFolder.shift()!)
+
+    for (const folderName of parentFolder) {
+      const folder = store.posts.find(
+        post => post.isFolder && post.title === folderName,
+      )
+      if (folder) {
+        parentID = folder.id
+      }
+      else {
+        pathInfo = `${pathInfo}/${folderName}`
+        store.addLocalPost(folderName, `本地文件夹：${pathInfo}`, parentID, true, currentFolderHandle.value?.id, pathInfo)
+        parentID = store.currentPostId
+      }
+    }
+    return parentID
+  }
 
   // 防抖定时器
   let syncTimeoutId: ReturnType<typeof setTimeout> | null = null
@@ -36,6 +78,31 @@ export function useFolderFileSync() {
     }
     catch (error: any) {
       toast.error(`保存文件失败`)
+      console.error(`保存文件失败:`, error)
+    }
+  }
+
+  async function savePostAsFile(post: Post) {
+    try {
+      const content = post.content || ``
+      if (folderStore.currentFilePath) {
+        await folderStore.writeFile(folderStore.currentFilePath, content)
+
+        // 创建对应的 post
+        const { parentFolder, filename } = splitPath(folderStore.currentFilePath, `/`)
+        const folderID: string = createParentFolder(parentFolder)
+
+        post.title = filename!
+        post.isFolder = false
+        post.localFile = folderStore.currentFolderId
+        post.parentId = folderID
+        post.nodePath = folderStore.currentFilePath
+
+        folderStore.showDialogWhenSaveAsFile = false
+      }
+    }
+    catch (error: any) {
+      toast.error(`保存为文件失败`)
       console.error(`保存文件失败:`, error)
     }
   }
@@ -115,7 +182,23 @@ export function useFolderFileSync() {
         const content = currentPost?.value.content || ``
         syncPostToFile(folderStore.currentFilePath, content)
       }
+      else if (folderStore.startSavePostToFile && folderStore.currentFilePath === null) {
+        // 另存为文件
+        store.isOpenFolderPanel = false
+        folderStore.startSelectFolderWhenSaveAsFile = true
+      }
       folderStore.startSavePostToFile = false
+    },
+    { deep: false },
+  )
+
+  watch(
+    () => folderStore.startSavePostAsFile,
+    async (newVal) => {
+      if (newVal) {
+        folderStore.startSavePostAsFile = false
+        await savePostAsFile(currentPost.value)
+      }
     },
     { deep: false },
   )

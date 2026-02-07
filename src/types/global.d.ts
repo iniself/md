@@ -13,6 +13,16 @@ interface Window {
     mode?: `read` | `readwrite`
     startIn?: `desktop` | `documents` | `downloads` | `music` | `pictures` | `videos`
   }) => Promise<FileSystemDirectoryHandle>
+
+  showSaveFilePicker: (options?: {
+    suggestedName?: string
+    types?: {
+      description?: string
+      accept: Record<string, string[]>
+    }[]
+    excludeAcceptAllOption?: boolean
+    startIn?: `desktop` | `documents` | `downloads` | `music` | `pictures` | `videos`
+  }) => Promise<FileSystemFileHandle>
 }
 
 // Extend FileSystemDirectoryHandle with full File System Access API methods
@@ -22,6 +32,8 @@ interface FileSystemDirectoryHandle {
 
   // Permission query
   queryPermission: (descriptor?: { mode?: `read` | `readwrite` }) => Promise<PermissionState>
+
+  showSaveFilePicker: (descriptor?: { mode?: `read` | `readwrite` }) => Promise<PermissionState>
 
   // Directory operations
   getDirectoryHandle: (name: string, options?: { create?: boolean }) => Promise<FileSystemDirectoryHandle>
