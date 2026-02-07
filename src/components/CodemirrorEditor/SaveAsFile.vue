@@ -36,6 +36,7 @@ const {
   fileTree,
   selectedFilePath,
   isLoading,
+  savePostAsFileOk,
 } = storeToRefs(folderSourceStore)
 
 const dialogVisible = computed({
@@ -124,12 +125,19 @@ const fullSavePath = computed(() => {
 })
 
 function cleanup() {
-  currentSavePath.value = ``
-  fileNameInput.value = ``
-  folderSourceStore.closeFolder()
-  folderSourceStore.currentFilePath = ``
-  expandedPaths.value.clear()
-  setCurrentFilePath(null)
+  if (savePostAsFileOk.value) {
+    currentSavePath.value = ``
+    fileNameInput.value = ``
+    expandedPaths.value.clear()
+    savePostAsFileOk.value = false
+  }
+  else {
+    currentSavePath.value = ``
+    fileNameInput.value = ``
+    folderSourceStore.closeFolder()
+    expandedPaths.value.clear()
+    setCurrentFilePath(null)
+  }
 }
 
 function reSelectFolder() {

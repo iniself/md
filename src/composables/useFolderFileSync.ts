@@ -99,6 +99,9 @@ export function useFolderFileSync() {
         post.nodePath = folderStore.currentFilePath
 
         folderStore.showDialogWhenSaveAsFile = false
+
+        store.currentPostId = post.id
+        folderStore.savePostAsFileOk = true
       }
     }
     catch (error: any) {
@@ -182,7 +185,7 @@ export function useFolderFileSync() {
         const content = currentPost?.value.content || ``
         syncPostToFile(folderStore.currentFilePath, content)
       }
-      else if (folderStore.startSavePostToFile && folderStore.currentFilePath === null) {
+      else if (folderStore.startSavePostToFile && folderStore.currentFilePath === null && !currentPost.value.isFolder) {
         // 另存为文件
         store.isOpenFolderPanel = false
         folderStore.startSelectFolderWhenSaveAsFile = true

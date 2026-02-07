@@ -46,6 +46,7 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
   const startSelectFolderWhenSaveAsFile = ref(false)
   const showDialogWhenSaveAsFile = ref(false)
   const startSavePostAsFile = ref(false)
+  const savePostAsFileOk = ref(false)
   const startSyncFileToPostWhenEdit = ref(false)
   const startSyncFileToPost = ref(false)
   const openConfirmDialog = ref(false)
@@ -483,6 +484,7 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
     startSyncFileToPost,
     startSavePostAsFile,
     startSelectFolderWhenSaveAsFile,
+    savePostAsFileOk,
     openConfirmDialog,
 
     // Computed
