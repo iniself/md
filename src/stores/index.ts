@@ -112,6 +112,9 @@ export const useStore = defineStore(`store`, () => {
   const isAutoSync = useStorage(`isAutoSync`, false)
   const toggleAutoSync = useToggle(isAutoSync)
 
+  // 导出 pdf
+  const exportPdfDialogVisible = ref(false)
+
   const output = ref(``)
 
   // 文本字体
@@ -839,6 +842,8 @@ export const useStore = defineStore(`store`, () => {
     isAutoSync,
     autoSyncChanged,
 
+    exportPdfDialogVisible,
+
     isCountStatus,
     countStatusChanged,
 
@@ -982,6 +987,7 @@ export function getAllStoreStates() {
     isJustify: store.isJustify,
     isCenterHeader: store.isCenterHeader,
     isAutoSync: store.isAutoSync,
+    exportPdfDialogVisible: store.exportPdfDialogVisible,
     isOpenRightSlider: store.isOpenRightSlider,
     isOpenLeftSlider: store.isOpenLeftSlider,
     isOpenPostSlider: store.isOpenPostSlider,

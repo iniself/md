@@ -14,6 +14,7 @@ const {
   isDark,
   isEditOnLeft,
   isOpenFolderPanel,
+  exportPdfDialogVisible,
 } = storeToRefs(store)
 
 const {
@@ -25,7 +26,6 @@ const {
 } = store
 
 const editorStateDialogVisible = ref(false)
-const exportPdfDialogVisible = ref(false)
 
 const importMarkdownContent = useImportMarkdownContent()
 </script>

@@ -30,9 +30,7 @@ onMounted(() => {
     <DialogContent class="bg-card text-card-foreground h-dvh max-h-dvh w-full flex flex-col rounded-none shadow-xl sm:max-h-[80vh] sm:max-w-2xl sm:rounded-xl">
       <DialogHeader class="space-y-1 flex flex-col items-start">
         <DialogTitle>Docs<sup style="color:red">+</sup></DialogTitle>
-        <p class="text-muted-foreground text-sm">
-          设置 PDF 参数
-        </p>
+        <DialogDescription>设置 PDF 参数</DialogDescription>
       </DialogHeader>
       <div class="custom-scroll mb-4 max-h-[calc(100dvh-10rem)] overflow-y-auto rounded-md p-4 pr-1 text-xs sm:max-h-none sm:text-sm">
         <div class="text-center">

@@ -17,6 +17,11 @@ function handleKeydown(e: KeyboardEvent) {
     e.preventDefault()
     store.isOpenFolderPanel = !store.isOpenFolderPanel
   }
+
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === `p`) {
+    e.preventDefault()
+    store.exportPdfDialogVisible = !store.exportPdfDialogVisible
+  }
 }
 
 onMounted(() => {
