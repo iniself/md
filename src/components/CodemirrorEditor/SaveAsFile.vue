@@ -179,7 +179,6 @@ async function handleSaveFile() {
       else {
         showInput.value = true
         currentSavePath.value = ``
-        fileName.value = ``
       }
     }
     else {
