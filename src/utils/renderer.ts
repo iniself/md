@@ -22,6 +22,7 @@ import markedAlert from './MDAlert'
 import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
 import { MDKatex } from './MDKatex'
+import markedRuby from './MDRuby.ts'
 import markedSlider from './MDSlider'
 import markedSupSub from './MDSupSub'
 import markedTextExtension from './MDTextExtension'
@@ -37,6 +38,7 @@ marked.setOptions({
 })
 marked.use(markedSlider())
 marked.use(markedAdmonitionExtension())
+marked.use(markedRuby())
 
 let __mermaidIdCounter = 0
 
