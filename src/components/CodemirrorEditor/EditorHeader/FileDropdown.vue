@@ -73,6 +73,10 @@ const importMarkdownContent = useImportMarkdownContent()
       <MenubarItem @click="exportPdfDialogVisible = true">
         <FileText class="mr-2 size-4" />
         导出 .pdf
+        <MenubarShortcut>
+          <kbd class="mx-1">{{ ctrlSign }}</kbd>
+          <kbd class="mx-1">P</kbd>
+        </MenubarShortcut>
       </MenubarItem>
       <MenubarItem @click="downloadAsCardImage()">
         <Download class="mr-2 size-4" />
