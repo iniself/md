@@ -30,6 +30,15 @@ import markedUnderlineExtension from './MDUnderlineExtension'
 import markedZhihuLinkCard from './MDZhihuLinkCard'
 import './admonition/index.css'
 
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: `loose`,
+  suppressErrorRendering: true,
+  deterministicIds: true,
+  fontFamily: `system-ui, -apple-system, BlinkMacSystemFont, sans-serif`,
+  logLevel: `fatal`,
+})
+
 marked.use(markedImageSize())
 marked.use(markedTextExtension())
 marked.use(markedUnderlineExtension())
@@ -389,20 +398,25 @@ export function initRenderer(opts: IOpts): RendererAPI {
         mermaid.render(svgId, text).then(({ svg }) => {
           const container = document.getElementById(preId)
           if (container) {
-            container.innerHTML
-            = container.innerHTML = svg.replace(
-                /<svg([^>]*)>/,
-                (_, attrs) => {
-                  if (/style="/.test(attrs)) {
-                    return `<svg${attrs.replace(/style="(.*?)"/, `style="display:block;margin:0 auto;$1"`)}>`
-                  }
-                  else {
-                    return `<svg${attrs} style="display:block;margin:0 auto;">`
-                  }
-                },
-              )
+            container.innerHTML = svg.replace(
+              /<svg([^>]*)>/,
+              (_, attrs) => {
+                if (/style="/.test(attrs)) {
+                  return `<svg${attrs.replace(/style="(.*?)"/, `style="display:block;margin:0 auto;$1"`)}>`
+                }
+                else {
+                  return `<svg${attrs} style="display:block;margin:0 auto;">`
+                }
+              },
+            )
+          }
+        }).catch(() => {
+          const container = document.getElementById(preId)
+          if (container) {
+            container.innerHTML = `<div style="color:#999;text-align:center;">正在渲染…</div>`
           }
         })
+
         return figureHTML
       }
 
