@@ -54,6 +54,7 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 17.  增加 csv 格式转成表格的语法。
 18.  增加打开、保存为本地文件及同步功能。
 19.  提供 ruby 注音扩展支持，支持两种格式：[文字]{注音}、[文字]^(注音)，支持 `・`、`．`、`。`、`-` 分隔符。
+20.  支持 Infographic 信息图
 
 #### 删减
 1. 删除 google analytics
