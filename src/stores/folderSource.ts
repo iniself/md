@@ -378,13 +378,18 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
     return perm
   }
 
-  async function diffPostAndPFile(postContent: string) {
+  async function diffPostAndPFile(post: Post) {
     if (currentFilePath.value) {
-      const fileContent = await readFile(currentFilePath.value)
-      if (fileContent !== postContent) {
-        return true
+      try {
+        const fileContent = await readFile(currentFilePath.value)
+        if (fileContent !== post.content) {
+          return 1
+        }
+        return 0
       }
-      return false
+      catch {
+        return -1
+      }
     }
   }
 

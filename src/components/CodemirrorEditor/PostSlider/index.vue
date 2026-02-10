@@ -247,8 +247,8 @@ async function handleSelectPost(postId: string) {
       post.localFile = null
     }
     else if (currentRuntimeFolder === 1) {
-      const needSync = await folderSourceStore.diffPostAndPFile(post.content)
-      if (needSync) {
+      const needSync = await folderSourceStore.diffPostAndPFile(post)
+      if (needSync === 1) {
         const ok = await confirm({
           title: ` 内容不同！`,
           description: `文件和内容需要同步`,
@@ -261,6 +261,9 @@ async function handleSelectPost(postId: string) {
         else {
           folderSourceStore.startSavePostToFile = true
         }
+      }
+      else if (needSync === -1) {
+        post.localFile = null
       }
     }
   }
