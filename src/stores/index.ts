@@ -100,7 +100,7 @@ export const useStore = defineStore(`store`, () => {
   const toggleUseIndent = useToggle(isUseIndent)
 
   // 段落对齐方式
-  const isJustify = useStorage(`isJustify`, false)
+  const isJustify = useStorage(`isJustify`, true)
   const toggleJustify = useToggle(isJustify)
 
   // 表头文字是否居中
@@ -130,7 +130,7 @@ export const useStore = defineStore(`store`, () => {
   const legend = useStorage(`legend`, defaultStyleConfig.legend)
 
   // 预览宽度
-  const previewWidth = useStorage(`previewWidth`, widthOptions[0].value)
+  const previewWidth = useStorage(`previewWidth`, widthOptions[1].value)
 
   const fontSizeNumber = computed(() => Number(fontSize.value.replace(`px`, ``)))
 
