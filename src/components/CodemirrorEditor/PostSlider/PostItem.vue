@@ -5,6 +5,7 @@ import {
   Ellipsis,
   Folder,
   History,
+  Info,
   Paperclip,
   PlusSquare,
   Trash2,
@@ -40,6 +41,8 @@ const props = defineProps<{
   startRenamePost: (id: string) => void
   // 打开历史记录对话框
   openHistoryDialog: (id: string) => void
+  // 打开详情对话框
+  openDetailDialog: (post: Post) => void
   // 开始删除文章
   startDelPost: (id: string) => void
   // 拖拽目的地 ID
@@ -153,6 +156,9 @@ function isHasChild(postId: string) {
           <DropdownMenuItem @click.stop="props.openHistoryDialog(post.id)">
             <History class="mr-2 size-4" /> 历史记录
           </DropdownMenuItem>
+          <DropdownMenuItem @click.stop="props.openDetailDialog(post)">
+            <Info class="mr-2 size-4" /> 更多信息
+          </DropdownMenuItem>
           <DropdownMenuItem
             v-if="store.posts.length > 1"
             @click.stop="props.startDelPost(post.id)"
@@ -172,6 +178,7 @@ function isHasChild(postId: string) {
         :sorted-posts="props.sortedPosts"
         :start-rename-post="props.startRenamePost"
         :open-history-dialog="props.openHistoryDialog"
+        :open-detail-dialog="props.openDetailDialog"
         :start-del-post="props.startDelPost"
         :drag-source-id="props.dragSourceId"
         :set-drag-source-id="props.setDragSourceId"

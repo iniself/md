@@ -2,6 +2,7 @@
 import { ArrowUpNarrowWide, ChevronsDownUp, ChevronsUpDown, PlusSquare } from 'lucide-vue-next'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useStore } from '@/stores'
+import type { Post } from '@/stores'
 import { useFolderSourceStore } from '@/stores/folderSource'
 import { addPrefix } from '@/utils'
 import { runtime_folder_info } from '@/utils/IndexedDB'
@@ -188,6 +189,20 @@ function handleDragEnd() {
   dragSourceId.value = null
   dropTargetId.value = null
   dragover.value = false
+}
+
+/* ============ 查看更多详情 ============ */
+const isOpenDetailDialog = ref(false)
+const detailAboutPostID = ref(``)
+const detailAboutPostType = ref(`文件`)
+const detailAboutPostLocalNodePath = ref(``)
+function openDetailDialog(post: Post) {
+  currentPostId.value = post.id
+  isOpenDetailDialog.value = true
+
+  detailAboutPostID.value = post.id
+  detailAboutPostType.value = post.isFolder ? `文件夹` : `文件`
+  detailAboutPostLocalNodePath.value = post.nodePath ? post.nodePath : `无本地文件`
 }
 
 onMounted(async () => {
@@ -403,6 +418,7 @@ async function handleSelectPost(postId: string) {
           :sorted-posts="sortedPosts"
           :start-rename-post="startRenamePost"
           :open-history-dialog="openHistoryDialog"
+          :open-detail-dialog="openDetailDialog"
           :start-del-post="startDelPost"
           :drop-target-id="dropTargetId"
           :set-drop-target-id="(id: string | null) => (dropTargetId = id)"
@@ -508,6 +524,41 @@ async function handleSelectPost(postId: string) {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <!-- 查看详情 -->
+      <Dialog v-model:open="isOpenDetailDialog">
+        <DialogContent class="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>更多信息</DialogTitle>
+            <DialogDescription>查看该内容的更多信息</DialogDescription>
+          </DialogHeader>
+          <div class="">
+            <div class="my-4">
+              <Label class="my-1 block text-sm font-medium">ID：</Label>
+              <div class="text-muted-foreground text-xs">
+                {{ detailAboutPostID }}
+              </div>
+            </div>
+            <div class="my-4">
+              <Label class="my-1 block text-sm font-medium">类型：</Label>
+              <div class="text-muted-foreground text-xs">
+                {{ detailAboutPostType }}
+              </div>
+            </div>
+            <div class="my-4">
+              <Label class="my-1 block text-sm font-medium">本地文件：</Label>
+              <div class="text-muted-foreground text-xs">
+                {{ detailAboutPostLocalNodePath }}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" @click="isOpenDetailDialog = false">
+              知道了！
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
