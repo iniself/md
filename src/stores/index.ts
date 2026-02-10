@@ -62,7 +62,6 @@ export interface Post {
 export const useStore = defineStore(`store`, () => {
   // 是否开启深色模式
   const isDark = useDark()
-  const toggleDark = useToggle(isDark)
 
   // 是否开启 Mac 代码块
   const isMacCodeBlock = useStorage(`isMacCodeBlock`, defaultStyleConfig.isMacCodeBlock)
@@ -599,6 +598,10 @@ export const useStore = defineStore(`store`, () => {
       ),
     })
     theme.value = newTheme
+  })
+
+  const toggleDark = withAfterRefresh(() => {
+    isDark.value = !isDark.value
   })
 
   const fontChanged = withAfterRefresh((fonts) => {

@@ -21,6 +21,7 @@ import markedAbbr from './MDAbbr'
 import markedAlert from './MDAlert'
 import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
+import markedInfographic from './MDinfographic.ts'
 import { MDKatex } from './MDKatex'
 import markedRuby from './MDRuby.ts'
 import markedSlider from './MDSlider'
@@ -611,6 +612,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
   marked.use(markedZhihuLinkCard(styles(`wx_link`), styles(`link`)))
   marked.use(markedExtendedtables(styles))
   marked.use(markedSupSub())
+  marked.use(markedInfographic())
 
   return {
     buildAddition,

@@ -37,6 +37,7 @@
     "package:extension": "npm --prefix ./src/extension run package"
   },
   "dependencies": {
+    "@antv/infographic": "^0.2.13",
     "@aws-sdk/client-s3": "^3.777.0",
     "@aws-sdk/s3-request-presigner": "^3.777.0",
     "@ssttevee/multipart-parser": "^0.1.9",
