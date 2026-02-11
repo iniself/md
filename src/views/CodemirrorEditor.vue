@@ -577,7 +577,7 @@ onUnmounted(() => {
       <div
         class="container-main-section border-radius-10 relative flex flex-1 overflow-hidden border-1"
       >
-        <SaveAsFile v-model:open="folderSourceStore.showDialogWhenSaveAsFile" />
+        <SaveAsFile v-model:open="folderSourceStore.showDialogWhenSaveAsFile" :post="store.posts[store.currentPostIndex]" />
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel
             :default-size="10"

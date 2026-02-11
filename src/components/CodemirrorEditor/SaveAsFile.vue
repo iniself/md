@@ -15,16 +15,15 @@ import {
 } from '@/components/ui/dialog'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useFolderFileSync } from '@/composables/useFolderFileSync'
-import { useStore } from '@/stores'
+import type { Post } from '@/stores'
 import { useFolderSourceStore } from '@/stores/folderSource'
 import type { FileSystemNode } from '@/stores/folderSource'
 import { splitPath, withMinDuration } from '@/utils/index'
 import FolderTree from './FolderTree.vue'
 
-const props = defineProps<{ open: boolean }>()
+const props = defineProps<{ open: boolean, post: Post }>()
 const emit = defineEmits([`update:open`])
 const { confirm, dialog } = useConfirmDialog()
-const store = useStore()
 
 const expandedPaths = ref<Set<string>>(new Set())
 
@@ -86,11 +85,19 @@ async function scrollToBottom(force = false) {
 }
 
 // 保存路径
-const currentPost = store.posts[store.currentPostIndex]
+const fileNameInput = ref(props.post.title)
+
+watch(
+  () => props.open,
+  (open) => {
+    if (open) {
+      fileNameInput.value = props.post.title
+    }
+  },
+)
 
 const currentSavePath = ref<string>(``)
 const showInput = ref(true)
-const fileNameInput = ref(currentPost.title)
 
 async function handleSelectFile(node: any) {
   fileNameInput.value = ``
@@ -100,7 +107,7 @@ async function handleSelectFile(node: any) {
 }
 
 async function handleSelectFolder(node: any) {
-  fileNameInput.value = currentPost.title
+  fileNameInput.value = props.post.title
   currentSavePath.value = `${node.path}/`
   setCurrentFilePath(node.path)
   showInput.value = true
