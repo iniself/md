@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ArrowUpNarrowWide, ChevronsDownUp, ChevronsUpDown, PlusSquare } from 'lucide-vue-next'
+import DiffViewer from '@/components/CodemirrorEditor/DiffViewer.vue'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useStore } from '@/stores'
 import type { Post } from '@/stores'
@@ -205,6 +206,19 @@ function openDetailDialog(post: Post) {
   detailAboutPostLocalNodePath.value = post.nodePath ? post.nodePath : `无本地文件`
 }
 
+/* ============ 文件需要同步 ============ */
+const isNeedSyncDialog = ref(false)
+const diffContent = ref(``)
+function handleSyncFromFile() {
+  folderSourceStore.startSyncFileToPost = true
+  isNeedSyncDialog.value = false
+}
+
+function handleSaveToFile() {
+  folderSourceStore.startSavePostToFile = true
+  isNeedSyncDialog.value = false
+}
+
 onMounted(async () => {
   const post = store.posts.find(post => post.id === store.currentPostId) || null
   if (post && post.localFile && !post.isFolder) {
@@ -263,21 +277,13 @@ async function handleSelectPost(postId: string) {
     }
     else if (currentRuntimeFolder === 1) {
       const needSync = await folderSourceStore.diffPostAndPFile(post)
-      if (needSync === 1) {
-        const ok = await confirm({
-          title: ` 内容不同！`,
-          description: `文件和内容需要同步`,
-          confirmText: `从文件同步`,
-          cancelText: `保存到文件`,
-        })
-        if (ok) {
-          folderSourceStore.startSyncFileToPost = true
-        }
-        else {
-          folderSourceStore.startSavePostToFile = true
+      if (needSync.code === 1) {
+        isNeedSyncDialog.value = true
+        if (needSync.diffContent) {
+          diffContent.value = needSync.diffContent
         }
       }
-      else if (needSync === -1) {
+      else if (needSync.code === -1) {
         post.localFile = null
       }
     }
@@ -564,5 +570,26 @@ async function handleSelectPost(postId: string) {
       </Dialog>
     </nav>
   </div>
+  <Dialog v-model:open="isNeedSyncDialog">
+    <DialogContent class="max-h-[80vh] max-w-[80vw] w-full overflow-auto">
+      <DialogHeader>
+        <DialogTitle>注意！</DialogTitle>
+        <DialogDescription>文件和内容需要同步</DialogDescription>
+      </DialogHeader>
+      <div class="overflow-auto">
+        <DiffViewer
+          :diff-content="diffContent"
+        />
+      </div>
+      <DialogFooter>
+        <Button variant="default" @click="handleSyncFromFile">
+          从文件同步
+        </Button>
+        <Button variant="destructive" @click="handleSaveToFile">
+          保存到文件
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
   <component :is="dialog" />
 </template>

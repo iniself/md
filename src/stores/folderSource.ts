@@ -1,3 +1,4 @@
+import { createTwoFilesPatch } from 'diff'
 import { runtime_folder_info } from '@/utils/IndexedDB'
 
 /**
@@ -378,18 +379,28 @@ export const useFolderSourceStore = defineStore(`folderSource`, () => {
     return perm
   }
 
-  async function diffPostAndPFile(post: Post) {
+  async function diffPostAndPFile(post: Post): Promise<{ code: number, diffContent: string | null }> {
     if (currentFilePath.value) {
       try {
         const fileContent = await readFile(currentFilePath.value)
+
         if (fileContent !== post.content) {
-          return 1
+          const diff = createTwoFilesPatch(
+            `现有内容`,
+            `当地文件`,
+            post.content,
+            fileContent,
+          )
+          return { code: 1, diffContent: diff }
         }
-        return 0
+        return { code: 0, diffContent: null }
       }
       catch {
-        return -1
+        return { code: -1, diffContent: null }
       }
+    }
+    else {
+      return { code: -1, diffContent: null }
     }
   }
 
