@@ -263,7 +263,6 @@ async function handleRefreshFolder() {
           @toggle-expand="handleToggleExpand"
         />
       </div>
-      <div><span class="text-muted-foreground text-sm" /><input></div>
       <div>
         <Label class="mb-1 block text-sm font-medium">当前路径：{{ fullSavePath }}</Label>
         <Input
