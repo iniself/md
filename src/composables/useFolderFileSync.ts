@@ -181,7 +181,7 @@ export function useFolderFileSync() {
   watch(
     () => folderStore.startSavePostToFile,
     () => {
-      if (folderStore.startSavePostToFile && folderStore.currentFilePath) {
+      if (folderStore.startSavePostToFile && folderStore.currentFilePath && currentPost.value.nodePath) {
         const content = currentPost?.value.content || ``
         syncPostToFile(folderStore.currentFilePath, content)
       }

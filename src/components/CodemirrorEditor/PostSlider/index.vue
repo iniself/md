@@ -42,6 +42,8 @@ function addPost() {
   }
   store.addPost(addPostInputVal.value.trim(), parentId.value)
   isOpenAddDialog.value = false
+  folderSourceStore.currentFolderId = null
+  folderSourceStore.currentFilePath = null
   toast.success(`内容新增成功`)
 }
 
