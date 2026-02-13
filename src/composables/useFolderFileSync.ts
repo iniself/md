@@ -188,7 +188,14 @@ export function useFolderFileSync() {
       else if (folderStore.startSavePostToFile && folderStore.currentFilePath === null && !currentPost.value.isFolder) {
         // 另存为文件
         store.isOpenFolderPanel = false
-        folderStore.startSelectFolderWhenSaveAsFile = true
+        if (folderStore.currentFolderHandle) {
+          folderStore.currentFolderId = folderStore.currentFolderHandle.id
+          folderStore.loadFileTree(folderStore.currentFolderHandle.handle)
+          folderStore.showDialogWhenSaveAsFile = true
+        }
+        else {
+          folderStore.startSelectFolderWhenSaveAsFile = true
+        }
       }
       folderStore.startSavePostToFile = false
     },
