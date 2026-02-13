@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Diff2HtmlUIConfig } from 'diff2html/lib/ui/js/diff2html-ui-slim.js'
+import { ColorSchemeType } from 'diff2html/lib/types'
 import { Diff2HtmlUI } from 'diff2html/lib/ui/js/diff2html-ui-slim.js'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useStore } from '@/stores'
@@ -26,7 +27,7 @@ function renderDiff(isDark: boolean) {
     matching: `lines`,
     highlight: true,
     fileContentToggle: false,
-    colorScheme: isDark ? `dark` : `light`,
+    colorScheme: isDark ? ColorSchemeType.DARK : ColorSchemeType.LIGHT,
     outputFormat: `side-by-side`, // 或 'line-by-line'
   }
 
