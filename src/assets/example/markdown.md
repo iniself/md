@@ -73,8 +73,8 @@ Markdown 中的段落就是一行接一行的文本。要创建新段落，只�
  =rgb(128, 128, 128)::90% 微信公众号平台不支持除公众号内容以外的链接。或点击左上角「格式->微信外链接转底部引用」开启引用，这样就可以在底部++引用链接++处看到链接指向。=
 - **知乎卡片链接**：链接外层再叠加括号 `[[显示文本](链接地址)]`。`Command + Option + K`
 - **图片**：和链接类似，只需在前面加上 `!`。Docs^red:+^ 支持定义图片长宽（`px` | `%`）和填充方式（`contain` | `cover` | `fill` ...）：
-``![nori 项目](https://docs.auiapps.top/resource/img/nori.png =200)``
-![nori 项目](https://docs.auiapps.top/resource/img/nori.png =200)
+``![nori 项目](https://docs.auiapps.top/resource/img/nori.png =200 @cover)``
+![nori 项目](https://docs.auiapps.top/resource/img/nori.png =200 @cover)
 另外，使用 `<![alt](url),![alt](url)>` 语法可以创建横屏滑动幻灯片，支持微信公众号平台。建议使用相似尺寸的图片以获得最佳显示效果。
 
 ## 引用
