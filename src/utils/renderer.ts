@@ -19,6 +19,7 @@ import renderCsvTable from './extendedtables/csv2table.ts'
 import markedExtendedtables from './extendedtables/index.js'
 import markedAbbr from './MDAbbr'
 import markedAlert from './MDAlert'
+import markedChat from './MDChatMessage.ts'
 import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
 import markedInfographic from './MDinfographic.ts'
@@ -613,6 +614,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
   marked.use(markedExtendedtables(styles))
   marked.use(markedSupSub())
   marked.use(markedInfographic())
+  marked.use(markedChat())
 
   return {
     buildAddition,
