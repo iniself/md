@@ -125,10 +125,13 @@ export default function markedChat(): MarkedExtension {
 
               const params: Record<string, string> = {}
               parts.forEach((p) => {
-                // const [k, v] = p.split('=')
-                const [k, v] = p.trim().split(`=`)
-                if (k && v)
-                  params[k] = v
+                const idx = p.indexOf(`=`)
+                if (idx !== -1) {
+                  const k = p.slice(0, idx).trim()
+                  const v = p.slice(idx + 1).trim()
+                  if (k && v)
+                    params[k] = v
+                }
               })
 
               roles[roleName] = {
