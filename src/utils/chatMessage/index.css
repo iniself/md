@@ -30,8 +30,12 @@
 .chat-container .message {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 8px;
+  margin-bottom: 30px;
   gap: 6px;
+}
+
+.chat-container .message.same-speaker {
+  margin-top: -22px;
 }
 
 .chat-container .message.same-speaker .avatar {
