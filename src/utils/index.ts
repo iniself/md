@@ -16,6 +16,7 @@ import type { Block, ExtendedProperties, Inline, Theme } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 import { addSpacingToMarkdown } from '@/utils/autoSpace'
 import admonition_css from './admonition/index.css?inline'
+import chatMessage_css from './chatMessage/index.css?inline'
 
 import markedAlert from './MDAlert'
 
@@ -830,8 +831,13 @@ export function solveWeChatImage(doc: Document, mode: string) {
   }
 }
 
+const ALL_CSS = `
+${admonition_css}
+${chatMessage_css}
+`
+
 function mergeCss(html: string): string {
-  return juice(`<style>${admonition_css}</style>\n${html}`, {
+  return juice(`<style>${ALL_CSS}</style>\n${html}`, {
     inlinePseudoElements: true,
     preserveImportant: true,
   })

@@ -14,12 +14,12 @@ import type { RendererAPI } from '@/types/renderer-types'
 import { delwsrv } from '@/utils'
 import { getStyleString } from '.'
 import markedAdmonitionExtension from './admonition/index.ts'
+import markedChat from './chatMessage/index.ts'
 import renderCsvTable from './extendedtables/csv2table.ts'
 // @ts-expect-error: not ts
 import markedExtendedtables from './extendedtables/index.js'
 import markedAbbr from './MDAbbr'
 import markedAlert from './MDAlert'
-import markedChat from './MDChatMessage.ts'
 import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
 import markedInfographic from './MDinfographic.ts'
@@ -31,6 +31,7 @@ import markedTextExtension from './MDTextExtension'
 import markedUnderlineExtension from './MDUnderlineExtension'
 import markedZhihuLinkCard from './MDZhihuLinkCard'
 import './admonition/index.css'
+import './chatMessage/index.css'
 
 mermaid.initialize({
   startOnLoad: false,
