@@ -191,6 +191,10 @@
   display:none;
 }
 
+.chat-container .bubble.empty+.bubble-arrow {
+  display:none;
+}
+
 .chat-container .quote {
   margin-top: 6px;
   padding: 6px 8px;
