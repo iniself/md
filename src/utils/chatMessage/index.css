@@ -225,7 +225,9 @@
 .chat-notice {
   width: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   margin: 12px 0;
 }
 
@@ -235,4 +237,9 @@
 
 .chat-notice > * {
   text-align: center !important;
+}
+
+.chat-notice > hr {
+  width: 100%;
+  max-width: 100% !important;
 }
