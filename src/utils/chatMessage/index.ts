@@ -10,17 +10,24 @@ newMarked.setOptions({
   breaks: true,
 })
 
-interface ChatMessage {
-  side: `left` | `right`
-  avatar?: string
-  name?: string
-  quote?: string
-  inlineHtml: string
-  blocks: {
-    type: string
+type ChatMessage =
+  | {
+    type: `message`
+    side: `left` | `right`
+    avatar?: string
+    name?: string
+    quote?: string
+    inlineHtml: string
+    blocks: { type: string, html: string }[]
+  }
+  | {
+    type: `notice`
     html: string
-  }[]
-}
+  }
+
+type CurrentMessage =
+  | { type: `message`, side: `left` | `right`, avatar?: string, name?: string, raw: string }
+  | { type: `notice`, raw: string }
 
 interface ChatToken extends Tokens.Generic {
   type: `chatBlock`
@@ -146,24 +153,26 @@ export default function markedChat(): MarkedExtension {
 
           const messages: ChatMessage[] = []
 
-          let current: {
-            side: `left` | `right`
-            avatar?: string
-            name?: string
-            raw: string
-          } | null = null
+          let current: CurrentMessage | null = null
 
           for (; i < lines.length; i++) {
             const line = lines[i]
+
             // eslint-disable-next-line regexp/no-super-linear-backtracking
-            const head = line.match(/^>>\s*(left|right)\s*(.*)$/)
+            const head = line.match(/^>>\s*(left|right|notice)\s*(.*)$/)
 
             if (head) {
+              const type = head[1] as `left` | `right` | `notice`
+
               if (current) {
                 messages.push(processMessage(current))
+                current = null
               }
 
-              const side = head[1] as `left` | `right`
+              if (type === `notice`) {
+                current = { type: `notice`, raw: `` }
+                continue
+              }
 
               const params: Record<string, string> = {}
               line.replace(/(\w+)\s*=\s*(\S+)/g, (_, key, value) => {
@@ -171,6 +180,7 @@ export default function markedChat(): MarkedExtension {
                 return ``
               })
 
+              const side = type as `left` | `right`
               const rawRoleName = head[2].trim()
               const resolvedRoleName = aliasMap[rawRoleName] || rawRoleName
               const role = roles[resolvedRoleName]
@@ -184,7 +194,7 @@ export default function markedChat(): MarkedExtension {
                 )
               }
 
-              current = { side, name, avatar, raw: `` }
+              current = { type: `message`, side, name, avatar, raw: `` }
               continue
             }
 
@@ -212,9 +222,21 @@ export default function markedChat(): MarkedExtension {
             <section class="chat-container">
             ${messages
               .map((msg, i) => {
+                if (msg.type === `notice`) {
+                  return `
+                    <section class="chat-notice">
+                      ${msg.html}
+                    </section>
+                  `
+                }
+
                 const prev = messages[i - 1]
                 const sameSpeaker
-                  = prev && prev.side === msg.side && prev.avatar === msg.avatar
+                  = prev
+                    && prev.type === `message`
+                    && msg.type === `message`
+                    && prev.side === msg.side
+                    && prev.avatar === msg.avatar
 
                 return `
                   <section class="message message-${msg.side} ${sameSpeaker ? `same-speaker` : ``}">
@@ -257,9 +279,14 @@ export default function markedChat(): MarkedExtension {
   }
 }
 
-function processMessage(
-  input: { side: `left` | `right`, avatar?: string, name?: string, raw: string },
-): ChatMessage {
+function processMessage(input: CurrentMessage): ChatMessage {
+  if (input.type === `notice`) {
+    return {
+      type: `notice`,
+      html: marked.parse(input.raw) as string,
+    }
+  }
+
   const lines = input.raw.split(`\n`)
   let quote: string | undefined
   const contentLines: string[] = []
@@ -291,6 +318,7 @@ function processMessage(
     }
   }
   return {
+    type: `message`,
     side: input.side,
     avatar: input.avatar,
     name: input.name ? marked.parseInline(input.name) as string : `xxx`,
