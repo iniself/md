@@ -2,6 +2,8 @@ import type CodeMirror from 'codemirror'
 import { altKey, ctrlKey, shiftKey } from '@/config'
 import { formatDoc } from '@/utils'
 
+const defaultAvatar = `${import.meta.env.BASE_URL}assets/images/aui.jpg`
+
 interface ToggleFormatOptions {
   prefix: string
   suffix: string
@@ -177,10 +179,21 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
 
     [`${ctrlKey}-${altKey}-A`]: function admonition(editor) {
       toggleFormat(editor, {
-        prefix: `!!! note 标题 `,
-        suffix: `!!!`,
-        check: s => s.startsWith(`!!! note`) && s.endsWith(`!!!`),
-        afterInsertCursorOffset: -3,
+        prefix: `!!! note 标题\n`,
+        suffix: `Docs^red:+^ 是个 markdown 写作工具\n!!!`,
+        check: s =>
+          /^!!! note[^\n]*\n/.test(s)
+          && /\r?\n!!!$/.test(s),
+        afterInsertCursorOffset: 1,
+      })
+    },
+
+    [`${ctrlKey}-${altKey}-C`]: function chatMessage(editor) {
+      toggleFormat(editor, {
+        prefix: `!!! chat`,
+        suffix: `\nroles:\n Docs^red:+^ as docs, avatar=${defaultAvatar}\n\n>> right docs\n你好朋友！\n!!!`,
+        check: s => /^!!! chat\r?\n/.test(s) && /\r?\n!!!$/.test(s),
+        afterInsertCursorOffset: 1,
       })
     },
 

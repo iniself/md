@@ -2,6 +2,8 @@ import type { MarkedExtension, Tokens } from 'marked'
 import { marked, Marked } from 'marked'
 import markedImageSize from '../MDImageSize'
 
+const defaultAvatar = new URL(`/assets/images/aui.jpg`, import.meta.url).href
+
 const newMarked = new Marked()
 
 newMarked.use(markedImageSize())
@@ -241,7 +243,7 @@ export default function markedChat(): MarkedExtension {
                 return `
                   <section class="message message-${msg.side} ${sameSpeaker ? `same-speaker` : ``}">
                     <section class="avatar">
-                      <img src="${msg.avatar ?? `https://via.nplaceholder.com/200x200`}" />
+                      <img src="${msg.avatar ?? defaultAvatar}" />
                     </section>
 
                     <section class="message-content message-content-${msg.side}">
