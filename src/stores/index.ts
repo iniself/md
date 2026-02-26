@@ -135,7 +135,7 @@ export const useStore = defineStore(`store`, () => {
   const fontSizeNumber = computed(() => Number(fontSize.value.replace(`px`, ``)))
 
   // 内容编辑器
-  const editor = ref<CodeMirror.EditorFromTextArea | null>(null)
+  const editor = shallowRef<CodeMirror.EditorFromTextArea | null>(null)
   // 预备弃用的旧字段
   const editorContent = useStorage(`__editor_content`, DEFAULT_CONTENT)
 
