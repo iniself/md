@@ -1,12 +1,16 @@
 import type { MarkedExtension, Tokens } from 'marked'
 import { marked, Marked } from 'marked'
+import markedAdmonitionExtension from '../admonition/index'
 import markedImageSize from '../MDImageSize'
+import markedSupSub from '../MDSupSub'
 
 const defaultAvatar = new URL(`/assets/images/aui.jpg`, import.meta.url).href
 
 const newMarked = new Marked()
 
 newMarked.use(markedImageSize())
+newMarked.use(markedAdmonitionExtension())
+newMarked.use(markedSupSub())
 
 newMarked.setOptions({
   breaks: true,
@@ -46,6 +50,7 @@ function isBlockToken(token: Tokens.Generic) {
     `hr`,
     `html`,
     `image`,
+    `admonition`,
   ].includes(token.type)
 }
 
@@ -77,12 +82,42 @@ export default function markedChat(): MarkedExtension {
           if (!src.match(/^!!!\s*chat/))
             return
 
-          const match = src.match(/^!!!\s*chat[ \t]*\n([\s\S]*?)\n!!![ \t]*(?:\n|$)/)
-          if (!match)
-            return
+          const srcLines = src.split(`\n`)
 
-          const raw = match[0]
-          const body = match[1].trim()
+          let rawIndex = 0
+          const rawLines: string[] = []
+          let nestLevel = 0
+
+          rawLines.push(srcLines[rawIndex])
+          rawIndex++
+
+          for (; rawIndex < srcLines.length; rawIndex++) {
+            const line = srcLines[rawIndex]
+            const trimmed = line.trim()
+
+            if (trimmed.startsWith(`!!!`) && trimmed !== `!!!`) {
+              nestLevel++
+              rawLines.push(line)
+              continue
+            }
+
+            if (trimmed === `!!!`) {
+              if (nestLevel > 0) {
+                nestLevel--
+                rawLines.push(line)
+                continue
+              }
+
+              rawLines.push(line)
+              rawIndex++
+              break
+            }
+
+            rawLines.push(line)
+          }
+
+          const raw = rawLines.join(`\n`)
+          const body = rawLines.slice(1, -1).join(`\n`).trim()
 
           const roles: Record<string, { name: string, avatar?: string }> = {}
 
