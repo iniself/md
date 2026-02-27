@@ -39,6 +39,10 @@
   margin-top: -22px;
 }
 
+.chat-container .message:has(.message-content > .chat-block:last-child) + .message.same-speaker {
+  margin-top: revert;
+}
+
 .chat-container .message.same-speaker .avatar {
   height: var(--chat-avatar);
   width: var(--chat-avatar);
