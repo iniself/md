@@ -205,6 +205,39 @@
   display:none;
 }
 
+.chat-container .message-left .chat-block-paragraph * {
+  margin-right: 0px!important;
+}
+
+.chat-container .message-right .chat-block-paragraph * {
+  margin-left: 0px!important;
+}
+
+.chat-container .message-right .chat-block-admonition {
+  padding-right: 8px;
+}
+
+.chat-container .chat-block-admonition .admonition {
+  margin: 0em auto!important;
+  width: 100%!important;
+}
+
+.chat-container .message-left .chat-block-admonition {
+  padding-left: 8px;
+}
+
+.chat-container .message-right .chat-block-admonition {
+  padding-right: 8px;
+}
+
+.chat-container .message-left .chat-block-code {
+  padding-left: 8px;
+}
+
+.chat-container .message-right .chat-block-code {
+  padding-right: 8px;
+}
+
 .chat-container .quote {
   margin-top: 6px;
   padding: 6px 8px;

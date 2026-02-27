@@ -8,6 +8,12 @@
   margin: 1em 0;
   page-break-inside: avoid;
 }
+
+.dark .admonition{
+  background-color: initial;
+  color: hsl(var(--foreground));
+}
+
 .admonition-note {
   --color: rgba(0, 0, 0, 0.87);
   --bg: #448aff;
