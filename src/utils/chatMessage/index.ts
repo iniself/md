@@ -23,8 +23,8 @@ type ChatMessage =
     avatar?: string
     name?: string
     quote?: string
-    inlineHtml: string
-    blocks: { type: string, html: string }[]
+    inlineTokens: Tokens.Generic[]
+    blockTokens: Tokens.Generic[]
   }
   | {
     type: `notice`
@@ -202,7 +202,8 @@ export default function markedChat(): MarkedExtension {
               const type = head[1] as `left` | `right` | `notice`
 
               if (current) {
-                messages.push(processMessage(current))
+                // messages.push(processMessage(current))
+                pushCurrentMessage(messages, current)
                 current = null
               }
 
@@ -241,7 +242,7 @@ export default function markedChat(): MarkedExtension {
           }
 
           if (current) {
-            messages.push(processMessage(current))
+            pushCurrentMessage(messages, current)
           }
 
           return {
@@ -257,8 +258,7 @@ export default function markedChat(): MarkedExtension {
 
           return `
             <section class="chat-container">
-            ${messages
-              .map((msg, i) => {
+              ${messages.map((msg, i) => {
                 if (msg.type === `notice`) {
                   return `
                     <section class="chat-notice">
@@ -282,85 +282,86 @@ export default function markedChat(): MarkedExtension {
                     </section>
 
                     <section class="message-content message-content-${msg.side}">
-                      ${msg.name ? `<span class="chat-name chat-name-${msg.side}">${msg.name}</span>` : ``}
-                      <section style="max-width: 100%; display: flex; flex-direction: ${msg.side === `right` ? `row` : `row-reverse`}; ">
-                        <section class="bubble bubble-${msg.side} ${msg.inlineHtml ? `` : `empty`}">
-                          ${msg.inlineHtml}
+                      ${msg.name
+                        ? `<span class="chat-name chat-name-${msg.side}">${marked.parseInline(msg.name)}</span>`
+                        : ``}
+
+                      <section style="max-width: 100%; display: flex; flex-direction: ${msg.side === `right` ? `row` : `row-reverse`};">
+                        <section class="bubble bubble-${msg.side} ${msg.inlineTokens.length ? `` : `empty`}">
+                          ${marked.parser(msg.inlineTokens)}
 
                           ${msg.quote
                             ? `
-                          <section class="quote">
-                            <p class="quote-content">${msg.quote}</p>
-                          </section>`
+                            <section class="quote">
+                              <p class="quote-content">${msg.quote}</p>
+                            </section>
+                            `
                             : ``}
                         </section>
                         <span class="bubble-arrow bubble-arrow-${msg.side}"></span>
                       </section>
 
-                      ${msg.blocks
-                        .map(
-                          block => `
-                        <section class="chat-block chat-block-${block.type}">
-                          ${block.html}
-                        </section>`,
-                        )
-                        .join(``)}
+                      ${msg.blockTokens.map(t => `
+                        <section class="chat-block chat-block-${t.type}">
+                          ${marked.parser([t])}
+                        </section>
+                      `).join(``)}
                     </section>
-                  </section>`
-              })
-              .join(`\n`)}
-            </section>`
+                  </section>
+                `
+              }).join(`\n`)}
+            </section>
+          `
         },
       },
     ],
   }
 }
 
-function processMessage(input: CurrentMessage): ChatMessage {
-  if (input.type === `notice`) {
-    return {
+function pushCurrentMessage(
+  messages: ChatMessage[],
+  current: CurrentMessage,
+) {
+  if (current.type === `notice`) {
+    messages.push({
       type: `notice`,
-      html: marked.parse(input.raw) as string,
-    }
+      html: marked.parse(current.raw) as string,
+    })
+    return
   }
 
-  const lines = input.raw.split(`\n`)
+  const lines = current.raw.split(`\n`)
   let quote: string | undefined
   const contentLines: string[] = []
 
   for (const line of lines) {
-    if (line.startsWith(`@`) && !quote) {
+    if (line.startsWith(`@`) && !quote)
       quote = line.slice(1).trim()
-    }
-    else {
+    else
       contentLines.push(line)
-    }
   }
 
   const content = contentLines.join(`\n`)
+
   const tokens = newMarked.lexer(content)
 
   const inlineTokens: Tokens.Generic[] = []
-  const blocks: { type: string, html: string }[] = []
+  const blockTokens: Tokens.Generic[] = []
 
   for (const t of tokens) {
-    if (isBlockToken(t) || isParagraphAsBlock(t)) {
-      blocks.push({
-        type: t.type,
-        html: marked.parser([t]),
-      })
-    }
-    else {
+    if (isBlockToken(t) || isParagraphAsBlock(t))
+      blockTokens.push(t)
+    else
       inlineTokens.push(t)
-    }
   }
-  return {
+
+  messages.push({
     type: `message`,
-    side: input.side,
-    avatar: input.avatar,
-    name: input.name ? marked.parseInline(input.name) as string : `xxx`,
+    side: current.side,
+    avatar: current.avatar,
+    name: current.name,
     quote,
-    inlineHtml: marked.parser(inlineTokens),
-    blocks,
-  }
+    inlineTokens,
+    blockTokens,
+  })
 }
