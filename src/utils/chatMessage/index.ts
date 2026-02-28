@@ -28,7 +28,7 @@ type ChatMessage =
   }
   | {
     type: `notice`
-    html: string
+    tokens: Tokens.Generic[]
   }
 
 type CurrentMessage =
@@ -202,7 +202,6 @@ export default function markedChat(): MarkedExtension {
               const type = head[1] as `left` | `right` | `notice`
 
               if (current) {
-                // messages.push(processMessage(current))
                 pushCurrentMessage(messages, current)
                 current = null
               }
@@ -262,7 +261,7 @@ export default function markedChat(): MarkedExtension {
                 if (msg.type === `notice`) {
                   return `
                     <section class="chat-notice">
-                      ${msg.html}
+                      ${marked.parser(msg.tokens)}
                     </section>
                   `
                 }
@@ -323,9 +322,11 @@ function pushCurrentMessage(
   current: CurrentMessage,
 ) {
   if (current.type === `notice`) {
+    const tokens = newMarked.lexer(current.raw)
+
     messages.push({
       type: `notice`,
-      html: marked.parse(current.raw) as string,
+      tokens,
     })
     return
   }
@@ -359,7 +360,7 @@ function pushCurrentMessage(
     type: `message`,
     side: current.side,
     avatar: current.avatar,
-    name: current.name,
+    name: current.name ?? `xxx`,
     quote,
     inlineTokens,
     blockTokens,
