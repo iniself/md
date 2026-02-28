@@ -167,6 +167,19 @@ fn main() {
 ```
 !!!
 
+## GFM alerts
+支持 GFM 风格的`NOTE`、`TIP`、`IMPORTANT`、`WARNING`、`CAUTION`
+
+```
+> [!TIP]
+> Optional information to help a user be more successful.
+```
+
+效果如下：
+
+> [!TIP]
+> Optional information to help a user be more successful.
+
 ## 分割线
 
 用三个或更多的 `-`、`*` 或 `_` 来创建分割线。
@@ -516,6 +529,99 @@ data
 ```
 
 > 更多用法，参见：[AntV Infographic Gallery](https://infographic.antv.vision/gallery)。
+
+## Chat 聊天样式
+
+通过 markdown 语法生成漂亮的聊天页面
+
+````
+!!! chat
+roles:
+ Docs^red:+^ as docs, avatar=https://docs.auiapps.top/resource/img/aui.jpg
+
+>> right docs
+这段语法会展示一个聊天页面。同时支持 Docs^red:+^ 所有语法。比如下面就是嵌在聊天中的一个 Admonition 提示块
+
+!!! note 标题
+Docs^red:+^ 是个 markdown 写作工具
+!!!
+
+>> left docs
+还可以是表格、代码块、图片等。**再次强调**，所有 Docs^red:+^ 语法都可以嵌入 chat 语法中
+
+| 模块 | 功能点 | 状态 | 负责人 | 备注 |
+|------|--------|------|--------|------|
+| Chat | 消息渲染 | ✅ 已完成 | Metaer | 支持嵌套块 |
+| Note | Admonition | 🛠 优化中 | Jason | 暗色模式修复 |
+
+```rust
+pub fn group_messages_by_role(
+    messages: &[ChatMessage],
+) -> HashMap<&str, Vec<&ChatMessage>> {
+    let mut grouped: HashMap<&str, Vec<&ChatMessage>> = HashMap::new();
+
+    for msg in messages.iter() {
+        grouped
+            .entry(msg.role.as_str())
+            .or_insert_with(Vec::new)
+            .push(msg);
+    }
+
+    grouped
+}
+```
+
+![nori 项目](https://docs.auiapps.top/resource/img/nori.png)
+
+![nori 项目](https://docs.auiapps.top/resource/img/nori.png =200)
+
+!!!
+````
+---
+
+!!! chat
+roles:
+ Docs^red:+^ as docs, avatar=https://docs.auiapps.top/resource/img/aui.jpg
+
+>> right docs
+这段语法会展示一个聊天页面。同时支持 Docs^red:+^ 所有语法。比如下面就是嵌在聊天中的一个 Admonition 提示块
+
+!!! note 标题
+Docs^red:+^ 是个 markdown 写作工具
+!!!
+
+>> left docs
+还可以是表格、代码块、图片等。所有 Docs^red:+^ 语法都可以嵌入 chat 语法中
+
+| 模块 | 功能点 | 状态 | 负责人 | 备注 |
+|------|--------|------|--------|------|
+| Chat | 消息渲染 | ✅ 已完成 | Metaer | 支持嵌套块 |
+| Note | Admonition | 🛠 优化中 | Jason | 暗色模式修复 |
+
+```rust
+pub fn group_messages_by_role(
+    messages: &[ChatMessage],
+) -> HashMap<&str, Vec<&ChatMessage>> {
+    let mut grouped: HashMap<&str, Vec<&ChatMessage>> = HashMap::new();
+
+    for msg in messages.iter() {
+        grouped
+            .entry(msg.role.as_str())
+            .or_insert_with(Vec::new)
+            .push(msg);
+    }
+
+    grouped
+}
+```
+
+![nori 项目](https://docs.auiapps.top/resource/img/nori.png)
+
+![nori 项目](https://docs.auiapps.top/resource/img/nori.png =200)
+
+!!!
+
+通过菜单 `格式 → 聊天样式` 或 `Command + Option + C` 可以快速插入聊天样式语法。
 
 ## 结语
 
