@@ -84,6 +84,8 @@ const defaultTheme: Theme = {
       'color': `rgba(0,0,0,0.5)`,
       'background': `var(--blockquote-background)`,
       'margin-bottom': `1em`,
+      'margin-left': `8px`,
+      'margin-right': `8px`,
     },
 
     // 引用内容

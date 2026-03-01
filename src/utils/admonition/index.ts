@@ -168,7 +168,7 @@ export default function markedAdmonitionExtension(): MarkedExtension {
         },
 
         renderer(this: any, token: Tokens.Generic) {
-          const html = `<${config.nodeName} style="width:95%;margin:3em auto" class="${config.className} ${config.className}-${token.icon}">
+          const html = `<${config.nodeName} style="width:100%;margin:3em auto" class="${config.className} ${config.className}-${token.icon}">
             <${config.title.nodeName} class="${config.className}-title">
               <span>${this.parser.parseInline(token.titleTokens)}</span>
             </${config.title.nodeName}>
