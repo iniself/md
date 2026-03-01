@@ -15,6 +15,7 @@ import { delwsrv } from '@/utils'
 import { getStyleString } from '.'
 import markedAdmonitionExtension from './admonition/index.ts'
 import markedChat from './chatMessage/index.ts'
+import { createMarked } from './createMarked.ts'
 import renderCsvTable from './extendedtables/csv2table.ts'
 // @ts-expect-error: not ts
 import markedExtendedtables from './extendedtables/index.js'
@@ -29,7 +30,9 @@ import markedSlider from './MDSlider'
 import markedSupSub from './MDSupSub'
 import markedTextExtension from './MDTextExtension'
 import markedUnderlineExtension from './MDUnderlineExtension'
+
 import markedZhihuLinkCard from './MDZhihuLinkCard'
+
 import './admonition/index.css'
 import './chatMessage/index.css'
 
@@ -615,7 +618,14 @@ export function initRenderer(opts: IOpts): RendererAPI {
   marked.use(markedExtendedtables(styles))
   marked.use(markedSupSub())
   marked.use(markedInfographic())
-  marked.use(markedChat())
+
+  const { newMarked } = createMarked({
+    styledContent,
+    styles,
+    styleMapping,
+  })
+
+  marked.use(markedChat(newMarked))
 
   return {
     buildAddition,

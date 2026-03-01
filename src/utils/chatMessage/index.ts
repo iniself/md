@@ -1,20 +1,7 @@
-import type { MarkedExtension, Tokens } from 'marked'
-import { marked, Marked } from 'marked'
-import markedAdmonitionExtension from '../admonition/index'
-import markedImageSize from '../MDImageSize'
-import markedSupSub from '../MDSupSub'
+import type { Marked, MarkedExtension, Tokens } from 'marked'
+import { marked } from 'marked'
 
 const defaultAvatar = new URL(`/assets/images/aui.jpg`, import.meta.url).href
-
-const newMarked = new Marked()
-
-newMarked.use(markedImageSize())
-newMarked.use(markedAdmonitionExtension())
-newMarked.use(markedSupSub())
-
-newMarked.setOptions({
-  breaks: true,
-})
 
 type ChatMessage =
   | {
@@ -51,6 +38,7 @@ function isBlockToken(token: Tokens.Generic) {
     `html`,
     `image`,
     `admonition`,
+    `infographic`,
   ].includes(token.type)
 }
 
@@ -67,7 +55,7 @@ function isParagraphAsBlock(t: Tokens.Generic) {
   )
 }
 
-export default function markedChat(): MarkedExtension {
+export default function markedChat(newMarked: Marked): MarkedExtension {
   return {
     extensions: [
       {
@@ -202,7 +190,7 @@ export default function markedChat(): MarkedExtension {
               const type = head[1] as `left` | `right` | `notice`
 
               if (current) {
-                pushCurrentMessage(messages, current)
+                pushCurrentMessage(messages, current, newMarked)
                 current = null
               }
 
@@ -241,7 +229,7 @@ export default function markedChat(): MarkedExtension {
           }
 
           if (current) {
-            pushCurrentMessage(messages, current)
+            pushCurrentMessage(messages, current, newMarked)
           }
 
           return {
@@ -320,7 +308,12 @@ export default function markedChat(): MarkedExtension {
 function pushCurrentMessage(
   messages: ChatMessage[],
   current: CurrentMessage,
+  newMarked: Marked,
 ) {
+  newMarked.setOptions({
+    breaks: true,
+  })
+
   if (current.type === `notice`) {
     const tokens = newMarked.lexer(current.raw)
 
