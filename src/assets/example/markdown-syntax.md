@@ -546,6 +546,9 @@ roles:
 Docs^red:+^ 是个 markdown 写作工具
 !!!
 
+>> notice
+=grey::11  2月23日 20:12=
+
 >> left docs
 还可以是表格、代码块、图片等。**再次强调**，所有 Docs^red:+^ 语法都可以嵌入 chat 语法中
 
@@ -589,6 +592,9 @@ roles:
 !!! note 标题
 Docs^red:+^ 是个 markdown 写作工具
 !!!
+
+>> notice
+=grey::11  2月23日 20:12=
 
 >> left docs
 还可以是表格、代码块、图片等。所有 Docs^red:+^ 语法都可以嵌入 chat 语法中
