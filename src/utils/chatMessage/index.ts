@@ -55,6 +55,14 @@ function isParagraphAsBlock(t: Tokens.Generic) {
   )
 }
 
+const STYLE_PRESETS = {
+  width: new Set([`narrow`, `standard`, `wide`]),
+  padding: new Set([`compact`, `standard`, `spacious`]),
+  density: new Set([`compact`, `standard`, `comfortable`]),
+  align: new Set([`left`, `center`]),
+  background: new Set([`default`, `muted`, `contrast`]),
+}
+
 export default function markedChat(newMarked: Marked): MarkedExtension {
   return {
     extensions: [
@@ -105,76 +113,123 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
           }
 
           const raw = rawLines.join(`\n`)
-          const body = rawLines.slice(1, -1).join(`\n`).trim()
+          const bodyLines = rawLines.slice(1, -1)
 
           const roles: Record<string, { name: string, avatar?: string }> = {}
-
           const aliasMap: Record<string, string> = {}
 
-          const lines = body.split(`\n`)
+          const styles: Record<string, string> = {}
 
           let i = 0
 
-          if (lines[i]?.trim() === `roles:`) {
-            i++
+          function parseHeaderBlock(
+            name: string,
+            target: Record<string, string>,
+          ) {
+            if (bodyLines[i]?.trim() !== `${name}:`)
+              return
 
-            for (; i < lines.length; i++) {
-              const line = lines[i]
+            i++
+            for (; i < bodyLines.length; i++) {
+              const line = bodyLines[i]
               if (!/^\s+/.test(line))
                 break
 
-              const parts = line.trim().split(/[，,]/)
+              const m = line.trim().match(/^([\w-]+)\s*=\s*(\S+)$/)
+              if (m) {
+                const [, rawKey, rawValue] = m
+                const value = rawValue.trim()
 
-              const rolePart = parts.shift()?.trim()
-              if (!rolePart)
-                continue
-
-              let roleName = rolePart
-              let alias: string | undefined
-
-              // 处理 "as"
-              if (rolePart.includes(` as `)) {
-                // eslint-disable-next-line regexp/no-super-linear-backtracking
-                const m = rolePart.match(/^(.*?)\s+as\s+(.+)$/)
-                if (m) {
-                  roleName = m[1].trim()
-                  alias = m[2].trim()
+                if (rawKey in STYLE_PRESETS) {
+                  const key = rawKey as keyof typeof STYLE_PRESETS
+                  if (STYLE_PRESETS[key].has(value)) {
+                    target[key] = value
+                  }
                 }
-              }
-
-              // 处理 "="
-              else if (rolePart.includes(`=`)) {
-                // eslint-disable-next-line regexp/no-super-linear-backtracking
-                const m = rolePart.match(/^(.*?)\s*=\s*(.+)$/)
-                if (m) {
-                  roleName = m[1].trim()
-                  alias = m[2].trim()
-                }
-              }
-
-              if (!roleName)
-                continue
-
-              const params: Record<string, string> = {}
-              parts.forEach((p) => {
-                const idx = p.indexOf(`=`)
-                if (idx !== -1) {
-                  const k = p.slice(0, idx).trim()
-                  const v = p.slice(idx + 1).trim()
-                  if (k && v)
-                    params[k] = v
-                }
-              })
-
-              roles[roleName] = {
-                name: roleName,
-                avatar: params.avatar,
-              }
-              if (alias) {
-                aliasMap[alias] = roleName
               }
             }
           }
+
+          while (i < bodyLines.length) {
+            const line = bodyLines[i]?.trim()
+
+            if (!line) {
+              i++
+              continue
+            }
+
+            if (line === `styles:`) {
+              parseHeaderBlock(`styles`, styles)
+              continue
+            }
+
+            if (line === `roles:`) {
+              i++
+
+              for (; i < bodyLines.length; i++) {
+                const line = bodyLines[i]
+                if (!/^\s+/.test(line))
+                  break
+
+                const parts = line.trim().split(/[，,]/)
+
+                const rolePart = parts.shift()?.trim()
+                if (!rolePart)
+                  continue
+
+                let roleName = rolePart
+                let alias: string | undefined
+
+                // 处理 "as"
+                if (rolePart.includes(` as `)) {
+                  // eslint-disable-next-line regexp/no-super-linear-backtracking
+                  const m = rolePart.match(/^(.*?)\s+as\s+(.+)$/)
+                  if (m) {
+                    roleName = m[1].trim()
+                    alias = m[2].trim()
+                  }
+                }
+
+                // 处理 "="
+                else if (rolePart.includes(`=`)) {
+                  // eslint-disable-next-line regexp/no-super-linear-backtracking
+                  const m = rolePart.match(/^(.*?)\s*=\s*(.+)$/)
+                  if (m) {
+                    roleName = m[1].trim()
+                    alias = m[2].trim()
+                  }
+                }
+
+                if (!roleName)
+                  continue
+
+                const params: Record<string, string> = {}
+                parts.forEach((p) => {
+                  const idx = p.indexOf(`=`)
+                  if (idx !== -1) {
+                    const k = p.slice(0, idx).trim()
+                    const v = p.slice(idx + 1).trim()
+                    if (k && v)
+                      params[k] = v
+                  }
+                })
+
+                roles[roleName] = {
+                  name: roleName,
+                  avatar: params.avatar,
+                }
+                if (alias) {
+                  aliasMap[alias] = roleName
+                }
+              }
+              continue
+            }
+            break
+          }
+
+          const restLines = bodyLines.slice(i).join(`\n`).trim()
+          const lines = restLines ? restLines.split(`\n`) : []
+          i = 0
 
           const messages: ChatMessage[] = []
 
@@ -237,14 +292,15 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
             raw,
             tokens: [],
             messages,
+            styles,
           } as ChatToken
         },
 
         renderer(token) {
-          const { messages } = token as ChatToken
+          const { messages, styles } = token as ChatToken
 
           return `
-            <section class="chat-container">
+            <section class="chat-container width-${styles.width ?? `standard`}">
               ${messages.map((msg, i) => {
                 if (msg.type === `notice`) {
                   return `

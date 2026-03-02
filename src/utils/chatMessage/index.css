@@ -12,6 +12,18 @@
   color: var(--chat-text);
 }
 
+.chat-container.width-wide{
+  padding: 20px 0;
+}
+
+.chat-container.width-standard{
+  padding: 20px 8px;
+}
+
+.chat-container.width-narrow{
+  padding: 20px 16px;
+}
+
 .dark .chat-container {
   --chat-bg: #0f172a;
   --chat-bubble-left: #1f2937;
