@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import fetch from '@/utils/fetch'
 
 const props = defineProps({
@@ -11,6 +11,8 @@ const props = defineProps({
 
 const emit = defineEmits([`close`])
 
+const defaultMoreDetail = `https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzE5ODI1MTI4Mg==&action=getalbum&album_id=4386558940369502209`
+
 function onUpdate(val: boolean) {
   if (!val) {
     emit(`close`)
@@ -20,7 +22,7 @@ function onUpdate(val: boolean) {
 const links = ref([
   { label: `桌面应用`, url: `https://github.com/iniself/md/releases` },
   { label: `Github`, url: `https://github.com/iniself/md/` },
-  { label: `了解更多`, url: `` },
+  { label: `了解更多`, url: defaultMoreDetail },
 ])
 
 const validLinks = computed(() => links.value.filter(link => !!link.url))
@@ -28,18 +30,24 @@ const validLinks = computed(() => links.value.filter(link => !!link.url))
 async function getAddress() {
   try {
     const data = (await fetch.get(
-      `https://docs.auiapps.top/moredetail.json`,
+      `https://docs.auiapps.top/moredetail.json?t=${Date.now()}`,
     )) as { url: string }
-    links.value = links.value.map(link => link.label === `了解更多` ? { ...link, url: data.url } : link)
+    links.value = links.value.map(link => link.label === `了解更多` ? { ...link, url: data.url || defaultMoreDetail } : link)
   }
   catch (error) {
+    links.value = links.value.map(link => link.label === `了解更多` ? { ...link, url: defaultMoreDetail } : link)
     console.error(`请求失败:`, error)
   }
 }
 
-onMounted(() => {
-  getAddress()
-})
+watch(
+  () => props.visible,
+  (val) => {
+    if (val) {
+      getAddress()
+    }
+  },
+)
 
 function onRedirect(url: string) {
   window.open(url, `_blank`)
