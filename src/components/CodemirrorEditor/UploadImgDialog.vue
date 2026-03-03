@@ -410,9 +410,9 @@ const options = [
   },
 ]
 
-let imgHost = ref(`github`)
+const imgHost = ref(`github`)
 if (store.isElectron || store.isTauri) {
-  imgHost = ref(`local`)
+  imgHost.value = `local`
 }
 const useCompression = ref(false)
 const activeName = ref(`upload`)
@@ -420,6 +420,9 @@ const activeName = ref(`upload`)
 onBeforeMount(() => {
   if (localStorage.getItem(`imgHost`)) {
     imgHost.value = localStorage.getItem(`imgHost`)!
+  }
+  else {
+    localStorage.setItem(`imgHost`, imgHost.value)
   }
   const storedCompression = localStorage.getItem(`useCompression`)
   if (storedCompression !== null) {
@@ -451,7 +454,8 @@ function beforeImageUpload(file: File) {
   const config = localStorage.getItem(`${imgHost}Config`)
   const isValidHost = imgHost === `default` || config
   if (!isValidHost) {
-    toast.error(`请先配置 ${imgHost} 图床参数`)
+    const imgHostLabel = options.find(item => item.value === imgHost)?.label
+    toast.error(`请先配置 ${imgHostLabel} 图床参数`)
     return false
   }
   return true
