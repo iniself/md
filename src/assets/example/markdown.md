@@ -343,11 +343,33 @@ roles:
  Docs^red:+^ as docs, avatar=assets/images/aui.jpg
 
 >> right docs
-这段语法会展示一个聊天页面。同时支持 Docs^red:+^ 所有语法。比如下面就是嵌在聊天中的一个 Admonition 提示块
+这段语法会展示一个聊天页面。同时支持 Docs^red:+^ 所有语法。比如下面就是嵌在聊天中的一个 infographic 图表
 
-!!! note 标题
-Docs^red:+^ 是个 markdown 写作工具
-!!!
+```infographic
+infographic chart-pie-compact-card
+data
+  title 年度营收增长
+  desc 展示近三年及本年目标营收对比（单位：亿元）
+  values
+    - label 2023年
+      value 120
+      desc 转型初期，稳步试水
+      icon lucide/sprout
+    - label 2024年
+      value 150
+      desc 平台优化，效率显著提升
+      icon lucide/zap
+    - label 2025年
+      value 190
+      desc 深化数智融合，全面增长
+      icon lucide/brain-circuit
+    - label 2026年
+      value 260
+      desc 拓展生态协同，冲击新高
+      icon lucide/trophy
+theme light
+  palette antv
+```
 
 >> notice
 =grey::11  2月23日 20:12=
@@ -384,6 +406,16 @@ pub fn group_messages_by_role(
 !!!
 
 通过菜单 `格式 → 聊天样式` 或 `Command + Option + C` 可以快速插入聊天样式语法。
+
+还支持通过 styles 来定义 chat 样式。目前只支持宽度的定义：`narrow`, `standard`, `wide`
+
+````
+!!! chat
+styles:
+ width=wide
+...
+!!!
+````
 
 ## 结语
 
