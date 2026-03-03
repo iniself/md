@@ -1,7 +1,6 @@
 import type { Marked, MarkedExtension, Tokens } from 'marked'
 import { marked } from 'marked'
-
-const defaultAvatar = new URL(`/assets/images/aui.jpg`, import.meta.url).href
+import DEFAULT_AVATAR from '@/constants/DefalutAvatar'
 
 type ChatMessage =
   | {
@@ -321,7 +320,7 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
                 return `
                   <section class="message message-${msg.side} ${sameSpeaker ? `same-speaker` : ``}">
                     <section class="avatar">
-                      <img src="${msg.avatar ?? defaultAvatar}" />
+                      <img src="${msg.avatar ?? DEFAULT_AVATAR}" />
                     </section>
 
                     <section class="message-content message-content-${msg.side}">

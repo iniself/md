@@ -340,7 +340,7 @@ data
 
 !!! chat
 roles:
- Docs^red:+^ as docs, avatar=/md/assets/images/aui.jpg
+ Docs^red:+^ as docs, avatar=assets/images/aui.jpg
 
 >> right docs
 这段语法会展示一个聊天页面。同时支持 Docs^red:+^ 所有语法。比如下面就是嵌在聊天中的一个 Admonition 提示块
