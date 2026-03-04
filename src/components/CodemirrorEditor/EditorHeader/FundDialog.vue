@@ -10,14 +10,9 @@ const emit = defineEmits([`close`])
 
 const contributors = [
   {
-    name: `yanglbme`,
-    imageUrl: `https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/support1.jpg`,
-    altText: `赞赏二维码 1`,
-  },
-  {
-    name: `yangfong`,
-    imageUrl: `https://cdn-doocs.oss-cn-shenzhen.aliyuncs.com/gh/doocs/md/images/support2.jpg`,
-    altText: `赞赏二维码 2`,
+    name: `Aui`,
+    imageUrl: ``,
+    altText: ``,
   },
 ]
 

@@ -63,12 +63,20 @@ function onRedirect(url: string) {
       <div class="text-center">
         <h3><b>一款多功能 Markdown 编辑器</b></h3>
         <p><i>forked from https://github.com/doocs/md</i></p>
-        <img
-          class="mx-auto my-5"
-          src="/assets/images/auiwechat.png"
-          alt="Docs+ Markdown 编辑器"
-          style="width: 40%"
-        >
+        <div class="flex">
+          <img
+            class="mx-auto my-5"
+            src="/assets/images/auiwechat.png"
+            alt="Docs+ Markdown 编辑器"
+            style="width: 40%"
+          >
+          <img
+            class="mx-auto my-5"
+            src="/assets/images/thanks.jpg"
+            alt="Docs+ Markdown 编辑器"
+            style="width: 40%; height: 40%; align-self: center;"
+          >
+        </div>
       </div>
       <DialogFooter class="sm:justify-evenly">
         <Button
