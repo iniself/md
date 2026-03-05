@@ -399,7 +399,8 @@ async function uploadMdImg({
         matchStr = matchStr.replace(/^.\//, ``) // 处理 ./img/ 为 img/ 统一相对路径风格
         const { file }
           = list.find(f => f.path === `${root}${matchStr}`) || {}
-        uploadImage(file!, url => resolve({ matchStr, url }))
+
+        beforeUpload(file!) && uploadImage(file!, url => resolve({ matchStr, url }))
       })
     }),
   )
@@ -421,11 +422,15 @@ function mdLocalToRemote() {
   dom.ondragover = evt => evt.preventDefault()
   dom.ondrop = async (evt) => {
     evt.preventDefault()
-    if (evt.dataTransfer == null || !Array.isArray(evt.dataTransfer.items)) {
+    if (evt.dataTransfer == null) {
+      return
+    }
+    const items = [...evt.dataTransfer.items]
+    if (!Array.isArray(items)) {
       return
     }
 
-    for (const item of evt.dataTransfer.items.filter(item => item.kind === `file`)) {
+    for (const item of items.filter(item => item.kind === `file`)) {
       item
         .getAsFileSystemHandle()
         .then(async (handle: { kind: string, getFile: () => any }) => {
@@ -439,7 +444,6 @@ function mdLocalToRemote() {
           }
           else {
             const file = await handle.getFile()
-            console.log(`file`, file)
             beforeUpload(file) && uploadImage(file)
           }
         })
