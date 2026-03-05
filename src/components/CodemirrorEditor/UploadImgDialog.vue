@@ -3,6 +3,7 @@ import { toTypedSchema } from '@vee-validate/yup'
 import { UploadCloud } from 'lucide-vue-next'
 import { Field, Form } from 'vee-validate'
 import * as yup from 'yup'
+import getImgHostOptions from '@/composables/imageHostOptions'
 import { useDisplayStore, useStore } from '@/stores'
 import { checkImage } from '@/utils'
 
@@ -356,60 +357,6 @@ function cloudinarySubmit(formValues: any) {
   toast.success(`保存成功`)
 }
 
-const options = [
-  ...((store.isElectron || store.isTauri) ? [{ value: `local`, label: `本地图床` }] : []),
-  {
-    value: `default`,
-    label: `默认Github`,
-  },
-  {
-    value: `github`,
-    label: `GitHub`,
-  },
-  {
-    value: `gitee`,
-    label: `Gitee`,
-  },
-  {
-    value: `aliOSS`,
-    label: `阿里云`,
-  },
-  {
-    value: `txCOS`,
-    label: `腾讯云`,
-  },
-  {
-    value: `qiniu`,
-    label: `七牛云`,
-  },
-  {
-    value: `minio`,
-    label: `MinIO`,
-  },
-  {
-    value: `mp`,
-    label: `公众号图床`,
-  },
-  {
-    value: `r2`,
-    label: `Cloudflare R2`,
-  },
-  {
-    value: `upyun`,
-    label: `又拍云`,
-  },
-  { value: `telegram`, label: `Telegram` },
-  {
-    value: `cloudinary`,
-    label: `Cloudinary`,
-  },
-
-  {
-    value: `formCustom`,
-    label: `自定义代码`,
-  },
-]
-
 const imgHost = ref(`github`)
 if (store.isElectron || store.isTauri) {
   imgHost.value = `local`
@@ -454,7 +401,7 @@ function beforeImageUpload(file: File) {
   const config = localStorage.getItem(`${imgHost}Config`)
   const isValidHost = imgHost === `default` || config
   if (!isValidHost) {
-    const imgHostLabel = options.find(item => item.value === imgHost)?.label
+    const imgHostLabel = getImgHostOptions().find(item => item.value === imgHost)?.label
     toast.error(`请先配置 ${imgHostLabel} 图床参数`)
     return false
   }
@@ -525,7 +472,7 @@ function emitUploads(file: File) {
           <TabsTrigger value="upload">
             选择上传
           </TabsTrigger>
-          <TabsTrigger v-for="item in options.filter(item => item.value !== 'default')" :key="item.value" :value="item.value">
+          <TabsTrigger v-for="item in getImgHostOptions().filter(item => item.value !== 'default')" :key="item.value" :value="item.value">
             {{ item.label }}
           </TabsTrigger>
         </TabsList>
@@ -541,7 +488,7 @@ function emitUploads(file: File) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem
-                  v-for="item in options"
+                  v-for="item in getImgHostOptions()"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
