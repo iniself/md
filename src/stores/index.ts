@@ -950,6 +950,10 @@ export const useDisplayStore = defineStore(`display`, () => {
   const isShowUploadImgDialog = ref(false)
   const toggleShowUploadImgDialog = useToggle(isShowUploadImgDialog)
 
+  // 是否展示上传到其他图库对话框
+  const isShowUploadImgToAnotherHostDialog = ref(false)
+  const toggleShowUploadImgToAnotherHostDialog = useToggle(isShowUploadImgToAnotherHostDialog)
+
   const aiDialogVisible = ref(false)
 
   function toggleAIDialog(value?: boolean) {
@@ -964,7 +968,9 @@ export const useDisplayStore = defineStore(`display`, () => {
     isShowInsertMpCardDialog,
     toggleShowInsertMpCardDialog,
     isShowUploadImgDialog,
+    isShowUploadImgToAnotherHostDialog,
     toggleShowUploadImgDialog,
+    toggleShowUploadImgToAnotherHostDialog,
     aiDialogVisible,
     toggleAIDialog,
   }
@@ -1014,6 +1020,7 @@ export function getAllStoreStates() {
     isShowCssEditor: displayStore.isShowCssEditor,
     isShowInsertFormDialog: displayStore.isShowInsertFormDialog,
     isShowUploadImgDialog: displayStore.isShowUploadImgDialog,
+    isShowUploadImgToAnotherHostDialog: displayStore.isShowUploadImgToAnotherHostDialog,
     isShowInsertMpCardDialog: displayStore.isShowInsertMpCardDialog,
     aiDialogVisible: displayStore.aiDialogVisible,
   }

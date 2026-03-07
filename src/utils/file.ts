@@ -672,3 +672,41 @@ export function fileUpload(content: string, file: File) {
       return ghFileUpload(content, file.name)
   }
 }
+
+export function fileMigrate(content: string, file: File) {
+  const imgMigrateHost = localStorage.getItem(`imgMigrateHost`)
+  if (!imgMigrateHost) {
+    localStorage.setItem(`imgMigrateHost`, `github`)
+  }
+  switch (imgMigrateHost) {
+    case `local`:
+      return localUpload(file)
+    case `aliOSS`:
+      return aliOSSFileUpload(file)
+    case `minio`:
+      return minioFileUpload(file)
+    case `txCOS`:
+      return txCOSFileUpload(file)
+    case `qiniu`:
+      return qiniuUpload(file)
+    case `gitee`:
+      return giteeUpload(content, file.name)
+    case `github`:
+      return ghFileUpload(content, file.name)
+    case `mp`:
+      return mpFileUpload(file)
+    case `r2`:
+      return r2Upload(file)
+    case `upyun`:
+      return upyunUpload(file)
+    case `telegram`:
+      return telegramUpload(file)
+    case `cloudinary`:
+      return cloudinaryUpload(file)
+    case `formCustom`:
+      return formCustomUpload(content, file)
+    default:
+      // 默认本地图床
+      return ghFileUpload(content, file.name)
+  }
+}

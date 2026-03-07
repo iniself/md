@@ -22,7 +22,8 @@ import getImgHostOptions from '@/composables/imageHostOptions'
 import { useFolderSourceStore } from '@/stores/folderSource'
 import { checkImage, toBase64 } from '@/utils'
 import { createExtraKeys } from '@/utils/editor'
-import { fileUpload } from '@/utils/file'
+import fetch from '@/utils/fetch'
+import { fileMigrate, fileUpload } from '@/utils/file'
 
 const store = useStore()
 const folderSourceStore = useFolderSourceStore()
@@ -31,7 +32,7 @@ const displayStore = useDisplayStore()
 const { isDark, output, editor } = storeToRefs(store)
 const { editorRefresh } = store
 
-const { toggleShowUploadImgDialog } = displayStore
+const { toggleShowUploadImgDialog, toggleShowUploadImgToAnotherHostDialog } = displayStore
 
 const backLight = ref(false)
 const isCoping = ref(false)
@@ -118,10 +119,60 @@ function leftAndRightScroll() {
   editor.value!.on(`scroll`, editorScrollCB)
 }
 
+const migrateImg: {
+  file: File | null
+  oldUrl: string
+} = {
+  file: null,
+  oldUrl: ``,
+}
+
+async function onPreviewContextMenu(e: MouseEvent) {
+  const img = (e.target as HTMLElement).closest(`img`)
+  if (!img)
+    return
+
+  e.preventDefault()
+  const imgUrl = img.getAttribute(`src`)
+  if (!imgUrl) {
+    return
+  }
+  try {
+    const migrateImgBlob: Blob = await fetch.get(imgUrl!, {
+      responseType: `blob`,
+    })
+    toggleShowUploadImgToAnotherHostDialog()
+    if (migrateImgBlob) {
+      const filename = imgUrl.split(`/`).pop() || `image.png`
+      migrateImg.file = new File([migrateImgBlob], filename, {
+        type: migrateImgBlob.type,
+      })
+      migrateImg.oldUrl = imgUrl
+    }
+    else {
+      toast.error(`获取图片失败，请手动操作`)
+    }
+  }
+  catch {
+    toast.error(`获取图片失败，请手动操作`)
+  }
+}
+
 onMounted(() => {
   setTimeout(() => {
     leftAndRightScroll()
   }, 300)
+  const el = previewRef.value
+  if (!el)
+    return
+  el.addEventListener(`click`, onPreviewContextMenu)
+})
+
+onUnmounted(() => {
+  const el = previewRef.value
+  if (!el)
+    return
+  el.removeEventListener(`click`, onPreviewContextMenu)
 })
 
 const searchTabRef
@@ -177,6 +228,27 @@ function beforeUpload(file: File) {
   return true
 }
 
+function beforeMigrate(file: File) {
+  const checkResult = checkImage(file)
+  if (!checkResult.ok) {
+    toast.error(checkResult.msg)
+    return false
+  }
+
+  const imgMigrateHost = localStorage.getItem(`imgMigrateHost`) || `github`
+  localStorage.setItem(`imgMigrateHost`, imgMigrateHost)
+
+  const config = localStorage.getItem(`${imgMigrateHost}Config`)
+  const isValidHost = imgMigrateHost === `default` || config
+  if (!isValidHost) {
+    const imgHostLabel = getImgHostOptions().find(item => item.value === imgMigrateHost)?.label
+    toast.error(`请先配置 ${imgHostLabel} 图床参数`)
+    return false
+  }
+
+  return true
+}
+
 // 图片上传结束
 function uploaded(imageUrl: string) {
   if (!imageUrl) {
@@ -192,6 +264,23 @@ function uploaded(imageUrl: string) {
   // 将 Markdown 形式的 URL 插入编辑框光标所在位置
   toRaw(store.editor!).replaceSelection(`\n${markdownImage}\n`, cursor as any)
   toast.success(`图片上传成功`)
+}
+
+// 图片迁移结束
+function migrated(newUrl: string, oldUrl: string) {
+  if (!newUrl) {
+    toast.error(`上传图片未知异常`)
+    return
+  }
+  setTimeout(() => {
+    toggleShowUploadImgToAnotherHostDialog(false)
+  }, 1000)
+
+  // 代替当前链接
+  const oldContent = editor.value!.getValue()
+  const newConent = oldContent.split(oldUrl).join(newUrl)
+  editor.value!.setValue(newConent)
+  toast.success(`图片迁移成功`)
 }
 
 const isImgLoading = ref(false)
@@ -225,6 +314,27 @@ async function uploadImage(
   }
   else {
     await uploadImageReal(file, cb, applyUrl)
+  }
+}
+
+async function migrateImage(
+  cb?: { (url: any, data: string): void, (arg0: unknown): void } | undefined,
+  applyUrl?: boolean,
+) {
+  const imgHost = localStorage.getItem(`imgHost`)
+  if (!migrateImg.file) {
+    return
+  }
+  if (beforeMigrate(migrateImg.file)) {
+    if (imgHost === `default`) {
+      pendingFile.value = migrateImg.file
+      pendingCb.value = cb
+      pendingApplyUrl.value = applyUrl
+      isUploadWithDefaultImageHostConfirmDialog.value = true
+    }
+    else {
+      await migrateImageReal(migrateImg.file, migrateImg.oldUrl, cb, applyUrl)
+    }
   }
 }
 
@@ -263,6 +373,45 @@ async function uploadImageReal(
     }
     if (applyUrl) {
       return uploaded(url)
+    }
+  }
+  catch (err) {
+    toast.error((err as any).message)
+  }
+  finally {
+    isImgLoading.value = false
+    pendingFile.value = null
+    pendingCb.value = undefined
+    isUploadWithDefaultImageHostConfirmDialog.value = false
+  }
+}
+
+async function migrateImageReal(
+  file?: File,
+  oldUrl?: string,
+  cb?: { (url: any, data: string): void, (arg0: unknown): void } | undefined,
+  applyUrl?: boolean,
+) {
+  try {
+    if (!file)
+      return
+    isImgLoading.value = true
+
+    const useMigrateCompression = localStorage.getItem(`useMigrateCompression`) === `true`
+    if (useMigrateCompression) {
+      file = await compressImage(file)
+    }
+
+    const base64Content = await toBase64(file)
+    const url = await fileMigrate(base64Content, file)
+    if (cb) {
+      cb(url, base64Content)
+    }
+    else {
+      migrated(url, oldUrl!)
+    }
+    if (applyUrl) {
+      return migrated(url, oldUrl!)
     }
   }
   catch (err) {
@@ -378,7 +527,7 @@ function mdLocalToRemote() {
     }
 
     for (const item of items.filter(item => item.kind === `file`)) {
-      item
+      (item as any)
         .getAsFileSystemHandle()
         .then(async (handle: { kind: string, getFile: () => any }) => {
           if (handle.kind === `directory`) {
@@ -721,6 +870,7 @@ onUnmounted(() => {
       />
 
       <UploadImgDialog @upload-image="uploadImage" />
+      <UploadImgToAnotherHostDialog @migrate-image="migrateImage" />
 
       <InsertFormDialog />
 
@@ -823,5 +973,9 @@ onUnmounted(() => {
 .codeMirror-wrapper {
   overflow-x: auto;
   height: 100%;
+}
+
+#preview :deep(img) {
+  cursor: pointer;
 }
 </style>
