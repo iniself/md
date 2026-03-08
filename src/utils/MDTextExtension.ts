@@ -111,7 +111,7 @@ export default function markedTextExtension(): MarkedExtension {
               const svgObj = icon(def, params)
               if (svgObj) {
                 const svgHtml = svgObj.html.join(``)
-                return `<span id="fa-icon" style="display: inline-block; vertical-align: middle">${svgHtml}</span>`
+                return `<span style="display: inline-block; vertical-align: middle">${svgHtml}</span>`
               }
             }
           }
