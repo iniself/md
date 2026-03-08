@@ -59,6 +59,7 @@
   height: var(--chat-avatar);
   width: var(--chat-avatar);
   visibility: hidden;
+  margin-top: revert;
 }
 
 .chat-container .message.same-speaker .avatar img {
