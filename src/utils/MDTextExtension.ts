@@ -1,4 +1,24 @@
+import type { IconPrefix } from '@fortawesome/fontawesome-svg-core'
 import type { MarkedExtension, Tokens } from 'marked'
+import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+import { far } from '@fortawesome/free-regular-svg-icons'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+
+library.add(fas, far, fab)
+
+const prefixMap: Record<string, IconPrefix> = {
+  'fa-solid': `fas`,
+  'fa-regular': `far`,
+  'fa-brands': `fab`,
+}
+
+interface IconParams {
+  classes?: string[]
+  attributes?: Record<string, string>
+  styles?: Record<string, string>
+  transform?: Record<string, string>
+}
 
 export default function markedTextExtension(): MarkedExtension {
   return {
@@ -35,21 +55,71 @@ export default function markedTextExtension(): MarkedExtension {
           const { primaryColor } = storeToRefs(store)
           const { color, bgColor, fontSize } = token
           const tokens = token.tokens ?? []
-          const styles: string[] = []
+
+          const rawText = token.text?.trim()
+          const iconMatch = rawText?.match(/\{([^}]+)\}/)
+
+          const isNumeric = (value: string) => /^-?\d+(?:\.\d+)?$/.test(value)
+          let textSize: string = fontSize ? (isNumeric(fontSize) ? `${fontSize}px` : fontSize) : ``
+          let textColor: string = color ? color === `theme` ? primaryColor.value : color : ``
+          let textBackground: string = bgColor ? bgColor === `theme` ? primaryColor.value : bgColor : ``
+
           if (color === `default`) {
-            return `<span style="color: rgb(128, 128, 128); font-size: 90%; ">${this.parser.parseInline(tokens)}</span>`
+            textSize = `0.9em`
+            textColor = `rgb(128, 128, 128)`
+            textBackground = ``
           }
 
-          if (color)
-            styles.push(`color: ${color === `theme` ? primaryColor.value : color}`)
-          if (bgColor)
-            styles.push(`background-color: ${bgColor === `theme` ? primaryColor.value : bgColor}; padding: 4px 8px; border-radius: 6px`)
-          const isNumeric = (value: string) => /^-?\d+(?:\.\d+)?$/.test(value)
-          if (fontSize)
-            styles.push(`font-size: ${isNumeric(fontSize) ? (`${fontSize}px`) : fontSize}`)
+          const styles: string[] = []
+
+          if (textSize) {
+            styles.push(`font-size: ${textSize}`)
+          }
+          if (textColor) {
+            styles.push(`color: ${textColor}`)
+          }
+          if (textBackground) {
+            styles.push(`background-color: ${textBackground}; padding: 4px 8px; border-radius: 6px`)
+          }
 
           const styleStr = styles.join(`; `)
-          return `<span style="${styleStr}">${this.parser.parseInline(tokens)}</span>`
+
+          if (iconMatch) {
+            const classes = iconMatch[1].trim().split(/\s+/)
+            const prefixClass = classes[0]
+            const iconClass = classes[1]
+
+            const prefix = prefixMap[prefixClass]
+            const iconName = iconClass.replace(/^fa-/, ``)
+            const def = findIconDefinition({ prefix, iconName })
+
+            if (def) {
+              const params: IconParams = {};
+
+              (params.attributes ??= {}).fill = textColor || `currentColor`;
+              (params.attributes ??= {}).width = textSize || `1em`;
+              (params.attributes ??= {}).height = textSize || `1em`;
+
+              (params.styles ??= {}).color = textColor || `currentColor`;
+              (params.styles ??= {}).width = textSize || `1em`;
+              (params.styles ??= {}).height = textSize || `1em`;
+
+              (params.styles ??= {}).display = `inline-block`;
+              (params.styles ??= {})[`vertical-align`] = `middle`
+              if (textBackground) {
+                (params.styles ??= {})[`background-color`] = textBackground
+              }
+
+              const svgObj = icon(def, params)
+              if (svgObj) {
+                const svgHtml = svgObj.html.join(``)
+                return `<span id="fa-icon">${svgHtml}</span>`
+              }
+            }
+          }
+          else {
+            return `<span style="${styleStr}">${this.parser.parseInline(tokens)}</span>`
+          }
         },
       },
     ],

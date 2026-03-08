@@ -56,6 +56,7 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 19.  提供 ruby 注音扩展支持，支持两种格式：[文字]{注音}、[文字]^(注音)，支持 `・`、`．`、`。`、`-` 分隔符。
 20.  支持 Infographic 信息图
 21.  新增生成 chat 聊天样式的语法
+22.  支持 fontawesome icons
 
 #### 删减
 1. 删除 google analytics
