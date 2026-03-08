@@ -315,7 +315,7 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
                     && prev.type === `message`
                     && msg.type === `message`
                     && prev.side === msg.side
-                    && prev.avatar === msg.avatar
+                    && prev.name === msg.name
 
                 return `
                   <section class="message message-${msg.side} ${sameSpeaker ? `same-speaker` : ``}">
