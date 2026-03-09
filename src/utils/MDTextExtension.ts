@@ -1,4 +1,4 @@
-import type { IconPrefix } from '@fortawesome/fontawesome-svg-core'
+import type { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core'
 import type { MarkedExtension, Tokens } from 'marked'
 import { findIconDefinition, icon, library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
@@ -52,7 +52,7 @@ export default function markedTextExtension(): MarkedExtension {
         },
         renderer(token: Tokens.Generic) {
           const store = useStore()
-          const { primaryColor } = storeToRefs(store)
+          const { primaryColor, useFontAwesomeStyle } = storeToRefs(store)
           const { color, bgColor, fontSize } = token
           const tokens = token.tokens ?? []
 
@@ -85,12 +85,12 @@ export default function markedTextExtension(): MarkedExtension {
           const styleStr = styles.join(`; `)
 
           if (iconMatch) {
-            const classes = iconMatch[1].trim().split(/\s+/)
+            const classes: string[] = iconMatch[1].trim().split(/\s+/)
             const prefixClass = classes[0]
             const iconClass = classes[1]
-
-            const prefix = prefixMap[prefixClass]
-            const iconName = iconClass.replace(/^fa-/, ``)
+            const extraClasses = classes.slice(2)
+            const prefix = prefixMap[prefixClass] || `fas`
+            const iconName = iconClass.replace(/^fa-/, ``) as IconName
             const def = findIconDefinition({ prefix, iconName })
 
             if (def) {
@@ -98,7 +98,14 @@ export default function markedTextExtension(): MarkedExtension {
 
               (params.attributes ??= {}).fill = textColor || `currentColor`;
               (params.attributes ??= {}).width = textSize || `1em`;
-              (params.attributes ??= {}).height = textSize || `1em`;
+              (params.attributes ??= {}).height = textSize || `1em`
+              if (extraClasses.length) {
+                useFontAwesomeStyle.value = true
+                params.classes = extraClasses
+              }
+              else {
+                useFontAwesomeStyle.value = false
+              }
 
               (params.styles ??= {}).color = textColor || `currentColor`;
               (params.styles ??= {}).width = textSize || `1em`;

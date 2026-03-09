@@ -1,10 +1,11 @@
 import type { PropertiesHyphen } from 'csstype'
 
 import type { ReadTimeResults } from 'reading-time'
+import fontawesome_css from '@fortawesome/fontawesome-free/css/all.min.css?inline'
 import DOMPurify from 'isomorphic-dompurify'
 import juice from 'juice'
-import { Marked, marked } from 'marked'
 
+import { Marked, marked } from 'marked'
 import * as prettierPluginBabel from 'prettier/plugins/babel'
 import * as prettierPluginEstree from 'prettier/plugins/estree'
 import * as prettierPluginMarkdown from 'prettier/plugins/markdown'
@@ -837,7 +838,13 @@ ${chatMessage_css}
 `
 
 function mergeCss(html: string): string {
-  return juice(`<style>${ALL_CSS}</style>\n${html}`, {
+  let css = ALL_CSS
+  const store = useStore()
+  if (store.useFontAwesomeStyle) {
+    css += fontawesome_css
+  }
+
+  return juice(`<style>${css}</style>\n${html}`, {
     inlinePseudoElements: true,
     preserveImportant: true,
   })

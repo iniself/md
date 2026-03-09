@@ -114,6 +114,9 @@ export const useStore = defineStore(`store`, () => {
   // 导出 pdf
   const exportPdfDialogVisible = ref(false)
 
+  // 是否需要合并 fontawesome 样式
+  const useFontAwesomeStyle = ref(false)
+
   const output = ref(``)
 
   // 文本字体
@@ -846,6 +849,7 @@ export const useStore = defineStore(`store`, () => {
     autoSyncChanged,
 
     exportPdfDialogVisible,
+    useFontAwesomeStyle,
 
     isCountStatus,
     countStatusChanged,
@@ -997,6 +1001,7 @@ export function getAllStoreStates() {
     isCenterHeader: store.isCenterHeader,
     isAutoSync: store.isAutoSync,
     exportPdfDialogVisible: store.exportPdfDialogVisible,
+    useFontAwesomeStyle: store.useFontAwesomeStyle,
     isOpenRightSlider: store.isOpenRightSlider,
     isOpenLeftSlider: store.isOpenLeftSlider,
     isOpenPostSlider: store.isOpenPostSlider,
