@@ -143,7 +143,10 @@ async function onPreviewContextMenu(e: MouseEvent) {
     })
     toggleShowUploadImgToAnotherHostDialog()
     if (migrateImgBlob) {
-      const filename = imgUrl.split(`/`).pop() || `image.png`
+      const ext = migrateImgBlob.type.split(`/`)[1]
+      const random = crypto.randomUUID()
+      const filename = `${random}.${ext}`
+
       migrateImg.file = new File([migrateImgBlob], filename, {
         type: migrateImgBlob.type,
       })

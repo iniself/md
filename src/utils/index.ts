@@ -774,9 +774,12 @@ export function exportPDFByTauri(content: string) {
 }
 
 export function checkImage(file: File) {
+  // 先检查 MIME type
+  const isImageType = /^image\/(?:png|jpeg|jpg|gif)$/i.test(file.type)
+
   // 检查文件名后缀
   const isValidSuffix = /\.(?:gif|jpe?g|png)$/i.test(file.name)
-  if (!isValidSuffix) {
+  if (!isImageType && !isValidSuffix) {
     return {
       ok: false,
       msg: `请上传 JPG/PNG/GIF 格式的图片`,
