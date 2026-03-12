@@ -73,7 +73,7 @@ onMounted(async () => {
 
 async function scrollToBottom(force = false) {
   await nextTick()
-  const container = document.querySelector(`.chat-container`)
+  const container = document.querySelector(`.folder-container`)
   if (container) {
     const isNearBottom = (container.scrollTop + container.clientHeight)
       >= (container.scrollHeight - 50)
@@ -252,7 +252,7 @@ async function handleRefreshFolder() {
       </DialogHeader>
 
       <div
-        class="custom-scroll space-y-3 chat-container mb-4 flex-1 overflow-y-auto pr-2"
+        class="custom-scroll space-y-3 folder-container mb-4 flex-1 overflow-y-auto pr-2"
       >
         <FolderTree
           :nodes="fileTree"
@@ -288,31 +288,15 @@ async function handleRefreshFolder() {
   --safe-bottom: env(safe-area-inset-bottom);
 }
 
-/* 聊天容器底部内边距，适配安全区 */
-.chat-container {
+.folder-container {
   padding-bottom: calc(1rem + var(--safe-bottom));
-}
-
-/* 让代码块可横向滚动 */
-.chat-container pre {
-  overflow-x: auto;
+  background-color: hsl(var(--background));
 }
 
 /* highlight.js 暗黑主题适配 */
 .dark .hljs {
   background: #0d1117 !important;
   color: #c9d1d9 !important;
-}
-
-.chat-markdown > * + * {
-  margin-top: 0.5rem; /* 8 px */
-}
-
-/* 让代码块更紧凑一点，同时保留主题自带颜色 */
-.chat-markdown pre {
-  padding: 0.75rem; /* 内边距 */
-  border-radius: 0.375rem; /* 圆角 */
-  overflow-x: auto; /* 横向滚动 */
 }
 
 /* 自定义滚动条 */
