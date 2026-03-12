@@ -56,8 +56,8 @@
 }
 
 .chat-container .message.same-speaker .avatar {
-  height: var(--chat-avatar);
-  width: var(--chat-avatar);
+  height: var(--chat-avatar)!important;
+  width: var(--chat-avatar)!important;
   visibility: hidden;
   margin-top: revert;
 }
@@ -83,8 +83,8 @@
 }
 
 .chat-container .avatar {
-  width: var(--chat-avatar);
-  height: var(--chat-avatar);
+  width: var(--chat-avatar)!important;
+  height: var(--chat-avatar)!important;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -93,8 +93,8 @@
 }
 
 .chat-container .avatar img {
-  width: var(--chat-avatar);
-  height: var(--chat-avatar);
+  width: var(--chat-avatar)!important;
+  height: var(--chat-avatar)!important;
   border-radius: 50%;
   object-fit: cover;
 }
