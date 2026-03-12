@@ -36,6 +36,7 @@ const { toggleShowUploadImgDialog, toggleShowUploadImgToAnotherHostDialog } = di
 
 const backLight = ref(false)
 const isCoping = ref(false)
+const triggerFocus = ref(false)
 
 function startCopy() {
   backLight.value = true
@@ -619,6 +620,10 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
   // 拖动图片上传的处理逻辑
   // })
 
+  textArea.on(`focus`, async (_editor, _event) => {
+    triggerFocus.value = true
+  })
+
   // 粘贴上传图片并插入
   textArea.on(`paste`, async (_editor, event) => {
     if (!(event.clipboardData?.items) || isImgLoading.value) {
@@ -742,7 +747,7 @@ onUnmounted(() => {
             :max-size="store.isOpenLeftSlider && store.isOpenPostSlider ? 30 : 0"
             :min-size="store.isOpenLeftSlider && store.isOpenPostSlider ? 10 : 0"
           >
-            <PostSlider />
+            <PostSlider :trigger-focus="triggerFocus" />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel

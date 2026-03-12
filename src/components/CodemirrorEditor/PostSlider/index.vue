@@ -8,6 +8,8 @@ import { useFolderSourceStore } from '@/stores/folderSource'
 import { addPrefix } from '@/utils'
 import { runtime_folder_info } from '@/utils/IndexedDB'
 
+const props = defineProps({ triggerFocus: Boolean })
+
 const { confirm, dialog } = useConfirmDialog()
 
 const store = useStore()
@@ -21,6 +23,12 @@ watch(isOpenAddDialog, (o) => {
   if (o) {
     addPostInputVal.value = ``
     parentId.value = null
+  }
+})
+
+watch(() => props.triggerFocus, () => {
+  if (props.triggerFocus) {
+    doDiff()
   }
 })
 
@@ -228,7 +236,7 @@ onMounted(async () => {
     if (folder) {
       confirm({
         title: `本地文件`,
-        description: `当前内容同步于文件。手动点击该文章标题检查同步。`,
+        description: `当前内容已与本地文件同步。如有差异将会提示。`,
         cancelText: `知道了！`,
         dialogType: `alert`,
       })
@@ -260,12 +268,12 @@ watch(
   { deep: false },
 )
 
-async function handleSelectPost(postId: string) {
-  // 点击 post 时要执行的逻辑
-  // 1. 检查权限
-  // 2. 是否需要同步
+const diffDone = ref(false)
 
-  store.currentPostId = postId
+async function doDiff() {
+  if (diffDone.value) {
+    return
+  }
   folderSourceStore.clearSync = true
   const post = store.posts.find(post => post.id === store.currentPostId) || null
 
@@ -294,6 +302,19 @@ async function handleSelectPost(postId: string) {
     folderSourceStore.currentFolderId = null
     folderSourceStore.currentFilePath = null
   }
+  diffDone.value = true
+}
+
+async function handleSelectPost(postId: string) {
+  // 点击 post 时要执行的逻辑
+  // 1. 检查权限
+  // 2. 是否需要同步
+
+  store.currentPostId = postId
+  folderSourceStore.clearSync = true
+  diffDone.value = false
+  await doDiff()
+  diffDone.value = true
 }
 </script>
 
