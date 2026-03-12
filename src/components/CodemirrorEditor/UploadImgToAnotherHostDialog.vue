@@ -407,6 +407,7 @@ function emitUploads() {
           用于将已有图片上传到其他图床
         </DialogDescription>
       </DialogHeader>
+      <Progress v-model="progressValue" class="absolute left-0 right-0 rounded-none" style="height: 2px;" />
       <Tabs v-model="activeName" class="w-max">
         <TabsList>
           <TabsTrigger value="migrate">
