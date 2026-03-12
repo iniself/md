@@ -408,7 +408,7 @@ async function mpFileUpload(file: File) {
   let imageUrl = res.url
   const store = useStore()
   if (proxyOrigin && (window.location.href.startsWith(`http`) || isElectron || isTauri) && store.useWsrv) {
-    imageUrl = `https://wsrv.nl?url=${encodeURIComponent(imageUrl)}`
+    imageUrl = `https://wsrv.nl?url=${encodeURIComponent(imageUrl)}&n=-1`
   }
 
   return imageUrl
