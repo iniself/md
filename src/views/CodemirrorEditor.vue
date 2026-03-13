@@ -624,6 +624,39 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
     triggerFocus.value = true
   })
 
+  textArea.on(`beforeChange`, async (editor, change) => {
+    const text = change.text?.join(``)
+    if (!text)
+      return
+
+    const PAIRS: Record<string, string> = {
+      '“': `”`,
+      '「': `」`,
+      '《': `》`,
+      '【': `】`,
+      '（': `）`,
+    }
+
+    const close = PAIRS[text]
+    if (!close)
+      return
+
+    const selection = editor.getSelection()
+
+    change.cancel()
+
+    if (selection) {
+      editor.replaceSelection(`${text}${selection}${close}`)
+      return
+    }
+
+    if (change.origin === `+input`) {
+      const cursor = editor.getCursor()
+      editor.replaceRange(`${text}${close}`, cursor)
+      editor.setCursor({ line: cursor.line, ch: cursor.ch + 1 })
+    }
+  })
+
   // 粘贴上传图片并插入
   textArea.on(`paste`, async (_editor, event) => {
     if (!(event.clipboardData?.items) || isImgLoading.value) {
