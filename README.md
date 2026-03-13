@@ -57,6 +57,7 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 20.  支持 Infographic 信息图
 21.  新增生成 chat 聊天样式的语法
 22.  支持 fontawesome icons
+23.  自动配对中文标点：“”, 「」, 《》, 【】, （）
 
 #### 删减
 1. 删除 google analytics
