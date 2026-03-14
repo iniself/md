@@ -354,9 +354,9 @@ data
 
 !!! chat
 roles:
- Docs^red:+^ as docs, avatar=assets/images/aui.jpg
+ Docs^red:+^ as docs, avatar=assets/images/aui.jpg, side=right
 
->> right docs
+>> docs
 这段语法会展示一个聊天页面。同时支持 Docs^red:+^ 所有语法。比如下面就是嵌在聊天中的一个 infographic 图表
 
 ```infographic
@@ -389,7 +389,10 @@ theme light
 =grey::11  2月23日 20:12=
 
 >> left docs
-还可以是表格、代码块、图片等。所有 Docs^red:+^ 语法都可以嵌入 chat 语法中
+指定 left 或 right 可以调整角色的默认位置
+
+>> left docs
+表格、代码块、图片等所有 Docs^red:+^ 语法都可以嵌入 chat 语法中
 
 | 模块 | 功能点 | 状态 | 负责人 | 备注 |
 |------|--------|------|--------|------|
