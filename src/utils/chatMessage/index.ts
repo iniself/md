@@ -114,7 +114,7 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
           const raw = rawLines.join(`\n`)
           const bodyLines = rawLines.slice(1, -1)
 
-          const roles: Record<string, { name: string, avatar?: string }> = {}
+          const roles: Record<string, { name: string, avatar?: string, side?: `left` | `right` }> = {}
           const aliasMap: Record<string, string> = {}
 
           const styles: Record<string, string> = {}
@@ -216,6 +216,7 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
                 roles[roleName] = {
                   name: roleName,
                   avatar: params.avatar,
+                  side: params.side === `left` || params.side === `right` ? params.side : undefined,
                 }
                 if (alias) {
                   aliasMap[alias] = roleName
@@ -238,10 +239,26 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
             const line = lines[i]
 
             // eslint-disable-next-line regexp/no-super-linear-backtracking
-            const head = line.match(/^>>\s*(left|right|notice)\s*(.*)$/)
+            const head = line.match(/^(?:>>|》》)\s*(?:(left|right|notice)\s*)?(.*)$/)
 
             if (head) {
-              const type = head[1] as `left` | `right` | `notice`
+              const type = head[1] as `left` | `right` | `notice` | undefined
+              const rest = head[2]
+              const paramIndex = rest.search(/\s+\w+=/)
+              let rawRoleName, other
+              if (paramIndex === -1) {
+                rawRoleName = rest.trim()
+                other = ``
+              }
+              else {
+                rawRoleName = rest.slice(0, paramIndex).trim()
+                other = rest.slice(paramIndex).trim()
+              }
+              const params: Record<string, string> = {}
+              other.replace(/(\w+)\s*=\s*(\S+)/g, (_, key, value) => {
+                params[key] = value
+                return ``
+              })
 
               if (current) {
                 pushCurrentMessage(messages, current, newMarked)
@@ -253,19 +270,12 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
                 continue
               }
 
-              const params: Record<string, string> = {}
-              line.replace(/(\w+)\s*=\s*(\S+)/g, (_, key, value) => {
-                params[key] = value
-                return ``
-              })
-
-              const side = type as `left` | `right`
-              const rawRoleName = head[2].trim()
               const resolvedRoleName = aliasMap[rawRoleName] || rawRoleName
               const role = roles[resolvedRoleName]
 
               const name = params.name || role?.name
               const avatar = params.avatar || role?.avatar
+              const side = type || role?.side || `left`
 
               if (rawRoleName && !role) {
                 console.warn(
