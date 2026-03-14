@@ -32,6 +32,7 @@ function isBlockToken(token: Tokens.Generic) {
     `blockquote`,
     `list`,
     `table`,
+    `spanTable`,
     `heading`,
     `hr`,
     `html`,
