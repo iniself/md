@@ -255,6 +255,18 @@
   padding-right: 8px;
 }
 
+.chat-container .message .chat-block-spanTable > * {
+  padding: 0px!important;
+}
+
+.chat-container .message-left .chat-block-spanTable {
+  padding-left: 8px;
+}
+
+.chat-container .message-right .chat-block-spanTable {
+  padding-right: 8px;
+}
+
 .chat-container .quote {
   margin-top: 6px;
   padding: 6px 8px;
