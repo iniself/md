@@ -52,7 +52,7 @@ export default function markedTextExtension(): MarkedExtension {
         },
         renderer(token: Tokens.Generic) {
           const store = useStore()
-          const { primaryColor, useFontAwesomeStyle } = storeToRefs(store)
+          const { primaryColor } = storeToRefs(store)
           const { color, bgColor, fontSize } = token
           const tokens = token.tokens ?? []
 
@@ -100,11 +100,7 @@ export default function markedTextExtension(): MarkedExtension {
               (params.attributes ??= {}).width = textSize || `1em`;
               (params.attributes ??= {}).height = textSize || `1em`
               if (extraClasses.length) {
-                useFontAwesomeStyle.value = true
                 params.classes = extraClasses
-              }
-              else {
-                useFontAwesomeStyle.value = false
               }
 
               (params.styles ??= {}).color = textColor || `currentColor`;

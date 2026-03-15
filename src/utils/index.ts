@@ -840,10 +840,9 @@ ${admonition_css}
 ${chatMessage_css}
 `
 
-function mergeCss(html: string): string {
+function mergeCss(html: string, needFontawesomeClass: boolean): string {
   let css = ALL_CSS
-  const store = useStore()
-  if (store.useFontAwesomeStyle) {
+  if (needFontawesomeClass) {
     css += fontawesome_css
   }
 
@@ -874,11 +873,20 @@ function createEmptyNode(): HTMLElement {
   return node
 }
 
+function checkNeedFontawesomeClass(doc: HTMLElement) {
+  const svg = doc.querySelector(`svg.svg-inline--fa`)
+  if (!svg) {
+    return false
+  }
+  const classList = svg.classList
+  return classList.length > 2
+}
+
 export function processClipboardContent(primaryColor: string) {
   const clipboardDiv = document.getElementById(`output`)!
 
   // 先合并 CSS 和修改 HTML 结构
-  clipboardDiv.innerHTML = modifyHtmlStructure(mergeCss(clipboardDiv.innerHTML))
+  clipboardDiv.innerHTML = modifyHtmlStructure(mergeCss(clipboardDiv.innerHTML, checkNeedFontawesomeClass(clipboardDiv)))
 
   // 处理样式和颜色变量
   clipboardDiv.innerHTML = clipboardDiv.innerHTML
