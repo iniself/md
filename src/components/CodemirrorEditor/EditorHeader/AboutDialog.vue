@@ -62,7 +62,7 @@ function onRedirect(url: string) {
       </DialogHeader>
       <div class="text-center">
         <h3><b>一款多功能 Markdown 编辑器</b></h3>
-        <p><i>forked from https://github.com/doocs/md</i></p>
+        <p><i>Based on Doocs</i></p>
         <div class="flex">
           <img
             class="mx-auto my-5"
