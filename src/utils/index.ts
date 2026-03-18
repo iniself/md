@@ -1,11 +1,11 @@
 import type { PropertiesHyphen } from 'csstype'
-
 import type { ReadTimeResults } from 'reading-time'
+
 import fontawesome_css from '@fortawesome/fontawesome-free/css/all.min.css?inline'
 import DOMPurify from 'isomorphic-dompurify'
 import juice from 'juice'
-
 import { Marked, marked } from 'marked'
+
 import * as prettierPluginBabel from 'prettier/plugins/babel'
 import * as prettierPluginEstree from 'prettier/plugins/estree'
 import * as prettierPluginMarkdown from 'prettier/plugins/markdown'
@@ -18,10 +18,11 @@ import type { RendererAPI } from '@/types/renderer-types'
 import { addSpacingToMarkdown } from '@/utils/autoSpace'
 import admonition_css from './admonition/index.css?inline'
 import chatMessage_css from './chatMessage/index.css?inline'
-
 import markedAlert from './MDAlert'
 
 import { MDKatex } from './MDKatex'
+
+import { getOrRenderSvg } from './svgResolver'
 
 export function addPrefix(str: string) {
   return `${prefix}__${str}`
@@ -304,8 +305,12 @@ export async function exportPureHTML(raw: string, title: string = `untitled`) {
     MDKatex({ nonStandard: true }, ``, ``),
   )
   const pureHtml = await marked.parse(raw)
-
-  downloadFile(pureHtml, `${safeTitle}.html`, `text/html`)
+  nextTick().then(() => {
+    requestAnimationFrame(() => {
+      getOrRenderSvg(`.mermaid`)
+      downloadFile(pureHtml, `${safeTitle}.html`, `text/html`)
+    })
+  })
 }
 
 /**
@@ -942,6 +947,12 @@ export function renderMarkdown(raw: string, renderer: RendererAPI) {
 
   // marked -> html
   let html = marked.parse(markdownContent) as string
+
+  nextTick().then(() => {
+    requestAnimationFrame(() => {
+      getOrRenderSvg(`.mermaid`)
+    })
+  })
 
   // XSS 处理
   html = DOMPurify.sanitize(html, { ADD_TAGS: [`mp-common-profile`], ADD_ATTR: [`target`, `rel`] })

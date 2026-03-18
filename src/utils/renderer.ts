@@ -394,35 +394,12 @@ export function initRenderer(opts: IOpts): RendererAPI {
           }
         }
 
-        const svgId = `mermaid-${genMermaidId()}`
         const preId = `mermaid-pre-${genMermaidId()}`
 
         const figureHTML = `<figure style="text-align:center; ${style}">
           <pre class="mermaid" data-processed="true" id="${preId}">${text}</pre>
           ${caption}
         </figure>`
-        mermaid.render(svgId, text).then(({ svg }) => {
-          const container = document.getElementById(preId)
-          if (container) {
-            container.innerHTML = svg.replace(
-              /<svg([^>]*)>/,
-              (_, attrs) => {
-                if (/style="/.test(attrs)) {
-                  return `<svg${attrs.replace(/style="(.*?)"/, `style="display:block;margin:0 auto;$1"`)}>`
-                }
-                else {
-                  return `<svg${attrs} style="display:block;margin:0 auto;">`
-                }
-              },
-            )
-          }
-        }).catch(() => {
-          const container = document.getElementById(preId)
-          if (container) {
-            container.innerHTML = `<div style="color:#999;text-align:center;">正在渲染…</div>`
-          }
-        })
-
         return figureHTML
       }
 
