@@ -22,7 +22,7 @@ import markedAlert from './MDAlert'
 
 import { MDKatex } from './MDKatex'
 
-import { getOrRenderSvg } from './svgResolver'
+import { getOrRenderInfographicSvg, getOrRenderMermaidSvg } from './svgResolver'
 
 export function addPrefix(str: string) {
   return `${prefix}__${str}`
@@ -307,7 +307,8 @@ export async function exportPureHTML(raw: string, title: string = `untitled`) {
   const pureHtml = await marked.parse(raw)
   nextTick().then(() => {
     requestAnimationFrame(() => {
-      getOrRenderSvg(`.mermaid`)
+      getOrRenderMermaidSvg()
+      getOrRenderInfographicSvg()
       downloadFile(pureHtml, `${safeTitle}.html`, `text/html`)
     })
   })
@@ -950,7 +951,8 @@ export function renderMarkdown(raw: string, renderer: RendererAPI) {
 
   nextTick().then(() => {
     requestAnimationFrame(() => {
-      getOrRenderSvg(`.mermaid`)
+      getOrRenderMermaidSvg()
+      getOrRenderInfographicSvg()
     })
   })
 

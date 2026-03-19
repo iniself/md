@@ -1,3 +1,4 @@
+import { exportToSVG, Infographic, setDefaultFont, setFontExtendFactor } from '@antv/infographic'
 import mermaid from 'mermaid'
 
 function simpleHash(str: string): string {
@@ -10,17 +11,17 @@ function simpleHash(str: string): string {
   return Math.abs(hash).toString(36)
 }
 
-const className = `mermaid-diagram`
-const svgCache = new Map<string, string>()
-let lastRenderedSvg: string | null = null
+const mermaidClassName = `mermaid-diagram`
+const mermaidCache = new Map<string, string>()
+let lastRenderedMermaid: string | null = null
 
 function renderMermaid(id: string, code: string, cacheKey: string) {
   if (typeof window === `undefined`)
     return
 
   const handleResult = (svg: string) => {
-    svgCache.set(cacheKey, svg)
-    lastRenderedSvg = svg
+    mermaidCache.set(cacheKey, svg)
+    lastRenderedMermaid = svg
 
     const el = document.getElementById(id)
     if (el) {
@@ -40,22 +41,128 @@ function renderMermaid(id: string, code: string, cacheKey: string) {
   }).catch(handleError)
 }
 
-export function getOrRenderSvg(el: string) {
+export function getOrRenderMermaidSvg(el = `.mermaid`) {
   document.querySelectorAll(el).forEach((el) => {
     const code = el.textContent
     const cacheKey = simpleHash(code)
-    const cached = svgCache.get(cacheKey)
+    const cached = mermaidCache.get(cacheKey)
     if (cached) {
       const uniqueId = `mermaid-instances-${Math.random().toString(36).slice(2)}`
-      el.outerHTML = `<div id="${uniqueId}" class="${className}">${cached}</div>`
+      el.outerHTML = `<div id="${uniqueId}" class="${mermaidClassName}">${cached}</div>`
     }
     else {
       const id = `mermaid-${cacheKey}`
       renderMermaid(id, code, cacheKey)
-      if (lastRenderedSvg) {
-        el.outerHTML = `<div id="${id}" class="${className}">${lastRenderedSvg}</div>`
+      if (lastRenderedMermaid) {
+        el.outerHTML = `<div id="${id}" class="${mermaidClassName}">${lastRenderedMermaid}</div>`
       }
-      el.outerHTML = `<div id="${id}" class="${className}">正在加载 Mermaid...</div>`
+      el.outerHTML = `<div id="${id}" class="${mermaidClassName}">正在加载 Mermaid...</div>`
+    }
+  })
+}
+
+// Infographic
+
+interface InfographicOptions {
+  themeMode?: `dark` | `light`
+}
+
+const infographicCache = new Map<string, string>()
+let lastRenderedInfographic: string | null = null
+const infographicClassName = `infographic-diagram`
+
+async function renderInfographic(containerId: string, code: string, cacheKey: string, options?: InfographicOptions) {
+  if (typeof window === `undefined`)
+    return
+  try {
+    setFontExtendFactor(1.1)
+    setDefaultFont(`-apple-system-font, "system-ui", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif`)
+    const findContainer = (retries = 5, delay = 100) => {
+      const container = document.getElementById(containerId)
+      if (container) {
+        const isDark = options?.themeMode === `dark`
+
+        const root = document.documentElement
+        const computedStyle = getComputedStyle(root)
+        const primaryColor = computedStyle.getPropertyValue(`--md-primary-color`).trim()
+        const backgroundColor = computedStyle.getPropertyValue(`--background`).trim()
+
+        // 转换 HSL 格式
+        const toHSLString = (variant: string) => {
+          const vars = variant.split(` `)
+          if (vars.length === 3)
+            return `hsl(${vars.join(`, `)})`
+          if (vars.length === 4)
+            return `hsla(${vars.join(`, `)})`
+          return ``
+        }
+
+        const instance = new Infographic({
+          container,
+          svg: {
+            style: {
+              width: `100%`,
+              height: `100%`,
+            },
+            background: false,
+          },
+          theme: isDark ? `dark` : `default`,
+          themeConfig: {
+            colorPrimary: primaryColor || undefined,
+            colorBg: toHSLString(backgroundColor) || undefined,
+          },
+        })
+
+        instance.on(`loaded`, ({ node }) => {
+          exportToSVG(node, { removeIds: true }).then((svg) => {
+            container.replaceChildren(svg)
+            infographicCache.set(cacheKey, container.innerHTML)
+            lastRenderedInfographic = container.innerHTML
+          })
+        })
+
+        instance.render(code)
+
+        return
+      }
+
+      if (retries > 0) {
+        setTimeout(() => findContainer(retries - 1, delay), delay)
+      }
+    }
+
+    findContainer()
+  }
+  catch (error) {
+    console.error(`Failed to render Infographic:`, error)
+    const container = document.getElementById(containerId)
+    if (container) {
+      container.innerHTML = `<div style="color: red; padding: 10px; border: 1px solid red;">Infographic 渲染失败: ${error instanceof Error ? error.message : String(error)}</div>`
+    }
+  }
+}
+
+export function getOrRenderInfographicSvg(el = `.infographic`) {
+  const store = useStore()
+  const { isDark } = storeToRefs(store)
+  const options: InfographicOptions = { themeMode: isDark.value ? `dark` : `light` }
+
+  document.querySelectorAll(el).forEach((el) => {
+    const code = el.textContent
+    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}`)
+
+    const cached = infographicCache.get(cacheKey)
+    if (cached) {
+      const uniqueId = `infographic-instances-${Math.random().toString(36).slice(2)}`
+      el.outerHTML = `<div id="${uniqueId}" style="width: 100%;" class="${infographicClassName}">${cached}</div>`
+    }
+    else {
+      const id = `infographic-${cacheKey}`
+      renderInfographic(id, code, cacheKey, options)
+      if (lastRenderedInfographic) {
+        el.outerHTML = `<div id="${id}" style="width: 100%;" class="${infographicClassName}">${lastRenderedInfographic}</div>`
+      }
+      el.outerHTML = `<div id="${id}" style="width: 100%;" class="${infographicClassName}">正在加载 Infographic...</div>`
     }
   })
 }
