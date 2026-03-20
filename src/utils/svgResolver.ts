@@ -152,17 +152,20 @@ export function getOrRenderInfographicSvg(el = `.infographic`) {
     const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}`)
 
     const cached = infographicCache.get(cacheKey)
+
+    let html = ``
     if (cached) {
       const uniqueId = `infographic-instances-${Math.random().toString(36).slice(2)}`
-      el.outerHTML = `<div id="${uniqueId}" style="width: 100%;" class="${infographicClassName}">${cached}</div>`
+      html = `<div id="${uniqueId}" style="width: 100%;" class="${infographicClassName}">${cached}</div>`
     }
     else {
       const id = `infographic-${cacheKey}`
       renderInfographic(id, code, cacheKey, options)
       if (lastRenderedInfographic) {
-        el.outerHTML = `<div id="${id}" style="width: 100%;" class="${infographicClassName}">${lastRenderedInfographic}</div>`
+        html = `<div id="${id}" style="width: 100%;" class="${infographicClassName}">${lastRenderedInfographic}</div>`
       }
-      el.outerHTML = `<div id="${id}" style="width: 100%;" class="${infographicClassName}">正在加载 Infographic...</div>`
+      html = `<div id="${id}" style="width: 100%;" class="${infographicClassName}">正在加载 Infographic...</div>`
     }
+    el.outerHTML = html
   })
 }
