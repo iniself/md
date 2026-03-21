@@ -20,6 +20,8 @@ interface IconParams {
   transform?: Record<string, string>
 }
 
+const isNumeric = (value: string) => /^-?\d+(?:\.\d+)?$/.test(value)
+
 function normalizeSvg(svg: string): string {
   if (!svg)
     return svg
@@ -34,7 +36,7 @@ function normalizeSvg(svg: string): string {
   return svg
 }
 
-export default function markedTextExtension(): MarkedExtension {
+export default function markedTextExtension(options?: { mode?: `default` | `infographic` }): MarkedExtension {
   return {
     extensions: [
       {
@@ -65,6 +67,8 @@ export default function markedTextExtension(): MarkedExtension {
           }
         },
         renderer(token: Tokens.Generic) {
+          const mode = options?.mode ?? `default`
+          const isInfographic = mode === `infographic`
           const store = useStore()
           const { primaryColor } = storeToRefs(store)
           const { color, bgColor, fontSize } = token
@@ -73,12 +77,20 @@ export default function markedTextExtension(): MarkedExtension {
           const rawText = token.text?.trim()
           const iconMatch = rawText?.match(/\{([^}]+)\}/)
 
-          const isNumeric = (value: string) => /^-?\d+(?:\.\d+)?$/.test(value)
-          let textSize: string = fontSize ? (isNumeric(fontSize) ? `${fontSize}px` : fontSize) : ``
+          let scaleSize: string = ``
+          let textSize: string = ``
+
+          if (isInfographic) {
+            scaleSize = fontSize ? (isNumeric(fontSize) ? fontSize : (Number.isNaN(Number.parseFloat(fontSize)) ? `0.8` : String(Number.parseFloat(fontSize)))) : `0.8`
+          }
+          else {
+            textSize = fontSize ? (isNumeric(fontSize) ? `${fontSize}px` : fontSize) : ``
+          }
+
           let textColor: string = color ? color === `theme` ? primaryColor.value : color : ``
           let textBackground: string = bgColor ? bgColor === `theme` ? primaryColor.value : bgColor : ``
 
-          if (color === `default`) {
+          if (color === `default` && !isInfographic) {
             textSize = `0.9em`
             textColor = `rgb(128, 128, 128)`
             textBackground = ``
@@ -123,7 +135,14 @@ export default function markedTextExtension(): MarkedExtension {
 
               if (textBackground) {
                 (params.styles ??= {})[`background-color`] = textBackground
-              }
+              };
+
+              if (scaleSize) {
+                const size = String(Number(scaleSize) * 16)
+                params.transform = {
+                  size,
+                }
+              };
 
               const svgObj = icon(def, params)
               if (svgObj) {

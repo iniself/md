@@ -1,5 +1,7 @@
-import { exportToSVG, Infographic, setDefaultFont, setFontExtendFactor } from '@antv/infographic'
+import { exportToSVG, Infographic, loadSVGResource, registerResourceLoader, setDefaultFont, setFontExtendFactor } from '@antv/infographic'
+import { Marked } from 'marked'
 import mermaid from 'mermaid'
+import markedTextExtension from './MDTextExtension'
 
 function simpleHash(str: string): string {
   let hash = 0
@@ -66,6 +68,36 @@ export function getOrRenderMermaidSvg(el = `.mermaid`) {
 interface InfographicOptions {
   themeMode?: `dark` | `light`
 }
+
+const markedInstance = new Marked()
+markedInstance.use(markedTextExtension({ mode: `infographic` }))
+
+registerResourceLoader(async (config) => {
+  const { data, scene = `icon` } = config
+
+  if (scene === `icon`) {
+    let raw = data.trim()
+    if (!raw.startsWith(`=`)) {
+      raw = `=${raw}`
+    }
+    if (!raw.endsWith(`=`)) {
+      raw = `${raw}=`
+    }
+
+    const str = await markedInstance.parseInline(raw)
+
+    const match = str.match(/<svg[\s\S]*?<\/svg>/)
+    const svg = match ? match[0] : null
+    if (!svg) {
+      return null
+    }
+
+    const res = loadSVGResource(svg)
+    return res
+  }
+
+  return null
+})
 
 const infographicCache = new Map<string, string>()
 let lastRenderedInfographic: string | null = null
@@ -148,7 +180,7 @@ export function getOrRenderInfographicSvg(el = `.infographic`) {
   const options: InfographicOptions = { themeMode: isDark.value ? `dark` : `light` }
 
   document.querySelectorAll(el).forEach((el) => {
-    const code = el.textContent
+    const code = el.innerHTML
     const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}`)
 
     const cached = infographicCache.get(cacheKey)
