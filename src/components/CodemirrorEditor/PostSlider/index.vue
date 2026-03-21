@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ArrowUpNarrowWide, ChevronsDownUp, ChevronsUpDown, PlusSquare } from 'lucide-vue-next'
 import DiffViewer from '@/components/CodemirrorEditor/DiffViewer.vue'
-import { useConfirmDialog } from '@/composables/useConfirmDialog'
+import { useCustomConfirmDialog } from '@/composables/useCustomConfirmDialog'
 import { useStore } from '@/stores'
 import type { Post } from '@/stores'
 import { useFolderSourceStore } from '@/stores/folderSource'
@@ -10,7 +10,7 @@ import { runtime_folder_info } from '@/utils/IndexedDB'
 
 const props = defineProps({ triggerFocus: Boolean })
 
-const { confirm, dialog } = useConfirmDialog()
+const { confirm, dialog } = useCustomConfirmDialog()
 
 const store = useStore()
 const folderSourceStore = useFolderSourceStore()

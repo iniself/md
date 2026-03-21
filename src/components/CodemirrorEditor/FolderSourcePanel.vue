@@ -9,7 +9,7 @@ import {
   RefreshCw,
   Trash2,
 } from 'lucide-vue-next'
-import { useConfirmDialog } from '@/composables/useConfirmDialog'
+import { useCustomConfirmDialog } from '@/composables/useCustomConfirmDialog'
 import { useFolderFileSync } from '@/composables/useFolderFileSync'
 import { useStore } from '@/stores'
 import { useFolderSourceStore } from '@/stores/folderSource'
@@ -34,7 +34,7 @@ const {
   isOpenFolderPanel,
 } = storeToRefs(store)
 
-const { confirm, dialog } = useConfirmDialog()
+const { confirm, dialog } = useCustomConfirmDialog()
 
 const expandedPaths = ref<Set<string>>(new Set())
 

@@ -18,7 +18,7 @@ interface ConfirmOptions {
   dialogType?: string
 }
 
-export function useConfirmDialog() {
+export function useCustomConfirmDialog() {
   const open = ref(false)
   const options = ref<ConfirmOptions>({})
 

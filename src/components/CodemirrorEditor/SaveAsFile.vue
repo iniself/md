@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { useConfirmDialog } from '@/composables/useConfirmDialog'
+import { useCustomConfirmDialog } from '@/composables/useCustomConfirmDialog'
 import { useFolderFileSync } from '@/composables/useFolderFileSync'
 import type { Post } from '@/stores'
 import { useFolderSourceStore } from '@/stores/folderSource'
@@ -23,7 +23,7 @@ import FolderTree from './FolderTree.vue'
 
 const props = defineProps<{ open: boolean, post: Post }>()
 const emit = defineEmits([`update:open`])
-const { confirm, dialog } = useConfirmDialog()
+const { confirm, dialog } = useCustomConfirmDialog()
 
 const expandedPaths = ref<Set<string>>(new Set())
 
