@@ -20,6 +20,20 @@ interface IconParams {
   transform?: Record<string, string>
 }
 
+function normalizeSvg(svg: string): string {
+  if (!svg)
+    return svg
+
+  if (!/<svg[^>]*\sxmlns=/.test(svg)) {
+    svg = svg.replace(
+      /<svg\b([^>]*)>/,
+      `<svg xmlns="http://www.w3.org/2000/svg"$1>`,
+    )
+  }
+
+  return svg
+}
+
 export default function markedTextExtension(): MarkedExtension {
   return {
     extensions: [
@@ -113,7 +127,7 @@ export default function markedTextExtension(): MarkedExtension {
 
               const svgObj = icon(def, params)
               if (svgObj) {
-                const svgHtml = svgObj.html.join(``)
+                const svgHtml = normalizeSvg(svgObj.html.join(``))
                 return `<span style="display: inline-block; vertical-align: middle">${svgHtml}</span>`
               }
             }
