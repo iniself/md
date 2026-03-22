@@ -855,7 +855,19 @@ function mergeCss(html: string, needFontawesomeClass: boolean): string {
   return juice(`<style>${css}</style>\n${html}`, {
     inlinePseudoElements: true,
     preserveImportant: true,
+    preserveFontFaces: false,
   })
+}
+
+function mergeCssWhenToHtmlFile(html: string, needFontawesomeClass: boolean): string {
+  if (needFontawesomeClass) {
+    html = juice(`<style>${fontawesome_css}</style>\n${html}`, {
+      inlinePseudoElements: true,
+      preserveImportant: true,
+      preserveFontFaces: false,
+    })
+  }
+  return html
 }
 
 function modifyHtmlStructure(htmlString: string): string {
@@ -880,12 +892,11 @@ function createEmptyNode(): HTMLElement {
 }
 
 function checkNeedFontawesomeClass(doc: HTMLElement) {
-  const svg = doc.querySelector(`svg.svg-inline--fa`)
-  if (!svg) {
+  const svgs = doc.querySelectorAll(`svg.svg-inline--fa`)
+  if (!svgs.length) {
     return false
   }
-  const classList = svg.classList
-  return classList.length > 2
+  return [...svgs].some(el => el.classList.length > 2)
 }
 
 export function processClipboardContent(primaryColor: string) {
@@ -939,6 +950,56 @@ export function processClipboardContent(primaryColor: string) {
       /<tspan([^>]*)>/g,
       `<tspan$1 style="fill: #333333 !important; color: #333333 !important; stroke: none !important;">`,
     )
+}
+
+export function processClipboardToHtmlFile(_primaryColor: string) {
+  const clipboardDiv = document.getElementById(`output`)!
+
+  clipboardDiv.innerHTML = modifyHtmlStructure(mergeCssWhenToHtmlFile(clipboardDiv.innerHTML, checkNeedFontawesomeClass(clipboardDiv)))
+
+  clipboardDiv.innerHTML = clipboardDiv.innerHTML
+    .replace(/([^-])top:(.*?)em/g, `$1transform: translateY($2em)`)
+    .replace(
+      /<span class="nodeLabel"([^>]*)><p[^>]*>(.*?)<\/p><\/span>/g,
+      `<span class="nodeLabel"$1>$2</span>`,
+    )
+    .replace(
+      /<span class="edgeLabel"([^>]*)><p[^>]*>(.*?)<\/p><\/span>/g,
+      `<span class="edgeLabel"$1>$2</span>`,
+    )
+
+  const beforeNode = createEmptyNode()
+  const afterNode = createEmptyNode()
+  clipboardDiv.insertBefore(beforeNode, clipboardDiv.firstChild)
+  clipboardDiv.appendChild(afterNode)
+
+  const nodes = clipboardDiv.querySelectorAll(`.nodeLabel`)
+  nodes.forEach((node) => {
+    const parent = node.parentElement!
+    const xmlns = parent.getAttribute(`xmlns`)!
+    const style = parent.getAttribute(`style`)!
+    const section = document.createElement(`section`)
+    section.setAttribute(`xmlns`, xmlns)
+    section.setAttribute(`style`, style)
+    section.innerHTML = parent.innerHTML
+
+    const grand = parent.parentElement!
+    grand.innerHTML = ``
+    grand.appendChild(section)
+  })
+
+  clipboardDiv.innerHTML = clipboardDiv.innerHTML
+    .replace(
+      /<tspan([^>]*)>/g,
+      `<tspan$1 style="fill: #333333 !important; color: #333333 !important; stroke: none !important;">`,
+    )
+  const hasAdmonition = clipboardDiv.querySelector(`.admonition`)
+  const hasChat = clipboardDiv.querySelector(`.chat-container`)
+
+  return [
+    hasAdmonition && admonition_css,
+    hasChat && chatMessage_css,
+  ].filter(Boolean).join(``)
 }
 
 export function renderMarkdown(raw: string, renderer: RendererAPI) {

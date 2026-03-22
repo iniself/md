@@ -1,5 +1,6 @@
 import type { EmitFn } from 'vue'
-import { processClipboardContent, solveWeChatImage } from '@/utils'
+import OUT_HTML_CSS from '@/constants/OutHtmlCss'
+import { processClipboardContent, processClipboardToHtmlFile, solveWeChatImage } from '@/utils'
 
 const { copy: copyContent } = useClipboard({
   legacy: true,
@@ -199,22 +200,29 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
   // 以下处理非 Markdown 的复制流程
   emit(`startCopy`)
   return new Promise((resolve) => {
+    // 如果是深色模式，复制之前需要先切换到白天模式
+    const isBeforeDark = isDark.value
+    if (isBeforeDark) {
+      toggleDark()
+    }
     setTimeout(() => {
-      // 如果是深色模式，复制之前需要先切换到白天模式
-      const isBeforeDark = isDark.value
-      if (isBeforeDark) {
-        toggleDark()
-      }
-
       nextTick(async () => {
-        processClipboardContent(primaryColor.value)
+        let all_css = ``
+        if (mode === `outhtml`) {
+          all_css = processClipboardToHtmlFile(primaryColor.value)
+        }
+        else {
+          processClipboardContent(primaryColor.value)
+        }
         const clipboardDiv = document.getElementById(`output`)!
         clipboardDiv.focus()
         window.getSelection()!.removeAllRanges()
         // 新增：把 hljs 相关的 class 样式变成 inline 样式
         convertHighlightToInlineStyles(clipboardDiv)
-        // 新增：修正Admonition的图标。内联样式已经通过 utils/index.ts mergeCss 中的 juice 进行了处理
-        inlineAdmonitionForWechat(clipboardDiv)
+        if (mode !== `outhtml`) {
+          // 新增：修正Admonition的图标。内联样式已经通过 utils/index.ts mergeCss 中的 juice 进行了处理
+          inlineAdmonitionForWechat(clipboardDiv)
+        }
 
         if (mode === `txt` || mode === `zhihu` || mode === `html` || mode === `outhtml`) {
           const rawHtml = clipboardDiv.innerHTML
@@ -284,25 +292,26 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
                 metaViewport.setAttribute(`content`, `width=device-width, initial-scale=1.0`)
                 head.appendChild(metaViewport)
                 const style = tempDoc.createElement(`style`)
-                style.textContent = `
-                  body {
-                    margin: 0 auto;
-                    padding: 1rem;
-                  }
-                  @media (min-width: 768px) {
-                    body {
-                    max-width: 80ch;
-                    margin: 0 auto;
-                    }
-                  }
-                  @media print {
-                    * {
-                      -webkit-print-color-adjust: exact;
-                      print-color-adjust: exact;
-                    }
-                  }
-                  `
+                style.textContent = `${OUT_HTML_CSS}${all_css}`
                 head.appendChild(style)
+
+                const btn = tempDoc.createElement(`button`)
+                btn.id = `theme-toggle`
+                btn.innerHTML = `
+                  <span class="icon sun">☀️</span>
+                  <span class="icon moon">🌙</span>
+                `
+                tempDoc.body.appendChild(btn)
+
+                const script = tempDoc.createElement(`script`)
+                script.textContent = `
+                  const btn = document.getElementById('theme-toggle')
+                  btn.addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark')
+                  })
+                `
+                tempDoc.body.appendChild(script)
+
                 cleanedHtmlFinal = tempDoc.documentElement.outerHTML
                 resolve(cleanedHtmlFinal)
               }
