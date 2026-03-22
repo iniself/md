@@ -322,13 +322,12 @@ async function copy() {
   // 以下处理非 Markdown 的复制流程
   emit(`startCopy`)
 
+  // 如果是深色模式，复制之前需要先切换到白天模式
+  const isBeforeDark = isDark.value
+  if (isBeforeDark) {
+    toggleDark()
+  }
   setTimeout(() => {
-    // 如果是深色模式，复制之前需要先切换到白天模式
-    const isBeforeDark = isDark.value
-    if (isBeforeDark) {
-      toggleDark()
-    }
-
     nextTick(async () => {
       processClipboardContent(primaryColor.value)
       const clipboardDiv = document.getElementById(`output`)!
