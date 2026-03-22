@@ -39,7 +39,19 @@ function renderMermaid(id: string, code: string, cacheKey: string) {
     }
   }
   mermaid.render(`mermaid-svg-${cacheKey}`, code).then((result: { svg: string }) => {
-    handleResult(result.svg)
+    const svg = result.svg.replace(
+      /<svg([^>]*)>/,
+      (_, attrs) => {
+        if (/style="/.test(attrs)) {
+          return `<svg${attrs.replace(/style="(.*?)"/, `style="display:block;margin:0 auto;$1"`)}>`
+        }
+        else {
+          return `<svg${attrs} style="display:block;margin:0 auto;">`
+        }
+      },
+    )
+
+    handleResult(svg)
   }).catch(handleError)
 }
 
@@ -50,15 +62,15 @@ export function getOrRenderMermaidSvg(el = `.mermaid`) {
     const cached = mermaidCache.get(cacheKey)
     if (cached) {
       const uniqueId = `mermaid-instances-${Math.random().toString(36).slice(2)}`
-      el.outerHTML = `<div id="${uniqueId}" class="${mermaidClassName}">${cached}</div>`
+      el.outerHTML = `<div id="${uniqueId}" class="${mermaidClassName}" style="margin:0 auto">${cached}</div>`
     }
     else {
       const id = `mermaid-${cacheKey}`
       renderMermaid(id, code, cacheKey)
       if (lastRenderedMermaid) {
-        el.outerHTML = `<div id="${id}" class="${mermaidClassName}">${lastRenderedMermaid}</div>`
+        el.outerHTML = `<div id="${id}" class="${mermaidClassName}" style="margin:0 auto">${lastRenderedMermaid}</div>`
       }
-      el.outerHTML = `<div id="${id}" class="${mermaidClassName}">正在加载 Mermaid...</div>`
+      el.outerHTML = `<div id="${id}" class="${mermaidClassName}" style="margin:0 auto">正在加载 Mermaid...</div>`
     }
   })
 }
