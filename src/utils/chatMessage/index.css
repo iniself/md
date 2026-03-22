@@ -101,7 +101,7 @@
 .chat-container .message-content {
   display: flex;
   flex-direction: column;
-  max-width: calc(90% - 120px);
+  max-width: calc(100% - 120px);
 }
 
 .chat-container .message-content-left {
