@@ -57,7 +57,7 @@ function renderMermaid(id: string, code: string, cacheKey: string) {
 
 export function getOrRenderMermaidSvg(el = `.mermaid`) {
   document.querySelectorAll(el).forEach((el) => {
-    const code = el.textContent
+    const code = el.textContent ?? ``
     const cacheKey = simpleHash(code)
     const cached = mermaidCache.get(cacheKey)
     if (cached) {
