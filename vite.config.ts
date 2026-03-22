@@ -54,6 +54,8 @@ export default defineConfig({
         assetFileNames: `static/[ext]/md-[name]-[hash].[ext]`,
         manualChunks(id) {
           if (id.includes(`node_modules`)) {
+            if (id.includes(`@antv`))
+              return `antv`
             if (id.includes(`katex`))
               return `katex`
             if (id.includes(`mermaid`))
