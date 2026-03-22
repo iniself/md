@@ -306,6 +306,19 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
                 const script = tempDoc.createElement(`script`)
                 script.textContent = `
                   const btn = document.getElementById('theme-toggle')
+                  const media = window.matchMedia('(prefers-color-scheme: dark)')
+
+                  function applyTheme(e) {
+                    if (e.matches) {
+                      document.documentElement.classList.add('dark')
+                    } else {
+                      document.documentElement.classList.remove('dark')
+                    }
+                  }
+
+                  applyTheme(media)
+                  media.addEventListener('change', applyTheme)
+
                   btn.addEventListener('click', () => {
                     document.documentElement.classList.toggle('dark')
                   })
