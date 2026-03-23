@@ -56,7 +56,7 @@ export interface AlertOptions {
  */
 export interface AlertVariantItem {
   type: string
-  icon: string
+  icon?: string
   title?: string
   titleClassName?: string
 }

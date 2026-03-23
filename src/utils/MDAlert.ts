@@ -7,18 +7,32 @@ import { getStyleString } from '.'
  * To support theme, we need to modify the source code.
  * A [marked](https://marked.js.org/) extension to support [GFM alerts](https://github.com/orgs/community/discussions/16925).
  */
+
+const defaultZhTitle: Record<string, string> = {
+  note: `备注`,
+  info: `说明`,
+  tip: `提示`,
+  important: `重要`,
+  warning: `警告`,
+  caution: `注意`,
+}
+
 export default function markedAlert(options: AlertOptions = {}): MarkedExtension {
   const { className = `markdown-alert`, variants = [], withoutStyle = false } = options
   const resolvedVariants = resolveVariants(variants)
 
   // 提取公共的元数据构建逻辑
-  function buildMeta(variantType: string, matchedVariant: AlertVariantItem, fromContainer = false) {
+  function buildMeta(variantType: string, matchedVariant: AlertVariantItem, fromContainer = false, customTitle?: string) {
     const { styles } = options
     return {
       className,
       variant: variantType,
       icon: matchedVariant.icon,
-      title: matchedVariant.title ?? ucfirst(variantType),
+      title:
+        customTitle
+        ?? matchedVariant.title
+        ?? defaultZhTitle[variantType]
+        ?? ucfirst(variantType),
       titleClassName: `${className}-title`,
       fromContainer,
       wrapperStyle: {
@@ -63,9 +77,15 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
       if (token.type !== `blockquote`)
         return
 
-      const matchedVariant = resolvedVariants.find(({ type }) =>
-        new RegExp(createSyntaxPattern(type), `i`).test(token.text),
-      )
+      let customTitle
+      const matchedVariant = resolvedVariants.find(({ type }) => {
+        const match = new RegExp(createSyntaxPattern(type), `i`).exec(token.text)
+        if (match) {
+          customTitle = match[1]
+          return true
+        }
+        return false
+      })
 
       if (matchedVariant) {
         const { type: variantType } = matchedVariant
@@ -73,12 +93,11 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
 
         Object.assign(token, {
           type: `alert`,
-          meta: buildMeta(variantType, matchedVariant),
+          meta: buildMeta(variantType, matchedVariant, false, customTitle),
         })
 
         const firstLine = token.tokens?.[0] as Tokens.Paragraph
-        const firstLineText = firstLine.raw?.replace(typeRegexp, ``).trim()
-
+        const firstLineText = firstLine.text?.replace(typeRegexp, ``).trim()
         if (firstLineText) {
           const patternToken = firstLine.tokens[0] as Tokens.Text
 
@@ -110,11 +129,12 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
         },
         tokenizer(src, _tokens) {
           // eslint-disable-next-line regexp/no-super-linear-backtracking
-          const match = /^:::\s*(\w+)\s*\n([\s\S]*?)\n:::/.exec(src)
+          const match = /^:::\s*(\w+)(?:\s+(.*))?\n([\s\S]*?)\n:::/.exec(src)
 
           if (match) {
-            const [raw, variant, content] = match
-            const matchedVariant = resolvedVariants.find(v => v.type === variant)
+            const [raw, variant, customTitle, content] = match
+            const matchedVariant = resolvedVariants.find(v => v.type.toLowerCase() === (variant.toLowerCase()))
+
             if (!matchedVariant)
               return
 
@@ -123,7 +143,7 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
               raw,
               text: content.trim(),
               tokens: this.lexer.blockTokens(content.trim()),
-              meta: buildMeta(variant, matchedVariant, true),
+              meta: buildMeta(matchedVariant.type, matchedVariant, true, customTitle?.trim()),
             }
           }
         },
@@ -174,7 +194,11 @@ export function resolveVariants(variants: AlertVariantItem[]) {
   return Object.values(
     [...defaultAlertVariant, ...variants].reduce(
       (map, item) => {
-        map[item.type] = item
+        map[item.type] = {
+          ...map[item.type],
+          ...item,
+        }
+
         return map
       },
       {} as { [key: string]: AlertVariantItem },
@@ -186,7 +210,7 @@ export function resolveVariants(variants: AlertVariantItem[]) {
  * Returns regex pattern to match alert syntax.
  */
 export function createSyntaxPattern(type: string) {
-  return `^(?:\\[!${type}])\\s*?\n*`
+  return `^>?\\s*\\[!${type}(?:\\s+([^\\]]+))?\\]`
 }
 
 /**
