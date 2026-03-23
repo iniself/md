@@ -625,22 +625,26 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
   })
 
   textArea.on(`beforeChange`, async (editor, change) => {
-    const text = change.text?.join(``)
+    let text = change.text?.join(``)
     if (!text)
       return
 
     const PAIRS: Record<string, string> = {
       '“': `”`,
+      '”': `“`,
       '「': `」`,
       '《': `》`,
       '【': `】`,
       '（': `）`,
     }
 
-    const close = PAIRS[text]
+    let close = PAIRS[text]
     if (!close)
       return
-
+    if (close === `“`) {
+      text = `“`
+      close = `”`
+    }
     const selection = editor.getSelection()
 
     change.cancel()
