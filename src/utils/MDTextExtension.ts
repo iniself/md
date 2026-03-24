@@ -115,6 +115,8 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
             const iconClass = classes[1]
             const extraClasses = classes.slice(2)
             const prefix = prefixMap[prefixClass] || `fas`
+            if (!iconClass)
+              return
             const iconName = iconClass.replace(/^fa-/, ``) as IconName
             const def = findIconDefinition({ prefix, iconName })
 
