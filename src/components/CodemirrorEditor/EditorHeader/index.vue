@@ -90,7 +90,7 @@ const formatItems = [
     cmd: `${ctrlKey}-${altKey}-K`,
   },
   {
-    label: `Admonition`,
+    label: `GFM Alerts`,
     kbd: [ctrlSign, altSign, `A`],
     cmd: `${ctrlKey}-${altKey}-A`,
   },

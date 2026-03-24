@@ -178,11 +178,11 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
 
     [`${ctrlKey}-${altKey}-A`]: function admonition(editor) {
       toggleFormat(editor, {
-        prefix: `!!! note 标题\n`,
-        suffix: `Docs^red:+^ 是个 markdown 写作工具\n!!!`,
+        prefix: `::: tip 提示\n`,
+        suffix: `Docs^red:+^ 是个 markdown 写作工具\n:::`,
         check: s =>
-          /^!!! note[^\n]*\n/.test(s)
-          && /\r?\n!!!$/.test(s),
+          /^::: tip[^\n]*\n/.test(s)
+          && /\r?\n:::$/.test(s),
         afterInsertCursorOffset: 1,
       })
     },
