@@ -132,10 +132,20 @@ fn main() {
 !!!
 
 ## GFM alerts
-支持 GFM 风格的`NOTE`、`TIP`、`IMPORTANT`、`WARNING`、`CAUTION`
 
-> [!TIP]
+### 标准 GFM 语法
+支持`NOTE`、`TIP`、`IMPORTANT`、`WARNING`、`CAUTION` （不区分大小写）及自定义标题
+
+> [!TIP 提示]
 > Optional information to help a user be more successful.
+
+### 更灵活 GFM 语法
+
+还支持通过 FontAwesome 语法自定义图标
+
+::: =#57ab5a:: {fa-solid fa-lightbulb}= 提示
+Optional information to help a user be more successful.
+:::
 
 ## 分割线
 

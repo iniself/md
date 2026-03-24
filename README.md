@@ -59,6 +59,7 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 22.  支持 fontawesome icons
 23.  自动配对中文标点：“”, 「」, 《》, 【】, （）
 24.  导出 html 文件支持 dark | light 模式切换
+25.  GFM alerts 已经支持自定义图标(FontAwesome)和标题
 
 #### 删减
 1. 删除 google analytics

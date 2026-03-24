@@ -1,4 +1,5 @@
 import type { MarkedExtension, Tokens } from 'marked'
+import { marked } from 'marked'
 import type { AlertOptions, AlertVariantItem } from '@/types'
 import { getStyleString } from '.'
 
@@ -20,17 +21,15 @@ const defaultZhTitle: Record<string, string> = {
 export default function markedAlert(options: AlertOptions = {}): MarkedExtension {
   const { className = `markdown-alert`, variants = [], withoutStyle = false } = options
   const resolvedVariants = resolveVariants(variants)
-
   // 提取公共的元数据构建逻辑
-  function buildMeta(variantType: string, matchedVariant: AlertVariantItem, fromContainer = false, customTitle?: string) {
+  function buildMeta(variantType: string, matchedVariant: AlertVariantItem, fromContainer = false, customTitle?: string, customIconStyle?: Record<string, string>) {
     const { styles } = options
     return {
       className,
       variant: variantType,
       icon: matchedVariant.icon,
       title:
-        customTitle
-        ?? matchedVariant.title
+        (customTitle || matchedVariant.title)
         ?? defaultZhTitle[variantType]
         ?? ucfirst(variantType),
       titleClassName: `${className}-title`,
@@ -38,15 +37,18 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
       wrapperStyle: {
         ...styles?.blockquote,
         ...styles?.[`blockquote_${variantType}` as keyof typeof styles],
+
       },
       titleStyle: {
         ...styles?.blockquote_title,
         ...styles?.[`blockquote_title_${variantType}` as keyof typeof styles],
+        ...customIconStyle,
       },
       contentStyle: {
         ...styles?.blockquote_p,
         ...styles?.[`blockquote_p_${variantType}` as keyof typeof styles],
       },
+      customIcon: customIconStyle,
     }
   }
 
@@ -58,11 +60,17 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
     text = text.replace(/<p .*?>/g, `<p style="${getStyleString(meta.contentStyle)}">`)
     let tmpl = `<blockquote class="${meta.className} ${meta.className}-${meta.variant}" style="${getStyleString(meta.wrapperStyle)}">\n`
     tmpl += `<p class="${meta.titleClassName}" style="${getStyleString(meta.titleStyle)}">`
-    if (!withoutStyle) {
+    const hasCustomIcon = Object.prototype.hasOwnProperty.call(meta.customIcon, `color`)
+    if (!withoutStyle && !hasCustomIcon) {
       tmpl += meta.icon.replace(
         `<svg`,
         `<svg style="fill: ${meta.titleStyle?.color ?? `inherit`}"`,
       )
+    }
+    else {
+      if (hasCustomIcon) {
+        tmpl += meta.icon
+      }
     }
     tmpl += meta.title
     tmpl += `</p>\n`
@@ -93,7 +101,7 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
 
         Object.assign(token, {
           type: `alert`,
-          meta: buildMeta(variantType, matchedVariant, false, customTitle),
+          meta: buildMeta(variantType, matchedVariant, false, customTitle, {}),
         })
 
         const firstLine = token.tokens?.[0] as Tokens.Paragraph
@@ -129,10 +137,44 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
         },
         tokenizer(src, _tokens) {
           // eslint-disable-next-line regexp/no-super-linear-backtracking
-          const match = /^:::\s*(\w+)(?:\s+(.*))?\n([\s\S]*?)\n:::/.exec(src)
+          const match = /^:::\s*([^\n]+)\n([\s\S]*?)\n:::/.exec(src)
 
           if (match) {
-            const [raw, variant, customTitle, content] = match
+            const [raw, header, content] = match
+            let variant = ``
+            let customTitle = ``
+
+            // const m = header.match(/^(=.+?=)\s*(.*)$/)
+
+            // eslint-disable-next-line regexp/no-super-linear-backtracking
+            const m = header.match(/^(=[^=]+=)\s*(.*)$/)
+            if (m) {
+              variant = m[1]
+              customTitle = m[2]
+            }
+            const customIconStyle: { color?: string } = {}
+            if (variant) {
+              const textExtension = hasTextExtension(variant)
+              if (!textExtension) {
+                return
+              }
+              if (textExtension[1]) {
+                customIconStyle.color = textExtension[1]
+              }
+
+              const str = marked.parseInline(variant) as string
+              const match = str.match(/<svg[\s\S]*?<\/svg>/)
+              const icon = match ? match[0] : null
+              if (!icon) {
+                return
+              }
+              resolvedVariants.push({ type: variant, icon })
+            }
+            else {
+              const parts = header.split(/\s+/)
+              variant = parts[0]
+              customTitle = parts.slice(1).join(` `)
+            }
             const matchedVariant = resolvedVariants.find(v => v.type.toLowerCase() === (variant.toLowerCase()))
 
             if (!matchedVariant)
@@ -143,7 +185,7 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
               raw,
               text: content.trim(),
               tokens: this.lexer.blockTokens(content.trim()),
-              meta: buildMeta(matchedVariant.type, matchedVariant, true, customTitle?.trim()),
+              meta: buildMeta(matchedVariant.type, matchedVariant, true, customTitle?.trim(), customIconStyle),
             }
           }
         },
@@ -218,4 +260,8 @@ export function createSyntaxPattern(type: string) {
  */
 export function ucfirst(str: string) {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase()
+}
+
+function hasTextExtension(src: string) {
+  return src.match(/^=(#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?(?::(#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?)?(?::([\d.]+[a-z%]*)?)? ([^=]+)=/)
 }

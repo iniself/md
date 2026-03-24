@@ -48,7 +48,6 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
         tokenizer(src: string) {
           const match = src.match(
             // 要求 =color:background:size 内容=
-            // /^=((#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?)?(?::(#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?)?(?::([\d.]+[a-z%]*)?)? ([^=]+)=/
             /^=(#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?(?::(#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?)?(?::([\d.]+[a-z%]*)?)? ([^=]+)=/,
           )
 
