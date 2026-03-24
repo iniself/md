@@ -58,7 +58,7 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
     // @ts-expect-error marked renderer context has parser property
     let text = this.parser.parse(tokens)
     text = text.replace(/<p .*?>/g, `<p style="${getStyleString(meta.contentStyle)}">`)
-    let tmpl = `<blockquote class="${meta.className} ${meta.className}-${meta.variant}" style="${getStyleString(meta.wrapperStyle)}">\n`
+    let tmpl = `<section class="${meta.className} ${meta.className}-${meta.variant}" style="${getStyleString(meta.wrapperStyle)}">\n`
     tmpl += `<p class="${meta.titleClassName}" style="${getStyleString(meta.titleStyle)}">`
     const hasCustomIcon = Object.prototype.hasOwnProperty.call(meta.customIcon, `color`)
     if (!withoutStyle && !hasCustomIcon) {
@@ -75,7 +75,7 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
     tmpl += meta.title
     tmpl += `</p>\n`
     tmpl += text
-    tmpl += `</blockquote>\n`
+    tmpl += `</section>\n`
 
     return tmpl
   }
