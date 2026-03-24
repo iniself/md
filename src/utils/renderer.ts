@@ -64,8 +64,11 @@ function genMermaidId(): string {
   return `${ts}${counter}`
 }
 
-function buildTheme({ theme: _theme, fonts, size, isUseIndent }: IOpts): ThemeStyles {
+function buildTheme({ theme: _theme, fonts, size, isUseIndent, isJustify }: IOpts): ThemeStyles {
   const theme = cloneDeep(_theme)
+  if (isJustify) {
+    theme.base[`text-align`] = `justify`
+  }
   const base = toMerged(theme.base, {
     'font-family': fonts,
     'font-size': size,
@@ -332,18 +335,11 @@ export function initRenderer(opts: IOpts): RendererAPI {
     },
 
     paragraph({ tokens }: Tokens.Paragraph): string {
-      const store = useStore()
-      const { isJustify } = storeToRefs(store)
-
       const text = this.parser.parseInline(tokens)
       const isFigureImage = text.includes(`<figure`) && text.includes(`<img`)
       const isEmpty = text.trim() === ``
       if (isFigureImage || isEmpty) {
         return text
-      }
-      if (isJustify.value) {
-        // 两端对齐
-        return `<p lang="zh"  ${/^h\d$/.test(`p`) ? `data-heading="true"` : ``} ${styles(`p`, `;text-align: justify;hyphens: auto; word-wrap: break-word !important`)}>${text}</p>`
       }
       return styledContent(`p`, text)
     },

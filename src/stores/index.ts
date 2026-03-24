@@ -420,6 +420,7 @@ export const useStore = defineStore(`store`, () => {
     fonts: fontFamily.value,
     size: fontSize.value,
     isUseIndent: isUseIndent.value,
+    isJustify: isJustify.value,
     isMacCodeBlock: isMacCodeBlock.value,
   })
 
@@ -443,6 +444,7 @@ export const useStore = defineStore(`store`, () => {
       citeStatus: isCiteStatus.value,
       legend: legend.value,
       isUseIndent: isUseIndent.value,
+      isJustify: isJustify.value,
       countStatus: isCountStatus.value,
       isMacCodeBlock: isMacCodeBlock.value,
     })

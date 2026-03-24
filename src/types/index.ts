@@ -27,6 +27,7 @@ export interface IOpts {
   fonts: string
   size: string
   isUseIndent: boolean
+  isJustify: boolean
   legend?: string
   citeStatus?: boolean
   countStatus?: boolean
