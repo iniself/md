@@ -335,6 +335,8 @@ const OUT_HTML_CSS = `
                 p,
                 pre {
                   margin: 0;
+                  overflow-wrap: break-word;
+                  hyphens: auto;
                 }
                 fieldset {
                   margin: 0;
