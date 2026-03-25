@@ -50,8 +50,13 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
     }
   }
 
+  const store = useStore()
+
   function buildCustomIconMeta(variantType: string, fromContainer = false, customTitle?: string, customIconStyle?: Record<string, string>) {
     const { styles } = options
+    if (customIconStyle && customIconStyle.color === `theme`) {
+      customIconStyle.color = store.primaryColor
+    }
     return {
       className,
       variant: variantType,
