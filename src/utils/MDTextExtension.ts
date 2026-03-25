@@ -112,11 +112,12 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
           if (iconMatch) {
             const classes: string[] = iconMatch[1].trim().split(/\s+/)
             const prefixClass = classes[0]
-            const iconClass = classes[1]
+            let iconClass = classes[1]
             const extraClasses = classes.slice(2)
             const prefix = prefixMap[prefixClass] || `fas`
-            if (!iconClass)
-              return
+            if (!iconClass) {
+              iconClass = ``
+            }
             const iconName = iconClass.replace(/^fa-/, ``) as IconName
             const def = findIconDefinition({ prefix, iconName })
 
@@ -150,6 +151,12 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
                 const svgHtml = normalizeSvg(svgObj.html.join(``))
                 return `<span style="display: inline-block; vertical-align: middle">${svgHtml}</span>`
               }
+              else {
+                return this.parser.parseInline(tokens)
+              }
+            }
+            else {
+              return this.parser.parseInline(tokens)
             }
           }
           else {

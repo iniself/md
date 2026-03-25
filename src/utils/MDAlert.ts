@@ -1,5 +1,4 @@
 import type { MarkedExtension, Tokens } from 'marked'
-import { marked } from 'marked'
 import type { AlertOptions, AlertVariantItem } from '@/types'
 import { getStyleString } from '.'
 
@@ -22,7 +21,7 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
   const { className = `markdown-alert`, variants = [], withoutStyle = false } = options
   const resolvedVariants = resolveVariants(variants)
   // 提取公共的元数据构建逻辑
-  function buildMeta(variantType: string, matchedVariant: AlertVariantItem, fromContainer = false, customTitle?: string, customIconStyle?: Record<string, string>) {
+  function buildMeta(variantType: string, matchedVariant: AlertVariantItem, fromContainer = false, customTitle?: string) {
     const { styles } = options
     return {
       className,
@@ -42,17 +41,45 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
       titleStyle: {
         ...styles?.blockquote_title,
         ...styles?.[`blockquote_title_${variantType}` as keyof typeof styles],
+      },
+      contentStyle: {
+        ...styles?.blockquote_p,
+        ...styles?.[`blockquote_p_${variantType}` as keyof typeof styles],
+      },
+      customIcon: false,
+    }
+  }
+
+  function buildCustomIconMeta(variantType: string, fromContainer = false, customTitle?: string, customIconStyle?: Record<string, string>) {
+    const { styles } = options
+    return {
+      className,
+      variant: variantType,
+      icon: ``,
+      title:
+        customTitle
+        ?? defaultZhTitle[variantType]
+        ?? ucfirst(variantType),
+      titleClassName: `${className}-title`,
+      fromContainer,
+      wrapperStyle: {
+        ...styles?.blockquote,
+        ...styles?.[`blockquote_${variantType}` as keyof typeof styles],
+
+      },
+      titleStyle: {
+        ...styles?.blockquote_title,
+        ...styles?.[`blockquote_title_${variantType}` as keyof typeof styles],
         ...customIconStyle,
       },
       contentStyle: {
         ...styles?.blockquote_p,
         ...styles?.[`blockquote_p_${variantType}` as keyof typeof styles],
       },
-      customIcon: customIconStyle,
+      customIcon: true,
     }
   }
 
-  // 提取公共的渲染逻辑
   function renderAlert(token: any) {
     const { meta, tokens = [] } = token
     // @ts-expect-error marked renderer context has parser property
@@ -60,18 +87,53 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
     text = text.replace(/<p .*?>/g, `<p style="${getStyleString(meta.contentStyle)}">`)
     let tmpl = `<section class="${meta.className} ${meta.className}-${meta.variant}" style="${getStyleString(meta.wrapperStyle)}">\n`
     tmpl += `<p class="${meta.titleClassName}" style="${getStyleString(meta.titleStyle)}">`
-    const hasCustomIcon = Object.prototype.hasOwnProperty.call(meta.customIcon, `color`)
-    if (!withoutStyle && !hasCustomIcon) {
+
+    if (!withoutStyle) {
       tmpl += meta.icon.replace(
         `<svg`,
         `<svg style="fill: ${meta.titleStyle?.color ?? `inherit`}"`,
       )
     }
+
+    tmpl += meta.title
+    tmpl += `</p>\n`
+    tmpl += text
+    tmpl += `</section>\n`
+
+    return tmpl
+  }
+
+  function renderContainerAlert(token: any) {
+    const { meta, customIconToken = [], tokens = [] } = token
+    // @ts-expect-error marked renderer context has parser property
+    let text = this.parser.parse(tokens)
+    text = text.replace(/<p .*?>/g, `<p style="${getStyleString(meta.contentStyle)}">`)
+    let tmpl = `<section class="${meta.className} ${meta.className}-${meta.variant}" style="${getStyleString(meta.wrapperStyle)}">\n`
+    tmpl += `<p class="${meta.titleClassName}" style="${getStyleString(meta.titleStyle)}">`
+
+    if (customIconToken.length) {
+      // @ts-expect-error marked renderer context has parser property
+      const str = this.parser.parseInline(customIconToken) as string
+      const match = str.match(/<svg[\s\S]*?<\/svg>/)
+      const icon = match ? match[0] : null
+      if (!icon) {
+        return text
+      }
+      tmpl += icon
+      resolvedVariants.push({ type: meta.variant, icon })
+    }
     else {
-      if (hasCustomIcon) {
+      if (!withoutStyle) {
+        tmpl += meta.icon.replace(
+          `<svg`,
+          `<svg style="fill: ${meta.titleStyle?.color ?? `inherit`}"`,
+        )
+      }
+      else {
         tmpl += meta.icon
       }
     }
+
     tmpl += meta.title
     tmpl += `</p>\n`
     tmpl += text
@@ -101,7 +163,7 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
 
         Object.assign(token, {
           type: `alert`,
-          meta: buildMeta(variantType, matchedVariant, false, customTitle, {}),
+          meta: buildMeta(variantType, matchedVariant, false, customTitle),
         })
 
         const firstLine = token.tokens?.[0] as Tokens.Paragraph
@@ -144,8 +206,6 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
             let variant = ``
             let customTitle = ``
 
-            // const m = header.match(/^(=.+?=)\s*(.*)$/)
-
             // eslint-disable-next-line regexp/no-super-linear-backtracking
             const m = header.match(/^(=[^=]+=)\s*(.*)$/)
             if (m) {
@@ -161,14 +221,14 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
               if (textExtension[1]) {
                 customIconStyle.color = textExtension[1]
               }
-
-              const str = marked.parseInline(variant) as string
-              const match = str.match(/<svg[\s\S]*?<\/svg>/)
-              const icon = match ? match[0] : null
-              if (!icon) {
-                return
+              return {
+                type: `alertContainer`,
+                raw,
+                text: content.trim(),
+                tokens: this.lexer.blockTokens(content.trim()),
+                meta: buildCustomIconMeta(variant, true, customTitle?.trim(), customIconStyle),
+                customIconToken: this.lexer.inlineTokens(variant),
               }
-              resolvedVariants.push({ type: variant, icon })
             }
             else {
               const parts = header.split(/\s+/)
@@ -181,15 +241,15 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
               return
 
             return {
-              type: `alert`,
+              type: `alertContainer`,
               raw,
               text: content.trim(),
               tokens: this.lexer.blockTokens(content.trim()),
-              meta: buildMeta(matchedVariant.type, matchedVariant, true, customTitle?.trim(), customIconStyle),
+              meta: buildMeta(matchedVariant.type, matchedVariant, true, customTitle?.trim()),
             }
           }
         },
-        renderer: renderAlert,
+        renderer: renderContainerAlert,
       },
     ],
   }
