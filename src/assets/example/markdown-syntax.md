@@ -188,11 +188,11 @@ fn main() {
 
 ```
 > [!TIP 提示]
-> Optional information to help a user be more successful.
+> Docs^red:+^ 是个 markdown 写作工具
 ```
 
 > [!TIP 提示]
-> Optional information to help a user be more successful.
+> Docs^red:+^ 是个 markdown 写作工具
 
 ### 更灵活 GFM 语法。 `Command + Option + A`
 
@@ -200,12 +200,12 @@ fn main() {
 
 ```
 ::: =#57ab5a:: {fa-solid fa-lightbulb}= 提示
-Optional information to help a user be more successful.
+Docs^red:+^ 是个 markdown 写作工具
 :::
 ```
 
 ::: =#57ab5a:: {fa-solid fa-lightbulb}= 提示
-Optional information to help a user be more successful.
+Docs^red:+^ 是个 markdown 写作工具
 :::
 
 ## 分割线
