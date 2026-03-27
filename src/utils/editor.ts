@@ -190,7 +190,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
     [`${ctrlKey}-${altKey}-C`]: function chatMessage(editor) {
       toggleFormat(editor, {
         prefix: `!!! chat`,
-        suffix: `\nroles:\n Docs^red:+^ as docs, avatar=${DEFAULT_AVATAR}\n\n>> right docs\n你好朋友！\n!!!`,
+        suffix: `\nroles:\n Docs^red:+^ as docs, avatar=${DEFAULT_AVATAR}, side=right\n\n>> docs\n你好朋友！\n!!!`,
         check: s => /^!!! chat\r?\n/.test(s) && /\r?\n!!!$/.test(s),
         afterInsertCursorOffset: 1,
       })
