@@ -168,6 +168,9 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
 
               for (; i < bodyLines.length; i++) {
                 const line = bodyLines[i]
+
+                if (!line.trim())
+                  continue
                 if (!/^\s+/.test(line))
                   break
 
