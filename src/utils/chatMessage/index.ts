@@ -354,7 +354,7 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
                             `
                             : ``}
                         </section>
-                        <span class="bubble-arrow bubble-arrow-${msg.side}"></span>
+                        <section class="bubble-arrow bubble-arrow-${msg.side}"></section>
                       </section>
 
                       ${msg.blockTokens.map(t => `
