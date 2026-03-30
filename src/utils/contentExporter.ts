@@ -224,7 +224,7 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
           inlineAdmonitionForWechat(clipboardDiv)
         }
 
-        if (mode === `txt` || mode === `zhihu` || mode === `html` || mode === `outhtml`) {
+        if (mode === `txt` || mode === `zhihu` || mode === `html` || mode === `outhtml` || mode === `pdf`) {
           const rawHtml = clipboardDiv.innerHTML
           const parser = new DOMParser()
           const doc = parser.parseFromString(rawHtml, `text/html`)
@@ -234,7 +234,7 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
           const tempDoc = new DOMParser().parseFromString(cleanedHtml, `text/html`)
           let cleanedHtmlFinal = ``
 
-          if (mode === `txt` || mode === `html` || mode === `outhtml`) {
+          if (mode === `txt` || mode === `html` || mode === `outhtml` || mode === `pdf`) {
             if (mode === `txt`) {
               tempDoc.querySelectorAll(`a`).forEach((a) => {
                 const href = a.getAttribute(`href`)
@@ -325,6 +325,47 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
                 `
                 tempDoc.body.appendChild(script)
 
+                cleanedHtmlFinal = tempDoc.documentElement.outerHTML
+                resolve(cleanedHtmlFinal)
+              }
+            }
+            if (mode === `pdf`) {
+              if (isCiteStatus.value) {
+                citeStatusChanged()
+                changeCiteStatusWhenCopy = true
+                const exportPDFFile = await copy(mode, emit)
+                toast.success(`已导出 HTML`)
+                resolve(exportPDFFile)
+              }
+              if (!isCiteStatus.value) {
+                const head = tempDoc.head
+                const metaCharset = tempDoc.createElement(`meta`)
+                metaCharset.setAttribute(`charset`, `UTF-8`)
+                head.appendChild(metaCharset)
+                const metaViewport = tempDoc.createElement(`meta`)
+                metaViewport.setAttribute(`name`, `viewport`)
+                metaViewport.setAttribute(`content`, `width=device-width, initial-scale=1.0`)
+                head.appendChild(metaViewport)
+                const style = tempDoc.createElement(`style`)
+                style.textContent = `
+                  body {
+                    margin: 0 auto;
+                    padding: 1rem;
+                  }
+                  @media (min-width: 768px) {
+                    body {
+                    max-width: 80ch;
+                    margin: 0 auto;
+                    }
+                  }
+                  @media print {
+                    * {
+                      -webkit-print-color-adjust: exact;
+                      print-color-adjust: exact;
+                    }
+                  }
+                  `
+                head.appendChild(style)
                 cleanedHtmlFinal = tempDoc.documentElement.outerHTML
                 resolve(cleanedHtmlFinal)
               }

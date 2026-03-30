@@ -553,6 +553,9 @@ export function exportPDF(content: string) {
           .page-break {
             page-break-before: always;
           }
+          p {
+            text-align-last: left;
+          }
         }
       </style>
     </head>

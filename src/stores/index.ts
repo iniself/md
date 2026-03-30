@@ -725,7 +725,7 @@ export const useStore = defineStore(`store`, () => {
   // 导出编辑器内容为 PDF
   async function export2PDF(emit: any) {
     // 放入拷贝 html 的逻辑代码
-    const fullHtml = await copy(`outhtml`, emit)
+    const fullHtml = await copy(`pdf`, emit)
     if (isTauri.value) {
       exportPDFByTauri(fullHtml!)
     }
