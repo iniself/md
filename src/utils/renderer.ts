@@ -66,9 +66,6 @@ function genMermaidId(): string {
 
 function buildTheme({ theme: _theme, fonts, size, isUseIndent, isJustify }: IOpts): ThemeStyles {
   const theme = cloneDeep(_theme)
-  if (isJustify) {
-    theme.base[`text-align`] = `justify`
-  }
   const base = toMerged(theme.base, {
     'font-family': fonts,
     'font-size': size,
@@ -78,6 +75,18 @@ function buildTheme({ theme: _theme, fonts, size, isUseIndent, isJustify }: IOpt
     theme.block.p = {
       'text-indent': `2em`,
       ...theme.block.p,
+    }
+  }
+
+  if (isJustify) {
+    theme.block.p = {
+      'text-align': `justify`,
+      ...theme.block.p,
+    }
+
+    theme.block.blockquote_p = {
+      'text-align': `justify`,
+      ...theme.block.blockquote_p,
     }
   }
 
