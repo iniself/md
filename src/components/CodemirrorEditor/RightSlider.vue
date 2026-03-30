@@ -314,6 +314,25 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         </div>
       </div>
       <div class="space-y-2">
+        <h2>PDF分页</h2>
+        <div class="grid grid-cols-5 justify-items-center gap-2">
+          <Button
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': store.isPageBreak,
+            }" @click="!store.isPageBreak && store.pageBreakChanged()"
+          >
+            自动
+          </Button>
+          <Button
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': !store.isPageBreak,
+            }" @click="store.isPageBreak && store.pageBreakChanged()"
+          >
+            手动
+          </Button>
+        </div>
+      </div>
+      <div class="space-y-2">
         <h2>保存到文件</h2>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button

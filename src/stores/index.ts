@@ -107,6 +107,10 @@ export const useStore = defineStore(`store`, () => {
   const isCenterHeader = useStorage(`isCenterHeader`, true)
   const toggleHeaderStyle = useToggle(isCenterHeader)
 
+  // pdf 是否分页
+  const isPageBreak = useStorage(`isPageBreak`, true)
+  const togglePageBreak = useToggle(isPageBreak)
+
   // 是否自动保存到文件
   const isAutoSync = useStorage(`isAutoSync`, false)
   const toggleAutoSync = useToggle(isAutoSync)
@@ -673,6 +677,10 @@ export const useStore = defineStore(`store`, () => {
     toggleHeaderStyle()
   })
 
+  const pageBreakChanged = withAfterRefresh(() => {
+    togglePageBreak()
+  })
+
   const autoSyncChanged = withAfterRefresh(() => {
     toggleAutoSync()
   })
@@ -844,6 +852,9 @@ export const useStore = defineStore(`store`, () => {
     isCenterHeader,
     centerHeaderChanged,
 
+    isPageBreak,
+    pageBreakChanged,
+
     isAutoSync,
     autoSyncChanged,
 
@@ -997,6 +1008,7 @@ export function getAllStoreStates() {
     isUseIndent: store.isUseIndent,
     isJustify: store.isJustify,
     isCenterHeader: store.isCenterHeader,
+    isPageBreak: store.isPageBreak,
     isAutoSync: store.isAutoSync,
     exportPdfDialogVisible: store.exportPdfDialogVisible,
     isOpenRightSlider: store.isOpenRightSlider,

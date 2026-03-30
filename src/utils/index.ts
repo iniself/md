@@ -469,6 +469,20 @@ export function exportPDF(content: string) {
     `
   }
 
+  let pageAutoBreak = ``
+  if (store.isPageBreak) {
+    pageAutoBreak = `
+        h1 {
+          page-break-after: avoid;
+          page-break-inside: avoid;
+          page-break-before: always;
+        }
+        h1:first-child {
+          page-break-before: auto;
+        }
+    `
+  }
+
   let bottomRight = ``
   if (store.bottomRight) {
     bottomRight = `
@@ -542,14 +556,7 @@ export function exportPDF(content: string) {
           thead {
             display: table-header-group;
           }
-          h1 {
-            page-break-after: avoid;
-            page-break-inside: avoid;
-            page-break-before: always;
-          }
-          h1:first-child {
-            page-break-before: auto;
-          }
+          ${pageAutoBreak}  
           .page-break {
             page-break-before: always;
           }
