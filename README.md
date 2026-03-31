@@ -60,6 +60,7 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 23.  自动配对中文标点：“”, 「」, 《》, 【】, （）
 24.  导出 html 文件支持 dark | light 模式切换
 25.  GFM alerts 已经支持自定义图标(FontAwesome)和标题
+26.  导出 PDF 时支持页眉页脚页边距等配置。可选择是否自动分页。并支持 `+++` 手动分页
 
 #### 删减
 1. 删除 google analytics

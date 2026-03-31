@@ -10,6 +10,7 @@ import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
 import markedInfographic from './MDinfographic.ts'
 import { MDKatex } from './MDKatex'
+import markedPageBreakExtension from './MDPageBreakExtension'
 import markedRuby from './MDRuby.ts'
 import markedSlider from './MDSlider'
 import markedSupSub from './MDSupSub'
@@ -34,6 +35,7 @@ export function createMarked(options: {
     markedImageSize(),
     markedTextExtension(),
     markedUnderlineExtension(),
+    markedPageBreakExtension(),
     markedSlider({ styles: options.styleMapping }),
     markedAdmonitionExtension(),
     markedRuby(),

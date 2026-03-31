@@ -25,6 +25,7 @@ import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
 import markedInfographic from './MDinfographic.ts'
 import { MDKatex } from './MDKatex'
+import markedPageBreakExtension from './MDPageBreakExtension'
 import markedRuby from './MDRuby.ts'
 import markedSlider from './MDSlider'
 import markedSupSub from './MDSupSub'
@@ -48,6 +49,7 @@ mermaid.initialize({
 marked.use(markedImageSize())
 marked.use(markedTextExtension())
 marked.use(markedUnderlineExtension())
+marked.use(markedPageBreakExtension())
 marked.setOptions({
   breaks: true,
 })

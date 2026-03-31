@@ -473,11 +473,15 @@ export function exportPDF(content: string) {
   if (store.isPageBreak) {
     pageAutoBreak = `
         h1 {
+          break-after: avoid;
+          break-inside: avoid;
+          break-before: page;
           page-break-after: avoid;
           page-break-inside: avoid;
           page-break-before: always;
         }
         h1:first-child {
+          break-before: auto;
           page-break-before: auto;
         }
     `
@@ -556,8 +560,9 @@ export function exportPDF(content: string) {
           thead {
             display: table-header-group;
           }
-          ${pageAutoBreak}  
+          ${pageAutoBreak}
           .page-break {
+            break-before: page;
             page-break-before: always;
           }
           p {
