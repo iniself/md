@@ -381,6 +381,33 @@ export function toBase64(file: Blob) {
   })
 }
 
+export function extractAllCSSVariables(cssText: string) {
+  const blocks = cssText.split(`}`)
+  let result = ``
+
+  for (const block of blocks) {
+    const parts = block.split(`{`)
+    if (parts.length !== 2)
+      continue
+
+    const selector = parts[0].trim()
+    const body = parts[1]
+
+    const vars = body
+      .split(`;`)
+      .map(line => line.trim())
+      .filter(line => line.startsWith(`--`))
+
+    if (vars.length > 0) {
+      result += `${selector} {\n`
+      result += vars.map(v => `  ${v};`).join(`\n`)
+      result += `\n}\n\n`
+    }
+  }
+
+  return result
+}
+
 /**
  * 导出 PDF 文档
  * @param {string} content
@@ -388,6 +415,9 @@ export function toBase64(file: Blob) {
 export function exportPDF(content: string) {
   const store = useStore()
   const htmlStr = content
+  const hasChat = htmlStr.includes(`chat-container`)
+  const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
+
   let safeTitle = ``
 
   if (store.currentPdfTitle) {
@@ -507,7 +537,7 @@ export function exportPDF(content: string) {
       <title>${safeTitle}</title>
       <style>
         ${pdfchapter}
-        ${chatMessage_css}
+        ${chatVarCss}
         @page {
           size: A4;
           margin: ${printMargin};
@@ -618,6 +648,9 @@ export function exportPDF(content: string) {
 export function exportPDFByTauri(content: string) {
   const store = useStore()
   const htmlStr = content
+  const hasChat = htmlStr.includes(`chat-container`)
+  const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
+
   let safeTitle = ``
 
   if (store.currentPdfTitle) {
@@ -730,7 +763,7 @@ export function exportPDFByTauri(content: string) {
       <title>${safeTitle}</title>
       <style>
         ${pdfchapter}
-        ${chatMessage_css}
+        ${chatVarCss}
         @page {
           size: A4;
           margin: ${printMargin};
