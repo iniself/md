@@ -685,6 +685,24 @@ export function exportPDFByTauri(content: string) {
     `
   }
 
+  let pageAutoBreak = ``
+  if (store.isPageBreak) {
+    pageAutoBreak = `
+        h1 {
+          break-after: avoid;
+          break-inside: avoid;
+          break-before: page;
+          page-break-after: avoid;
+          page-break-inside: avoid;
+          page-break-before: always;
+        }
+        h1:first-child {
+          break-before: auto;
+          page-break-before: auto;
+        }
+    `
+  }
+
   let bottomRight = ``
   if (store.bottomRight) {
     bottomRight = `
@@ -758,16 +776,13 @@ export function exportPDFByTauri(content: string) {
           thead {
             display: table-header-group;
           }
-          h1 {
-            page-break-after: avoid;
-            page-break-inside: avoid;
-            page-break-before: always;
-          }
-          h1:first-child {
-            page-break-before: auto;
-          }
+          ${pageAutoBreak}
           .page-break {
+            break-before: page;
             page-break-before: always;
+          }
+          p {
+            text-align-last: left;
           }
         }
       </style>
