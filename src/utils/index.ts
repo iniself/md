@@ -507,6 +507,7 @@ export function exportPDF(content: string) {
       <title>${safeTitle}</title>
       <style>
         ${pdfchapter}
+        ${chatMessage_css}
         @page {
           size: A4;
           margin: ${printMargin};
@@ -567,6 +568,12 @@ export function exportPDF(content: string) {
           }
           p {
             text-align-last: left;
+          }
+          .chat-container .message:not(:has(.avatar)) .message-content-left {
+            padding-left: calc(var(--chat-avatar) + 6px);
+          }
+          .chat-container .message:not(:has(.avatar)) .message-content-right {
+            padding-right: calc(var(--chat-avatar) + 6px);
           }
         }
       </style>
@@ -723,6 +730,7 @@ export function exportPDFByTauri(content: string) {
       <title>${safeTitle}</title>
       <style>
         ${pdfchapter}
+        ${chatMessage_css}
         @page {
           size: A4;
           margin: ${printMargin};
@@ -783,6 +791,12 @@ export function exportPDFByTauri(content: string) {
           }
           p {
             text-align-last: left;
+          }
+          .chat-container .message:not(:has(.avatar)) .message-content-left {
+            padding-left: calc(var(--chat-avatar) + 6px);
+          }
+          .chat-container .message:not(:has(.avatar)) .message-content-right {
+            padding-right: calc(var(--chat-avatar) + 6px);
           }
         }
       </style>
