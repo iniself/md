@@ -592,6 +592,9 @@ export function exportPDF(content: string) {
             display: table-header-group;
           }
           ${pageAutoBreak}
+          .chat-container {
+            break-inside: avoid;
+          }
           .page-break {
             break-before: page;
             page-break-before: always;
@@ -818,6 +821,9 @@ export function exportPDFByTauri(content: string) {
             display: table-header-group;
           }
           ${pageAutoBreak}
+          .chat-container {
+            break-inside: avoid;
+          }
           .page-break {
             break-before: page;
             page-break-before: always;
