@@ -538,6 +538,23 @@ export function exportPDF(content: string) {
       <style>
         ${pdfchapter}
         ${chatVarCss}
+        pre::before {
+            content: "\u200B";
+        }
+        .chat-container::before {
+            content: "\u200B";
+        }
+        pre {
+            overflow: visible !important;
+            break-inside: auto;
+            page-break-inside: auto;
+        }
+        pre,
+        code {
+            overflow: visible !important;
+            white-space: pre-wrap !important;
+            overflow-wrap: anywhere !important;
+        }
         @page {
           size: A4;
           margin: ${printMargin};
@@ -592,9 +609,6 @@ export function exportPDF(content: string) {
             display: table-header-group;
           }
           ${pageAutoBreak}
-          .chat-container {
-            break-inside: avoid;
-          }
           .page-break {
             break-before: page;
             page-break-before: always;
@@ -767,6 +781,23 @@ export function exportPDFByTauri(content: string) {
       <style>
         ${pdfchapter}
         ${chatVarCss}
+        pre::before {
+            content: "\u200B";
+        }
+        .chat-container::before {
+            content: "\u200B";
+        }
+        pre {
+            overflow: visible !important;
+            break-inside: auto;
+            page-break-inside: auto;
+        }
+        pre,
+        code {
+            overflow: visible !important;
+            white-space: pre-wrap !important;
+            overflow-wrap: anywhere !important;
+        }
         @page {
           size: A4;
           margin: ${printMargin};
@@ -821,9 +852,6 @@ export function exportPDFByTauri(content: string) {
             display: table-header-group;
           }
           ${pageAutoBreak}
-          .chat-container {
-            break-inside: avoid;
-          }
           .page-break {
             break-before: page;
             page-break-before: always;
