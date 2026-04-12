@@ -1066,6 +1066,9 @@ export function processClipboardContent(primaryColor: string) {
 export function processClipboardToHtmlFile(_primaryColor: string) {
   const clipboardDiv = document.getElementById(`output`)!
 
+  const hljsStyle = document.getElementById(`hljs`)
+  const hljsCssText = hljsStyle ? hljsStyle.innerHTML : ``
+
   clipboardDiv.innerHTML = modifyHtmlStructure(mergeCssWhenToHtmlFile(clipboardDiv.innerHTML, checkNeedFontawesomeClass(clipboardDiv)))
 
   clipboardDiv.innerHTML = clipboardDiv.innerHTML
@@ -1110,6 +1113,7 @@ export function processClipboardToHtmlFile(_primaryColor: string) {
   return [
     hasAdmonition && admonition_css,
     hasChat && chatMessage_css,
+    hljsCssText,
   ].filter(Boolean).join(``)
 }
 
