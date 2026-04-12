@@ -30,7 +30,7 @@ export default function renderCsvTable(text: string, stylesFN: StylesFn): string
 
   const [header, ...rows] = all
 
-  let output = `<section style="padding:0 8px; max-width: 100%; overflow: auto"><table class="preview-table" style="border-collaps: collapse; table-layout: fixed; width: 100%">`
+  let output = `<section style="padding:0 8px; max-width: 100%; overflow: auto"><table class="preview-table" style="border-collapse: collapse; table-layout: fixed; width: 100%">`
   const isTable = header[0] !== `cols`
   if (isTable) {
     output += `<thead ${stylesFN(`thead`)}>`

@@ -174,7 +174,8 @@ function convertHighlightToInlineStyles(container: HTMLElement) {
       .join(` `)
 
     // 合并现有 style 属性（如有）
-    el.setAttribute(`style`, `${el.getAttribute(`style`) || ``}; ${inlineStyle}`)
+    const existing = el.getAttribute(`style`)
+    el.setAttribute(`style`, existing ? `${existing} ${inlineStyle}` : inlineStyle)
   })
 }
 
