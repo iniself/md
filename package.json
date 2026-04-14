@@ -47,6 +47,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@ssttevee/multipart-parser": "^0.1.9",
     "@vee-validate/yup": "^4.15.0",
+    "@vivliostyle/print": "^2.41.0",
     "@vueuse/core": "^12.5.0",
     "axios": "^1.8.4",
     "browser-image-compression": "^2.0.2",

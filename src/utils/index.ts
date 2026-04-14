@@ -2,25 +2,26 @@ import type { PropertiesHyphen } from 'csstype'
 import type { ReadTimeResults } from 'reading-time'
 
 import fontawesome_css from '@fortawesome/fontawesome-free/css/all.min.css?inline'
+import { printHTML } from '@vivliostyle/print'
 import DOMPurify from 'isomorphic-dompurify'
 import juice from 'juice'
-import { Marked, marked } from 'marked'
 
+import { Marked, marked } from 'marked'
 import * as prettierPluginBabel from 'prettier/plugins/babel'
 import * as prettierPluginEstree from 'prettier/plugins/estree'
 import * as prettierPluginMarkdown from 'prettier/plugins/markdown'
 import * as prettierPluginCss from 'prettier/plugins/postcss'
 import { format } from 'prettier/standalone'
 import { prefix } from '@/config/prefix'
-import pagedjs from '@/lib/paged.min.js?raw'
 import type { Block, ExtendedProperties, Inline, Theme } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 import { addSpacingToMarkdown } from '@/utils/autoSpace'
 import admonition_css from './admonition/index.css?inline'
 import chatMessage_css from './chatMessage/index.css?inline'
 import markedAlert from './MDAlert'
-
 import { MDKatex } from './MDKatex'
+
+import { createPDFBody, tailDoc } from './print/body'
 
 import { getOrRenderInfographicSvg, getOrRenderMermaidSvg } from './svgResolver'
 
@@ -424,217 +425,20 @@ export function exportPDF(content: string) {
     safeTitle = sanitizeTitle(store.currentPdfTitle)
   }
 
-  // 创建新窗口用于打印
-  const printWindow = window.open(``, `_blank`)
-  if (!printWindow) {
-    console.error(`无法打开打印窗口`)
-    return
-  }
-
   const printMargin = store.printMargin ? store.printMargin : `0px`
 
-  let topCenter = ``
-  if (safeTitle) {
-    topCenter = `
-      @top-center {
-        content: "${safeTitle}";
-        font-size: 10px;
-        color: #666;
-        font-style: italic;
-      }
-    `
+  const options = {
+    topLeft: store.topLeft,
+    topRight: store.topRight,
+    bottomLeft: store.bottomLeft,
+    bottomRight: store.bottomRight,
+    isPageBreak: store.isPageBreak,
   }
+  const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin)
 
-  let topLeft = ``
-  if (store.topLeft) {
-    topLeft = `
-      @top-left {
-        content: "${store.topLeft}";
-        font-size: 10px;
-        color: #666;
-        font-style: italic;
-      }
-    `
-  }
-
-  let pdfchapter = ``
-
-  let topRight = ``
-  if (store.topRight) {
-    if (store.topRight === `h1` || store.topRight === `h2`) {
-      pdfchapter = `
-        ${store.topRight} {
-          string-set: chapter content();
-        }
-      `
-      topRight = `
-        @top-right {
-          content: string(chapter);
-          font-size: 10px;
-          color: #666;
-          font-style: italic;
-        }
-      `
-    }
-    else {
-      topRight = `
-        @top-right {
-          content: "${store.topRight}";
-          font-size: 10px;
-          color: #666;
-          font-style: italic;
-        }
-      `
-    }
-  }
-
-  let bottomLeft = ``
-  if (store.bottomLeft) {
-    bottomLeft = `
-      @bottom-left {
-        content: "${store.bottomLeft}";
-        font-size: 10px;
-        color: #999;
-      }
-    `
-  }
-
-  let pageAutoBreak = ``
-  if (store.isPageBreak) {
-    pageAutoBreak = `
-        h1 {
-          break-after: avoid;
-          break-inside: avoid;
-          break-before: page;
-          page-break-after: avoid;
-          page-break-inside: avoid;
-          page-break-before: always;
-        }
-        h1:first-child {
-          break-before: auto;
-          page-break-before: auto;
-        }
-    `
-  }
-
-  let bottomRight = ``
-  if (store.bottomRight) {
-    bottomRight = `
-      @bottom-right {
-        content: ${store.bottomRight};
-        font-size: 10px;
-        color: #999;
-      }
-    `
-  }
-
-  // 写入HTML内容，包含自定义页眉页脚
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>${safeTitle}</title>
-      <style>
-        ${pdfchapter}
-        ${chatVarCss}
-        pre::before {
-            content: "\u200B";
-        }
-        .chat-container::before {
-            content: "\u200B";
-        }
-        pre {
-            overflow: visible !important;
-            break-inside: auto;
-            page-break-inside: auto;
-        }
-        pre,
-        code {
-            overflow: visible !important;
-            white-space: pre-wrap !important;
-            overflow-wrap: anywhere !important;
-        }
-        @page {
-          size: A4;
-          margin: ${printMargin};
-          ${topLeft}
-          ${topRight}
-          ${topCenter}
-          ${bottomLeft}
-          ${bottomRight}
-        }
-        @page :blank {
-          @top-left { content: none; }
-          @top-center { content: none; }
-          @top-right { content: none; }
-          @bottom-left { content: none; }
-          @bottom-center { content: none; }
-          @bottom-right { content: none; }
-        }          
-        @media print {
-          html, body {
-            height: auto !important;
-            min-height: auto !important;
-            max-height: none !important;
-          }
-          body { 
-            margin: 0; 
-          }
-          * {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          .no-print, nav, footer, .buttons, .ads {
-            display: none !important;
-          }
-          a[href]:not([href^="#"]):after {
-            content: " (" attr(href) ")";
-            font-size: 10pt;
-          }
-          img {
-            max-width: 100%;
-            page-break-inside: avoid;
-          }
-          table {
-            page-break-inside: avoid;
-          }
-          tr, td, th {
-            page-break-inside: avoid;
-          }
-          tfoot {
-            display: table-footer-group;
-          }
-          thead {
-            display: table-header-group;
-          }
-          ${pageAutoBreak}
-          .page-break {
-            break-before: page;
-            page-break-before: always;
-          }
-          p {
-            text-align-last: left;
-          }
-          .chat-container .message:not(:has(.avatar)) .message-content-left {
-            padding-left: calc(var(--chat-avatar) + 6px);
-          }
-          .chat-container .message:not(:has(.avatar)) .message-content-right {
-            padding-right: calc(var(--chat-avatar) + 6px);
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div style="width: 100%; max-width: 750px; margin: auto;">
-        ${htmlStr}
-      </div>
-    </body>
-    <script>
-      ${pagedjs}
+  const scriptDoc = `
+      <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const previewer = new PagedModule.Previewer()
-        await previewer.preview()
         if(${store.isElectron}){
           if(window.electronAPI){
             await window.electronAPI.printToPdf("${store.posts[store.currentPostIndex].title}")
@@ -656,10 +460,51 @@ export function exportPDF(content: string) {
         }
       })
     </script>
-    </html>
-  `)
+  `
 
-  printWindow.document.close()
+  const htmlDoc = bodyDoc + tailDoc
+  const electronDoc = bodyDoc + scriptDoc + tailDoc
+
+  if (store.isElectron) {
+    printHTML(electronDoc, {
+      title: safeTitle,
+      printCallback: (iframeWin: Window) => {
+        iframeWin.document.title = safeTitle
+        const electronPDF = iframeWin.document.documentElement.outerHTML
+        const printWindow = window.open(``, `_blank`)
+        if (!printWindow) {
+          console.error(`无法打开打印窗口`)
+          return
+        }
+        printWindow.document.write(electronPDF)
+        printWindow.document.close()
+      },
+      errorCallback: (err: unknown) => {
+        console.error(err)
+      },
+    })
+  }
+  else {
+    const oldTitle = document.title
+    document.title = safeTitle
+    printHTML(htmlDoc, {
+      title: safeTitle,
+      printCallback: (iframeWin: Window) => {
+        iframeWin.document.title = safeTitle
+        iframeWin.print()
+        document.title = oldTitle
+
+        setTimeout(() => {
+          const iframes = document.querySelectorAll(`iframe`)
+          iframes.forEach(f => f.remove())
+        }, 500)
+      },
+      errorCallback: (err: unknown) => {
+        document.title = oldTitle
+        console.error(err)
+      },
+    })
+  }
 }
 
 export function exportPDFByTauri(content: string) {
@@ -676,208 +521,18 @@ export function exportPDFByTauri(content: string) {
 
   const printMargin = store.printMargin ? store.printMargin : `0px`
 
-  let topCenter = ``
-  if (safeTitle) {
-    topCenter = `
-      @top-center {
-        content: "${safeTitle}";
-        font-size: 10px;
-        color: #666;
-        font-style: italic;
-      }
-    `
+  const options = {
+    topLeft: store.topLeft,
+    topRight: store.topRight,
+    bottomLeft: store.bottomLeft,
+    bottomRight: store.bottomRight,
+    isPageBreak: store.isPageBreak,
   }
+  const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin)
 
-  let topLeft = ``
-  if (store.topLeft) {
-    topLeft = `
-      @top-left {
-        content: "${store.topLeft}";
-        font-size: 10px;
-        color: #666;
-        font-style: italic;
-      }
-    `
-  }
-
-  let pdfchapter = ``
-
-  let topRight = ``
-  if (store.topRight) {
-    if (store.topRight === `h1` || store.topRight === `h2`) {
-      pdfchapter = `
-        ${store.topRight} {
-          string-set: chapter content();
-        }
-      `
-      topRight = `
-        @top-right {
-          content: string(chapter);
-          font-size: 10px;
-          color: #666;
-          font-style: italic;
-        }
-      `
-    }
-    else {
-      topRight = `
-        @top-right {
-          content: "${store.topRight}";
-          font-size: 10px;
-          color: #666;
-          font-style: italic;
-        }
-      `
-    }
-  }
-
-  let bottomLeft = ``
-  if (store.bottomLeft) {
-    bottomLeft = `
-      @bottom-left {
-        content: "${store.bottomLeft}";
-        font-size: 10px;
-        color: #999;
-      }
-    `
-  }
-
-  let pageAutoBreak = ``
-  if (store.isPageBreak) {
-    pageAutoBreak = `
-        h1 {
-          break-after: avoid;
-          break-inside: avoid;
-          break-before: page;
-          page-break-after: avoid;
-          page-break-inside: avoid;
-          page-break-before: always;
-        }
-        h1:first-child {
-          break-before: auto;
-          page-break-before: auto;
-        }
-    `
-  }
-
-  let bottomRight = ``
-  if (store.bottomRight) {
-    bottomRight = `
-      @bottom-right {
-        content: ${store.bottomRight};
-        font-size: 10px;
-        color: #999;
-      }
-    `
-  }
-
-  // 写入HTML内容，包含自定义页眉页脚
-  const printHtml = (`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>${safeTitle}</title>
-      <style>
-        ${pdfchapter}
-        ${chatVarCss}
-        pre::before {
-            content: "\u200B";
-        }
-        .chat-container::before {
-            content: "\u200B";
-        }
-        pre {
-            overflow: visible !important;
-            break-inside: auto;
-            page-break-inside: auto;
-        }
-        pre,
-        code {
-            overflow: visible !important;
-            white-space: pre-wrap !important;
-            overflow-wrap: anywhere !important;
-        }
-        @page {
-          size: A4;
-          margin: ${printMargin};
-          ${topLeft}
-          ${topRight}
-          ${topCenter}
-          ${bottomLeft}
-          ${bottomRight}
-        }
-        @page :blank {
-          @top-left { content: none; }
-          @top-center { content: none; }
-          @top-right { content: none; }
-          @bottom-left { content: none; }
-          @bottom-center { content: none; }
-          @bottom-right { content: none; }
-        }          
-        @media print {
-          html, body {
-            height: auto !important;
-            min-height: auto !important;
-            max-height: none !important;
-          }
-          body { 
-            margin: 0; 
-          }
-          * {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          .no-print, nav, footer, .buttons, .ads {
-            display: none !important;
-          }
-          a[href]:not([href^="#"]):after {
-            content: " (" attr(href) ")";
-            font-size: 10pt;
-          }
-          img {
-            max-width: 100%;
-            page-break-inside: avoid;
-          }
-          table {
-            page-break-inside: avoid;
-          }
-          tr, td, th {
-            page-break-inside: avoid;
-          }
-          tfoot {
-            display: table-footer-group;
-          }
-          thead {
-            display: table-header-group;
-          }
-          ${pageAutoBreak}
-          .page-break {
-            break-before: page;
-            page-break-before: always;
-          }
-          p {
-            text-align-last: left;
-          }
-          .chat-container .message:not(:has(.avatar)) .message-content-left {
-            padding-left: calc(var(--chat-avatar) + 6px);
-          }
-          .chat-container .message:not(:has(.avatar)) .message-content-right {
-            padding-right: calc(var(--chat-avatar) + 6px);
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div style="width: 100%; max-width: 750px; margin: auto;">
-        ${htmlStr}
-      </div>
-    </body>
-    <script>
-      ${pagedjs}
+  const scriptDoc = `
+      <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const previewer = new PagedModule.Previewer()
-        await previewer.preview()
         window.onafterprint = () => window.close()
         window.print()
         setTimeout(() => {
@@ -885,9 +540,21 @@ export function exportPDFByTauri(content: string) {
         }, 50)
       })
     </script>
-    </html>
-  `);
-  (window as any).__TAURI__.core.invoke(`print_html`, { html: printHtml })
+  `
+
+  const tauriDoc = bodyDoc + scriptDoc + tailDoc
+
+  printHTML(tauriDoc, {
+    title: safeTitle,
+    printCallback: (iframeWin: Window) => {
+      iframeWin.document.title = safeTitle
+      const printHtml = iframeWin.document.documentElement.outerHTML;
+      (window as any).__TAURI__.core.invoke(`print_html`, { html: printHtml })
+    },
+    errorCallback: (err: unknown) => {
+      console.error(err)
+    },
+  })
 }
 
 export function checkImage(file: File) {

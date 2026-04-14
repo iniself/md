@@ -22,7 +22,7 @@ export default function markedPageBreakExtension(): MarkedExtension {
         },
 
         renderer(_token: Tokens.Generic) {
-          return `<p class="page-break" style="display: none;"></p>`
+          return `<p class="page-break" style="width: 0px;height: 0px"></p>`
         },
       },
     ],
