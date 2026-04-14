@@ -413,6 +413,15 @@ export function extractAllCSSVariables(cssText: string) {
  * 导出 PDF 文档
  * @param {string} content
  */
+
+declare global {
+  interface Window {
+    electronAPI?: {
+      printHtmlToPdf: (title: string, electronPDF: string) => Promise<any>
+    }
+  }
+}
+
 export function exportPDF(content: string) {
   const store = useStore()
   const htmlStr = content
@@ -436,48 +445,20 @@ export function exportPDF(content: string) {
   }
   const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin)
 
-  const scriptDoc = `
-      <script>
-      document.addEventListener("DOMContentLoaded", async () => {
-        if(${store.isElectron}){
-          if(window.electronAPI){
-            await window.electronAPI.printToPdf("${store.posts[store.currentPostIndex].title}")
-            window.close()
-          }else{
-            console.warn('⚠️ electronAPI 不存在，执行原生打印');
-            window.onafterprint = () => window.close()
-            window.print()
-            setTimeout(() => {
-              try { window.close() } catch (e) {}
-            }, 50)
-          }
-        }else{
-          window.onafterprint = () => window.close()
-          window.print()
-          setTimeout(() => {
-            try { window.close() } catch (e) {}
-          }, 50)
-        }
-      })
-    </script>
-  `
-
   const htmlDoc = bodyDoc + tailDoc
-  const electronDoc = bodyDoc + scriptDoc + tailDoc
 
-  if (store.isElectron) {
-    printHTML(electronDoc, {
+  const electronAPI = window.electronAPI
+  if (store.isElectron && electronAPI) {
+    printHTML(htmlDoc, {
       title: safeTitle,
-      printCallback: (iframeWin: Window) => {
+      printCallback: async (iframeWin: Window) => {
         iframeWin.document.title = safeTitle
         const electronPDF = iframeWin.document.documentElement.outerHTML
-        const printWindow = window.open(``, `_blank`)
-        if (!printWindow) {
-          console.error(`无法打开打印窗口`)
-          return
-        }
-        printWindow.document.write(electronPDF)
-        printWindow.document.close()
+        await electronAPI.printHtmlToPdf(store.posts[store.currentPostIndex].title, electronPDF)
+        setTimeout(() => {
+          const iframes = document.querySelectorAll(`iframe`)
+          iframes.forEach(f => f.remove())
+        }, 500)
       },
       errorCallback: (err: unknown) => {
         console.error(err)
@@ -550,6 +531,11 @@ export function exportPDFByTauri(content: string) {
       iframeWin.document.title = safeTitle
       const printHtml = iframeWin.document.documentElement.outerHTML;
       (window as any).__TAURI__.core.invoke(`print_html`, { html: printHtml })
+
+      setTimeout(() => {
+        const iframes = document.querySelectorAll(`iframe`)
+        iframes.forEach(f => f.remove())
+      }, 500)
     },
     errorCallback: (err: unknown) => {
       console.error(err)
