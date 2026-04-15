@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Info } from 'lucide-vue-next'
 import { onMounted } from 'vue'
+import { usePDFExportStore } from '@/stores/pdf'
 
 const props = defineProps({
   visible: {
@@ -12,6 +13,7 @@ const props = defineProps({
 const emit = defineEmits([`close`, `startpdf`])
 
 const store = useStore()
+const pdfExportStore = usePDFExportStore()
 
 function onUpdate(val: boolean) {
   if (!val) {
@@ -124,14 +126,21 @@ onMounted(() => {
       <DialogFooter class="sm:justify-evenly">
         <Button
           variant="destructive"
+          :disabled="pdfExportStore.exporting"
           @click="store.resetPdfConfig()"
         >
           重置
         </Button>
         <Button
+          :disabled="pdfExportStore.exporting"
           @click="emit(`startpdf`)"
         >
-          导出
+          <span v-if="pdfExportStore.exporting">
+            ⏳ 导出中...
+          </span>
+          <span v-if="!pdfExportStore.exporting">
+            导出
+          </span>
         </Button>
       </DialogFooter>
     </DialogContent>

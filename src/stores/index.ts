@@ -2,8 +2,8 @@ import CodeMirror from 'codemirror'
 import { toPng } from 'html-to-image'
 import { v4 as uuid } from 'uuid'
 import DEFAULT_CONTENT from '@/assets/example/markdown.md?raw'
-
 import DEFAULT_CSS_CONTENT from '@/assets/example/theme-css.txt?raw'
+
 import {
   altKey,
   defaultStyleConfig,
@@ -18,6 +18,7 @@ import {
   DEFAULT_TOP_LEFT,
   DEFAULT_TOP_RIGHT,
 } from '@/constants/PDFConfig'
+import { usePDFExportStore } from '@/stores/pdf'
 
 import {
   addPrefix,
@@ -733,12 +734,19 @@ export const useStore = defineStore(`store`, () => {
   // 导出编辑器内容为 PDF
   async function export2PDF(emit: any) {
     // 放入拷贝 html 的逻辑代码
-    const fullHtml = await copy(`pdf`, emit)
-    if (isTauri.value) {
-      exportPDFByTauri(fullHtml!)
+    const pdfExportStore = usePDFExportStore()
+    pdfExportStore.start()
+    try {
+      const fullHtml = await copy(`pdf`, emit)
+      if (isTauri.value) {
+        await exportPDFByTauri(fullHtml!)
+      }
+      else {
+        await exportPDF(fullHtml!)
+      }
     }
-    else {
-      exportPDF(fullHtml!)
+    finally {
+      pdfExportStore.end()
     }
   }
 

@@ -424,122 +424,132 @@ declare global {
 
 export function exportPDF(content: string) {
   const store = useStore()
-  const htmlStr = content
-  const hasChat = htmlStr.includes(`chat-container`)
-  const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
+  return new Promise<void>((resolve, reject) => {
+    const htmlStr = content
+    const hasChat = htmlStr.includes(`chat-container`)
+    const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
 
-  let safeTitle = ``
+    let safeTitle = ``
 
-  if (store.currentPdfTitle) {
-    safeTitle = sanitizeTitle(store.currentPdfTitle)
-  }
+    if (store.currentPdfTitle) {
+      safeTitle = sanitizeTitle(store.currentPdfTitle)
+    }
 
-  const printMargin = store.printMargin ? store.printMargin : `0px`
+    const printMargin = store.printMargin ? store.printMargin : `0px`
 
-  const options = {
-    topLeft: store.topLeft,
-    topRight: store.topRight,
-    bottomLeft: store.bottomLeft,
-    bottomRight: store.bottomRight,
-    isPageBreak: store.isPageBreak,
-  }
-  const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin)
+    const options = {
+      topLeft: store.topLeft,
+      topRight: store.topRight,
+      bottomLeft: store.bottomLeft,
+      bottomRight: store.bottomRight,
+      isPageBreak: store.isPageBreak,
+    }
+    const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin)
 
-  const htmlDoc = bodyDoc + tailDoc
+    const htmlDoc = bodyDoc + tailDoc
 
-  const electronAPI = window.electronAPI
-  if (store.isElectron && electronAPI) {
-    printHTML(htmlDoc, {
-      title: safeTitle,
-      printCallback: async (iframeWin: Window) => {
-        iframeWin.document.title = safeTitle
-        const electronPDF = iframeWin.document.documentElement.outerHTML
-        await electronAPI.printHtmlToPdf(store.posts[store.currentPostIndex].title, electronPDF)
-        setTimeout(() => {
-          const iframes = document.querySelectorAll(`iframe`)
-          iframes.forEach(f => f.remove())
-        }, 500)
-      },
-      errorCallback: (err: unknown) => {
-        console.error(err)
-      },
-    })
-  }
-  else {
-    const oldTitle = document.title
-    document.title = safeTitle
-    printHTML(htmlDoc, {
-      title: safeTitle,
-      printCallback: (iframeWin: Window) => {
-        iframeWin.document.title = safeTitle
-        iframeWin.print()
-        document.title = oldTitle
+    const electronAPI = window.electronAPI
+    if (store.isElectron && electronAPI) {
+      printHTML(htmlDoc, {
+        title: safeTitle,
+        printCallback: async (iframeWin: Window) => {
+          iframeWin.document.title = safeTitle
+          const electronPDF = iframeWin.document.documentElement.outerHTML
+          await electronAPI.printHtmlToPdf(store.posts[store.currentPostIndex].title, electronPDF)
+          setTimeout(() => {
+            const iframes = document.querySelectorAll(`iframe`)
+            iframes.forEach(f => f.remove())
+          }, 500)
+          resolve()
+        },
+        errorCallback: (err: unknown) => {
+          console.error(err)
+          reject(err)
+        },
+      })
+    }
+    else {
+      const oldTitle = document.title
+      document.title = safeTitle
+      printHTML(htmlDoc, {
+        title: safeTitle,
+        printCallback: (iframeWin: Window) => {
+          iframeWin.document.title = safeTitle
+          iframeWin.print()
+          document.title = oldTitle
 
-        setTimeout(() => {
-          const iframes = document.querySelectorAll(`iframe`)
-          iframes.forEach(f => f.remove())
-        }, 500)
-      },
-      errorCallback: (err: unknown) => {
-        document.title = oldTitle
-        console.error(err)
-      },
-    })
-  }
+          setTimeout(() => {
+            const iframes = document.querySelectorAll(`iframe`)
+            iframes.forEach(f => f.remove())
+          }, 500)
+          resolve()
+        },
+        errorCallback: (err: unknown) => {
+          document.title = oldTitle
+          console.error(err)
+          reject(err)
+        },
+      })
+    }
+  })
 }
 
 export function exportPDFByTauri(content: string) {
   const store = useStore()
-  const htmlStr = content
-  const hasChat = htmlStr.includes(`chat-container`)
-  const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
+  return new Promise<void>((resolve, reject) => {
+    const htmlStr = content
+    const hasChat = htmlStr.includes(`chat-container`)
+    const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
 
-  let safeTitle = ``
+    let safeTitle = ``
 
-  if (store.currentPdfTitle) {
-    safeTitle = sanitizeTitle(store.currentPdfTitle)
-  }
+    if (store.currentPdfTitle) {
+      safeTitle = sanitizeTitle(store.currentPdfTitle)
+    }
 
-  const printMargin = store.printMargin ? store.printMargin : `0px`
+    const printMargin = store.printMargin ? store.printMargin : `0px`
 
-  const options = {
-    topLeft: store.topLeft,
-    topRight: store.topRight,
-    bottomLeft: store.bottomLeft,
-    bottomRight: store.bottomRight,
-    isPageBreak: store.isPageBreak,
-  }
-  const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin)
+    const options = {
+      topLeft: store.topLeft,
+      topRight: store.topRight,
+      bottomLeft: store.bottomLeft,
+      bottomRight: store.bottomRight,
+      isPageBreak: store.isPageBreak,
+    }
+    const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin)
 
-  const scriptDoc = `
-      <script>
-      document.addEventListener("DOMContentLoaded", async () => {
-        window.onafterprint = () => window.close()
-        window.print()
+    const scriptDoc = `
+        <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+          window.onafterprint = () => window.close()
+          window.print()
+          setTimeout(() => {
+            try { window.close() } catch (e) {}
+          }, 50)
+        })
+      </script>
+    `
+
+    const tauriDoc = bodyDoc + scriptDoc + tailDoc
+
+    printHTML(tauriDoc, {
+      title: safeTitle,
+      printCallback: (iframeWin: Window) => {
+        iframeWin.document.title = safeTitle
+        const printHtml = iframeWin.document.documentElement.outerHTML;
+        (window as any).__TAURI__.core.invoke(`print_html`, { html: printHtml })
+
         setTimeout(() => {
-          try { window.close() } catch (e) {}
-        }, 50)
-      })
-    </script>
-  `
-
-  const tauriDoc = bodyDoc + scriptDoc + tailDoc
-
-  printHTML(tauriDoc, {
-    title: safeTitle,
-    printCallback: (iframeWin: Window) => {
-      iframeWin.document.title = safeTitle
-      const printHtml = iframeWin.document.documentElement.outerHTML;
-      (window as any).__TAURI__.core.invoke(`print_html`, { html: printHtml })
-
-      setTimeout(() => {
-        const iframes = document.querySelectorAll(`iframe`)
-        iframes.forEach(f => f.remove())
-      }, 500)
-    },
-    errorCallback: (err: unknown) => {
-      console.error(err)
-    },
+          const iframes = document.querySelectorAll(`iframe`)
+          iframes.forEach(f => f.remove())
+        }, 500)
+        resolve()
+      },
+      errorCallback: (err: unknown) => {
+        console.error(err)
+        reject(err)
+      },
+    })
   })
 }
 
