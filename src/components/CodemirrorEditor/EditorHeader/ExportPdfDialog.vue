@@ -29,7 +29,7 @@ onMounted(() => {
 
 <template>
   <Dialog :open="props.visible" @update:open="onUpdate">
-    <DialogContent class="bg-card text-card-foreground h-dvh max-h-dvh w-full flex flex-col rounded-none shadow-xl sm:max-h-[80vh] sm:max-w-2xl sm:rounded-xl">
+    <DialogContent class="bg-card text-card-foreground max-h-dvh w-full flex flex-col rounded-none shadow-xl sm:max-h-[80vh] sm:max-w-2xl sm:rounded-xl">
       <DialogHeader class="space-y-1 flex flex-col items-start">
         <DialogTitle>Docs<sup style="color:red">+</sup></DialogTitle>
         <DialogDescription>设置 PDF 参数</DialogDescription>
