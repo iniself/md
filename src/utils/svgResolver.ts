@@ -115,6 +115,86 @@ const infographicCache = new Map<string, string>()
 let lastRenderedInfographic: string | null = null
 const infographicClassName = `infographic-diagram`
 
+function fixSvgGradientFromDom(svgEl: SVGSVGElement): SVGSVGElement {
+  const gradientMap = new Map<string, boolean>()
+
+  let defs = svgEl.querySelector(`defs`) as SVGDefsElement | null
+
+  if (!defs) {
+    defs = document.createElementNS(
+      `http://www.w3.org/2000/svg`,
+      `defs`,
+    ) as SVGDefsElement
+
+    svgEl.insertBefore(defs, svgEl.firstChild)
+  }
+
+  const elements = svgEl.querySelectorAll<SVGElement>(`[stroke],[fill]`)
+
+  elements.forEach((el: SVGElement) => {
+    ([`stroke`, `fill`] as const).forEach((attr) => {
+      const val = el.getAttribute(attr)
+      if (!val)
+        return
+
+      const match = val.match(
+        /data:image\/svg\+xml;charset=utf-8,([\s\S]*?)(?:"|')?\)/,
+      )
+      if (!match)
+        return
+
+      const decoded = decodeURIComponent(match[1])
+
+      const idMatch = decoded.match(/#([\w-]+)$/)
+      const refId = idMatch?.[1]
+
+      const gradients = decoded.match(
+        /<linearGradient[\s\S]*?<\/linearGradient>/g,
+      )
+      if (gradients) {
+        gradients.forEach((grad) => {
+          const idMatch = grad.match(/id="([^"]+)"/)
+          if (!idMatch)
+            return
+
+          const id = idMatch[1]
+
+          if (!gradientMap.has(id)) {
+            gradientMap.set(id, true)
+
+            const temp = document.createElementNS(
+              `http://www.w3.org/2000/svg`,
+              `g`,
+            )
+            temp.innerHTML = grad
+
+            const node = temp.firstElementChild
+            if (node) {
+              const gradEl = node as SVGLinearGradientElement
+
+              const originalId = gradEl.getAttribute(`id`)
+              if (originalId) {
+                gradEl.setAttribute(`data-origin-id`, originalId)
+              }
+
+              gradEl.setAttribute(`data-fixed-def`, gradEl.tagName.toLowerCase())
+              defs!.appendChild(gradEl)
+            }
+          }
+        })
+      }
+
+      if (refId) {
+        el.setAttribute(attr, `url(#${refId})`)
+        el.setAttribute(`data-origin-${attr}`, refId)
+        el.setAttribute(`data-fixed-ref`, attr)
+      }
+    })
+  })
+
+  return svgEl
+}
+
 async function renderInfographic(containerId: string, code: string, cacheKey: string, options?: InfographicOptions) {
   if (typeof window === `undefined`)
     return
@@ -159,7 +239,7 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
 
         instance.on(`loaded`, ({ node }) => {
           exportToSVG(node, { removeIds: true }).then((svg) => {
-            container.replaceChildren(svg)
+            container.replaceChildren(fixSvgGradientFromDom(svg))
             infographicCache.set(cacheKey, container.innerHTML)
             lastRenderedInfographic = container.innerHTML
           })

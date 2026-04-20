@@ -335,7 +335,6 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
                 citeStatusChanged()
                 changeCiteStatusWhenCopy = true
                 const exportPDFFile = await copy(mode, emit)
-                toast.success(`已导出 HTML`)
                 resolve(exportPDFFile)
               }
               if (!isCiteStatus.value) {

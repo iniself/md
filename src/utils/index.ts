@@ -474,6 +474,15 @@ export function exportPDF(content: string) {
       printHTML(htmlDoc, {
         title: safeTitle,
         printCallback: (iframeWin: Window) => {
+          iframeWin.document.documentElement.querySelectorAll(`[data-fixed-ref]`).forEach((el) => {
+            const which = el.getAttribute(`data-fixed-ref`) || ``
+            if (!which) {
+              return
+            }
+            const origin = el.getAttribute(`data-origin-${which}`)
+            el.setAttribute(which, `url(#${origin})`)
+          })
+
           iframeWin.document.title = safeTitle
           iframeWin.print()
           document.title = oldTitle
