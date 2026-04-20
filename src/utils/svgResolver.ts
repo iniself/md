@@ -1,6 +1,7 @@
 import { exportToSVG, Infographic, loadSVGResource, registerResourceLoader, setDefaultFont, setFontExtendFactor } from '@antv/infographic'
 import { Marked } from 'marked'
 import mermaid from 'mermaid'
+import { infographicClassName } from '@/config/infographicConfig'
 import markedTextExtension from './MDTextExtension'
 
 function simpleHash(str: string): string {
@@ -113,7 +114,6 @@ registerResourceLoader(async (config) => {
 
 const infographicCache = new Map<string, string>()
 let lastRenderedInfographic: string | null = null
-const infographicClassName = `infographic-diagram`
 
 function fixSvgGradientFromDom(svgEl: SVGSVGElement): SVGSVGElement {
   const gradientMap = new Map<string, boolean>()

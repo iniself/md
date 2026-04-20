@@ -12,17 +12,20 @@ import * as prettierPluginEstree from 'prettier/plugins/estree'
 import * as prettierPluginMarkdown from 'prettier/plugins/markdown'
 import * as prettierPluginCss from 'prettier/plugins/postcss'
 import { format } from 'prettier/standalone'
+import { infographicClassName } from '@/config/infographicConfig'
 import { prefix } from '@/config/prefix'
+import { hexToRgb } from '@/lib/utils'
 import type { Block, ExtendedProperties, Inline, Theme } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 import { addSpacingToMarkdown } from '@/utils/autoSpace'
 import admonition_css from './admonition/index.css?inline'
 import chatMessage_css from './chatMessage/index.css?inline'
+
 import markedAlert from './MDAlert'
+
 import { MDKatex } from './MDKatex'
 
 import { createPDFBody, tailDoc } from './print/body'
-
 import { getOrRenderInfographicSvg, getOrRenderMermaidSvg } from './svgResolver'
 
 export function addPrefix(str: string) {
@@ -622,6 +625,85 @@ export function solveWeChatImage(doc: Document, mode: string) {
       }
     })
   }
+}
+
+export function solveWeChatInfographic(doc: Document, mode: string) {
+  const infographicsContainer = doc.querySelectorAll(`.${infographicClassName}`)
+
+  if (mode !== `txt`)
+    return
+
+  infographicsContainer.forEach((container) => {
+    const svgList = container.querySelectorAll<SVGSVGElement>(`svg`)
+
+    svgList.forEach((svg) => {
+      const defs = svg.querySelector(`defs`)
+      const gradients = svg.querySelectorAll<SVGLinearGradientElement>(`linearGradient`)
+
+      const gradientColorMap = new Map<string, { stroke: string, fill: string }>()
+
+      gradients.forEach((g) => {
+        const id = g.getAttribute(`id`)
+        if (!id)
+          return
+
+        const stops = Array.from(g.querySelectorAll(`stop`))
+
+        if (!stops.length)
+          return
+
+        const midIndex = Math.floor(stops.length / 2)
+
+        const midStop = stops[midIndex] || stops[0]
+
+        const baseColor = midStop.getAttribute(`stop-color`) || `#000`
+        const opacity = midStop.getAttribute(`stop-opacity`)
+
+        const strokeColor = baseColor
+
+        const fillOpacity
+          = opacity !== null
+            ? Math.min(Number.parseFloat(opacity), 0.25)
+            : 0.18
+
+        gradientColorMap.set(id, {
+          stroke: strokeColor,
+          fill: `rgba(${hexToRgb(baseColor)}, ${fillOpacity})`,
+        })
+      })
+
+      const targets = svg.querySelectorAll<SVGElement>(`[stroke],[fill]`)
+
+      targets.forEach((el) => {
+        ([`stroke`, `fill`] as const).forEach((attr) => {
+          const val = el.getAttribute(attr)
+          if (!val)
+            return
+
+          const match = val.match(/url\(#([^)]+)\)/)
+          if (!match)
+            return
+
+          const id = match[1]
+          const mapped = gradientColorMap.get(id)
+          if (!mapped)
+            return
+
+          if (attr === `stroke`) {
+            el.setAttribute(`stroke`, mapped.stroke)
+          }
+
+          if (attr === `fill`) {
+            el.setAttribute(`fill`, mapped.fill)
+          }
+        })
+      })
+
+      if (defs) {
+        defs.remove()
+      }
+    })
+  })
 }
 
 const ALL_CSS = `
