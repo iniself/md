@@ -627,6 +627,91 @@ export function solveWeChatImage(doc: Document, mode: string) {
   }
 }
 
+// 用 canvas 精确测量 baseline
+function getTextMetrics(text: string, fontSize: number, fontFamily: string = `sans-serif`): {
+  ascent: number
+  descent: number
+} {
+  const canvas: HTMLCanvasElement = document.createElement(`canvas`)
+  const ctx = canvas.getContext(`2d`)
+
+  if (!ctx) {
+    return {
+      ascent: fontSize * 0.8,
+      descent: fontSize * 0.2,
+    }
+  }
+
+  ctx.font = `${fontSize}px ${fontFamily}`
+
+  const metrics = ctx.measureText(text)
+
+  return {
+    ascent: metrics.actualBoundingBoxAscent || fontSize * 0.8,
+    descent: metrics.actualBoundingBoxDescent || fontSize * 0.2,
+  }
+}
+
+function convertForeignObjects(svg: SVGSVGElement): void {
+  const foreignObjects: NodeListOf<SVGForeignObjectElement> = svg.querySelectorAll(`foreignObject`)
+
+  foreignObjects.forEach((fo) => {
+    const span: HTMLSpanElement | null = fo.querySelector(`span`)
+    if (!span)
+      return
+
+    const textContent: string = span.textContent.trim()
+    if (!textContent)
+      return
+
+    const x: number = Number.parseFloat(fo.getAttribute(`x`) || `0`)
+    const y: number = Number.parseFloat(fo.getAttribute(`y`) || `0`)
+    const width: number = Number.parseFloat(fo.getAttribute(`width`) || `0`)
+
+    const style: CSSStyleDeclaration = span.style
+    const fontSize: number = Number.parseFloat(style.fontSize || `16`)
+    const color: string = style.color || `#000`
+
+    let lineHeight: number | string = style.lineHeight
+    if (lineHeight.includes(`px`)) {
+      lineHeight = Number.parseFloat(lineHeight)
+    }
+    else if (!Number.isNaN(Number.parseFloat(lineHeight))) {
+      lineHeight = Number.parseFloat(lineHeight) * fontSize
+    }
+    else {
+      lineHeight = fontSize * 1.4
+    }
+
+    const { ascent } = getTextMetrics(textContent, fontSize)
+
+    const finalX: number = x + width / 2
+
+    const finalY: number = y + (lineHeight - fontSize) / 2 + ascent
+
+    const textEl: SVGTextElement = document.createElementNS(
+      `http://www.w3.org/2000/svg`,
+      `text`,
+    )
+
+    textEl.setAttribute(`x`, String(finalX))
+    textEl.setAttribute(`y`, String(finalY))
+    textEl.setAttribute(`font-size`, String(fontSize))
+    textEl.setAttribute(`fill`, color)
+    textEl.setAttribute(`text-anchor`, `middle`)
+
+    const tspan = document.createElementNS(
+      `http://www.w3.org/2000/svg`,
+      `tspan`,
+    )
+    tspan.textContent = textContent
+
+    textEl.appendChild(tspan)
+
+    fo.parentNode?.replaceChild(textEl, fo)
+  })
+}
+
 export function solveWeChatInfographic(doc: Document, mode: string) {
   const infographicsContainer = doc.querySelectorAll(`.${infographicClassName}`)
 
@@ -637,6 +722,7 @@ export function solveWeChatInfographic(doc: Document, mode: string) {
     const svgList = container.querySelectorAll<SVGSVGElement>(`svg`)
 
     svgList.forEach((svg) => {
+      convertForeignObjects(svg)
       const defs = svg.querySelector(`defs`)
       const gradients = svg.querySelectorAll<SVGLinearGradientElement>(`linearGradient`)
 
