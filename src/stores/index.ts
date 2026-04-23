@@ -744,6 +744,11 @@ export const useStore = defineStore(`store`, () => {
       else {
         await exportPDF(fullHtml!)
       }
+      toast.success(`已导出 PDF`)
+    }
+    catch (err) {
+      toast.error(`导出 PDF 失败`)
+      console.error(err)
     }
     finally {
       pdfExportStore.end()
