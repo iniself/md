@@ -173,6 +173,7 @@ function cleanSection(container: Document) {
 }
 
 // 复制到微信公众号
+let isDarkToggle = false
 let changeCiteStatusWhenCopy = false
 export default async function copy(mode: string, emit: EmitFn): Promise<void | string> {
   // 如果是 Markdown 源码，直接复制并返回
@@ -203,9 +204,11 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
   return new Promise((resolve) => {
     // 如果是深色模式，复制之前需要先切换到白天模式
     const isBeforeDark = isDark.value
-    if (isBeforeDark) {
+    if (!isDarkToggle && isBeforeDark) {
       toggleDark()
+      isDarkToggle = true
     }
+
     setTimeout(() => {
       nextTick(async () => {
         let all_css = ``
@@ -501,8 +504,13 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
 
         clipboardDiv.innerHTML = output.value
 
-        if (isBeforeDark) {
-          nextTick(() => toggleDark())
+        if (isDarkToggle) {
+          if (!isDark.value) {
+            nextTick(() => {
+              toggleDark()
+              isDarkToggle = false
+            })
+          }
         }
 
         window.dispatchEvent(

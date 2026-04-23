@@ -310,6 +310,7 @@ function cleanSection(container: Document) {
 }
 
 // 复制到微信公众号
+let isDarkToggle = false
 let changeCiteStatusWhenCopy = false
 async function copy() {
   // 如果是 Markdown 源码，直接复制并返回
@@ -325,9 +326,11 @@ async function copy() {
 
   // 如果是深色模式，复制之前需要先切换到白天模式
   const isBeforeDark = isDark.value
-  if (isBeforeDark) {
+  if (!isDarkToggle && isBeforeDark) {
     toggleDark()
+    isDarkToggle = true
   }
+
   setTimeout(() => {
     nextTick(async () => {
       processClipboardContent(primaryColor.value)
@@ -517,8 +520,13 @@ async function copy() {
 
       clipboardDiv.innerHTML = output.value
 
-      if (isBeforeDark) {
-        nextTick(() => toggleDark())
+      if (isDarkToggle) {
+        if (!isDark.value) {
+          nextTick(() => {
+            toggleDark()
+            isDarkToggle = false
+          })
+        }
       }
 
       window.dispatchEvent(
