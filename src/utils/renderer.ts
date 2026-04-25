@@ -379,6 +379,10 @@ export function initRenderer(opts: IOpts): RendererAPI {
         //   mermaid 500
         //   mermaid 80%
         //   mermaid 100%x400
+        const store = useStore()
+        mermaid.initialize({
+          theme: store.isDark ? `dark` : `default`,
+        })
 
         // eslint-disable-next-line regexp/no-super-linear-backtracking
         const match = lang.match(/^mermaid(?:\s+([0-9%]+(?:x[0-9%]+)?))?(?:\s+(.*))?$/)
