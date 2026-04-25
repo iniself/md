@@ -43,6 +43,24 @@ interface mermaidOptions {
   backgroundColor?: string
 }
 
+function hasVisibleBackground(style: CSSStyleDeclaration): boolean {
+  const bg = style.backgroundColor
+
+  if (!bg)
+    return false
+
+  if (bg === `transparent`)
+    return false
+
+  if (bg.startsWith(`rgba`)) {
+    const alpha = Number.parseFloat(bg.split(`,`)[3])
+    if (alpha === 0)
+      return false
+  }
+
+  return true
+}
+
 function getTextMetrics(text: string, fontSize: number, fontFamily: string = `sans-serif`): {
   ascent: number
   descent: number
@@ -69,7 +87,7 @@ function getTextMetrics(text: string, fontSize: number, fontFamily: string = `sa
 
 export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
   const foreignObjects: NodeListOf<SVGForeignObjectElement> = svg.querySelectorAll(`foreignObject`)
-
+  document.body.appendChild(svg)
   foreignObjects.forEach((fo) => {
     const span: HTMLSpanElement | null = fo.querySelector(`span`)
     if (!span)
@@ -83,10 +101,12 @@ export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
     const y: number = Number.parseFloat(fo.getAttribute(`y`) || `0`)
     const width: number = Number.parseFloat(fo.getAttribute(`width`) || `0`)
 
-    const style: CSSStyleDeclaration = span.style
+    const style: CSSStyleDeclaration = window.getComputedStyle(span)
+
     const fontSize: number = Number.parseFloat(style.fontSize || `16`)
     const color: string = style.color || `#000`
     const fontWeight: string = style.fontWeight || `normal`
+    const fontFamily = style.fontFamily
 
     let lineHeight: number | string = style.lineHeight
     if (lineHeight.includes(`px`)) {
@@ -99,10 +119,9 @@ export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
       lineHeight = fontSize * 1.4
     }
 
-    const { ascent } = getTextMetrics(textContent, fontSize)
+    const { ascent } = getTextMetrics(textContent, fontSize, fontFamily)
 
     const finalX: number = x + width / 2
-
     const finalY: number = y + (lineHeight - fontSize) / 2 + ascent
 
     const textEl: SVGTextElement = document.createElementNS(
@@ -114,6 +133,7 @@ export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
     textEl.setAttribute(`y`, String(finalY))
     textEl.setAttribute(`font-size`, String(fontSize))
     textEl.setAttribute(`font-weight`, String(fontWeight))
+    textEl.setAttribute(`font-family`, fontFamily)
     textEl.setAttribute(`fill`, color)
     textEl.setAttribute(`text-anchor`, `middle`)
 
@@ -125,8 +145,52 @@ export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
 
     textEl.appendChild(tspan)
 
-    fo.parentNode?.replaceChild(textEl, fo)
+    const hasBg = hasVisibleBackground(style)
+    let group: SVGGElement | SVGTextElement
+
+    if (hasBg) {
+      const rect = document.createElementNS(
+        `http://www.w3.org/2000/svg`,
+        `rect`,
+      )
+      const backgroundColor: string = style.backgroundColor
+      const paddingLeft = Number.parseFloat(style.paddingLeft || `0`)
+      const paddingRight = Number.parseFloat(style.paddingRight || `0`)
+      const paddingTop = Number.parseFloat(style.paddingTop || `0`)
+      const paddingBottom = Number.parseFloat(style.paddingBottom || `0`)
+
+      svg.appendChild(textEl)
+      const box = textEl.getBBox()
+      textEl.remove()
+
+      rect.setAttribute(`x`, `${box.x - paddingLeft}`)
+      rect.setAttribute(`y`, `${box.y - paddingTop}`)
+      rect.setAttribute(`width`, `${box.width + paddingLeft + paddingRight}`)
+      rect.setAttribute(`height`, `${box.height + paddingTop + paddingBottom}`)
+
+      rect.setAttribute(`fill`, backgroundColor || `transparent`)
+      rect.setAttribute(`opacity`, `1`)
+      rect.style.fill = backgroundColor || `transparent`
+      rect.style.opacity = `1`
+      rect.setAttribute(`rx`, `4`)
+
+      const g = document.createElementNS(
+        `http://www.w3.org/2000/svg`,
+        `g`,
+      )
+
+      g.appendChild(rect)
+      g.appendChild(textEl)
+
+      group = g
+    }
+    else {
+      group = textEl
+    }
+
+    fo.parentNode?.replaceChild(group, fo)
   })
+  svg.remove()
 }
 
 export function fixInfographicGradientFromDom(svgEl: SVGSVGElement): SVGSVGElement {
@@ -211,7 +275,7 @@ export function fixInfographicGradientFromDom(svgEl: SVGSVGElement): SVGSVGEleme
 
 function convertMermaidForeignObjects(svg: SVGSVGElement): SVGSVGElement {
   const foreignObjects: NodeListOf<SVGForeignObjectElement> = svg.querySelectorAll(`foreignObject`)
-
+  document.body.appendChild(svg)
   foreignObjects.forEach((fo) => {
     const span: HTMLSpanElement | null = fo.querySelector(`span`)
     if (!span)
@@ -225,10 +289,12 @@ function convertMermaidForeignObjects(svg: SVGSVGElement): SVGSVGElement {
     const y: number = Number.parseFloat(fo.getAttribute(`y`) || `0`)
     const width: number = Number.parseFloat(fo.getAttribute(`width`) || `0`)
 
-    const style: CSSStyleDeclaration = span.style
+    const style: CSSStyleDeclaration = window.getComputedStyle(span)
+
     const fontSize: number = Number.parseFloat(style.fontSize || `16`)
     const color: string = style.color || `#000`
     const fontWeight: string = style.fontWeight || `normal`
+    const fontFamily = style.fontFamily
 
     let lineHeight: number | string = style.lineHeight
     if (lineHeight.includes(`px`)) {
@@ -241,10 +307,9 @@ function convertMermaidForeignObjects(svg: SVGSVGElement): SVGSVGElement {
       lineHeight = fontSize * 1.4
     }
 
-    const { ascent } = getTextMetrics(textContent, fontSize)
+    const { ascent } = getTextMetrics(textContent, fontSize, fontFamily)
 
     const finalX: number = x + width / 2
-
     const finalY: number = y + (lineHeight - fontSize) / 2 + ascent
 
     const textEl: SVGTextElement = document.createElementNS(
@@ -256,6 +321,7 @@ function convertMermaidForeignObjects(svg: SVGSVGElement): SVGSVGElement {
     textEl.setAttribute(`y`, String(finalY))
     textEl.setAttribute(`font-size`, String(fontSize))
     textEl.setAttribute(`font-weight`, String(fontWeight))
+    textEl.setAttribute(`font-family`, fontFamily)
     textEl.setAttribute(`fill`, color)
     textEl.setAttribute(`text-anchor`, `middle`)
 
@@ -267,9 +333,52 @@ function convertMermaidForeignObjects(svg: SVGSVGElement): SVGSVGElement {
 
     textEl.appendChild(tspan)
 
-    fo.parentNode?.replaceChild(textEl, fo)
-  })
+    const hasBg = hasVisibleBackground(style)
+    let group: SVGGElement | SVGTextElement
 
+    if (hasBg) {
+      const rect = document.createElementNS(
+        `http://www.w3.org/2000/svg`,
+        `rect`,
+      )
+      const backgroundColor: string = style.backgroundColor
+      const paddingLeft = Number.parseFloat(style.paddingLeft || `0`)
+      const paddingRight = Number.parseFloat(style.paddingRight || `0`)
+      const paddingTop = Number.parseFloat(style.paddingTop || `0`)
+      const paddingBottom = Number.parseFloat(style.paddingBottom || `0`)
+
+      svg.appendChild(textEl)
+      const box = textEl.getBBox()
+      textEl.remove()
+
+      rect.setAttribute(`x`, `${box.x - paddingLeft}`)
+      rect.setAttribute(`y`, `${box.y - paddingTop}`)
+      rect.setAttribute(`width`, `${box.width + paddingLeft + paddingRight}`)
+      rect.setAttribute(`height`, `${box.height + paddingTop + paddingBottom}`)
+
+      rect.setAttribute(`fill`, backgroundColor || `transparent`)
+      rect.setAttribute(`opacity`, `1`)
+      rect.style.fill = backgroundColor || `transparent`
+      rect.style.opacity = `1`
+      rect.setAttribute(`rx`, `4`)
+
+      const g = document.createElementNS(
+        `http://www.w3.org/2000/svg`,
+        `g`,
+      )
+
+      g.appendChild(rect)
+      g.appendChild(textEl)
+
+      group = g
+    }
+    else {
+      group = textEl
+    }
+
+    fo.parentNode?.replaceChild(group, fo)
+  })
+  svg.remove()
   return svg
 }
 
