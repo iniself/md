@@ -8,8 +8,9 @@ import {
   Sun,
 } from 'lucide-vue-next'
 import { altKey, altSign, ctrlKey, ctrlSign, shiftSign } from '@/config'
+import { replaceGradientsWithSolidColors } from '@/lib/utils'
 import { useStore } from '@/stores'
-import { addPrefix, processClipboardContent, solveWeChatImage, solveWeChatInfographic } from '@/utils'
+import { addPrefix, processClipboardContent, solveWeChatImage } from '@/utils'
 import TocMenu from '../TocMenu.vue'
 
 const emit = defineEmits([`startCopy`, `endCopy`])
@@ -377,7 +378,7 @@ async function copy() {
               }
             })
             solveWeChatImage(tempDoc, copyMode.value)
-            solveWeChatInfographic(tempDoc, copyMode.value)
+            replaceGradientsWithSolidColors(tempDoc, copyMode.value)
           }
 
           if (copyMode.value === `html`) {
