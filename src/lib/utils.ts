@@ -41,6 +41,7 @@ export function toHSLString(variant: string): string {
 interface mermaidOptions {
   themeMode?: `dark` | `light`
   backgroundColor?: string
+  isSvgCompatibility?: boolean
 }
 
 function hasVisibleBackground(style: CSSStyleDeclaration): boolean {

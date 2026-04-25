@@ -112,6 +112,10 @@ export const useStore = defineStore(`store`, () => {
   const isPageBreak = useStorage(`isPageBreak`, true)
   const togglePageBreak = useToggle(isPageBreak)
 
+  // pdf 是否分页
+  const isSvgCompatibility = useStorage(`enableSvgCompatibility`, true)
+  const toggleSvgCompatibility = useToggle(isSvgCompatibility)
+
   // 是否自动保存到文件
   const isAutoSync = useStorage(`isAutoSync`, false)
   const toggleAutoSync = useToggle(isAutoSync)
@@ -682,6 +686,10 @@ export const useStore = defineStore(`store`, () => {
     togglePageBreak()
   })
 
+  const svgCompatibilityChanged = withAfterRefresh(() => {
+    toggleSvgCompatibility()
+  })
+
   const autoSyncChanged = withAfterRefresh(() => {
     toggleAutoSync()
   })
@@ -868,6 +876,9 @@ export const useStore = defineStore(`store`, () => {
     isPageBreak,
     pageBreakChanged,
 
+    isSvgCompatibility,
+    svgCompatibilityChanged,
+
     isAutoSync,
     autoSyncChanged,
 
@@ -1022,6 +1033,7 @@ export function getAllStoreStates() {
     isJustify: store.isJustify,
     isCenterHeader: store.isCenterHeader,
     isPageBreak: store.isPageBreak,
+    isSvgCompatibility: store.isSvgCompatibility,
     isAutoSync: store.isAutoSync,
     exportPdfDialogVisible: store.exportPdfDialogVisible,
     isOpenRightSlider: store.isOpenRightSlider,

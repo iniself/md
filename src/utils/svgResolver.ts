@@ -22,6 +22,7 @@ const mermaidCache = new Map<string, string>()
 interface mermaidOptions {
   themeMode?: `dark` | `light`
   backgroundColor?: string
+  isSvgCompatibility?: boolean
 }
 
 async function renderMermaid(id: string, code: string, cacheKey: string, options: mermaidOptions): Promise<string | void> {
@@ -30,7 +31,23 @@ async function renderMermaid(id: string, code: string, cacheKey: string, options
 
   try {
     const result = await mermaid.render(`mermaid-svg-${cacheKey}`, code)
-    const finalSvg = sanitizeMermaidSvg(result.svg, options)
+    let finalSvg = result.svg
+    if (options.isSvgCompatibility) {
+      finalSvg = sanitizeMermaidSvg(result.svg, options)
+    }
+    else {
+      finalSvg = result.svg.replace(
+        /<svg([^>]*)>/,
+        (_, attrs) => {
+          if (/style="/.test(attrs)) {
+            return `<svg${attrs.replace(/style="(.*?)"/, `style="display:block;margin:0 auto;$1"`)}>`
+          }
+          else {
+            return `<svg${attrs} style="display:block;margin:0 auto;">`
+          }
+        },
+      )
+    }
     mermaidCache.set(cacheKey, finalSvg)
     return finalSvg
   }
@@ -45,7 +62,7 @@ async function renderMermaid(id: string, code: string, cacheKey: string, options
 
 export async function getOrRenderMermaidSvg(el = `.mermaid`) {
   const store = useStore()
-  const { isDark } = storeToRefs(store)
+  const { isDark, isSvgCompatibility } = storeToRefs(store)
 
   const themeMode = isDark.value ? `dark` : `light`
 
@@ -58,12 +75,13 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
   const options: mermaidOptions = {
     themeMode,
     backgroundColor: setBackgroundColor,
+    isSvgCompatibility: isSvgCompatibility.value,
   }
 
   const elements = document.querySelectorAll(el)
   for (const node of elements) {
     const code = node.textContent ?? ``
-    const cacheKey = simpleHash(`${code}-${options.themeMode || `light`}`)
+    const cacheKey = simpleHash(`${code}-${options.themeMode || `light`}-${options.isSvgCompatibility}`)
     const cached = mermaidCache.get(cacheKey)
 
     node.parentElement!.style.background = setBackgroundColor
@@ -99,6 +117,7 @@ interface InfographicOptions {
   themeMode?: `dark` | `light`
   fontSize?: Ref<string | number>
   primaryColor?: Ref<string>
+  isSvgCompatibility?: Ref<boolean>
 }
 
 const markedInstance = new Marked()
@@ -148,6 +167,7 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
           const isDark = options?.themeMode === `dark`
           const fontSize = options?.fontSize
           const primaryColor = options?.primaryColor
+          const isSvgCompatibility = options?.isSvgCompatibility
 
           const root = document.documentElement
           const computedStyle = getComputedStyle(root)
@@ -207,8 +227,13 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
 
             try {
               const svg = await exportToSVG(node, { removeIds: true })
-              convertInfographicForeignObjects(svg)
-              container.replaceChildren(fixInfographicGradientFromDom(svg))
+              if (isSvgCompatibility?.value) {
+                convertInfographicForeignObjects(svg)
+                container.replaceChildren(fixInfographicGradientFromDom(svg))
+              }
+              else {
+                container.replaceChildren(svg)
+              }
               infographicCache.set(cacheKey, container.innerHTML)
               clearTimeout(timeoutId)
               resolve()
@@ -248,12 +273,12 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
 
 export async function getOrRenderInfographicSvg(html: string, el = `.infographic`) {
   const store = useStore()
-  const { isDark, fontSize, primaryColor } = storeToRefs(store)
+  const { isDark, fontSize, primaryColor, isSvgCompatibility } = storeToRefs(store)
   const options: InfographicOptions = {
     themeMode: isDark.value ? `dark` : `light`,
     fontSize,
     primaryColor,
-
+    isSvgCompatibility,
   }
 
   const parser = new DOMParser()
@@ -263,7 +288,8 @@ export async function getOrRenderInfographicSvg(html: string, el = `.infographic
 
   for (let i = 0; i < rendered.length; i++) {
     const code = infographicEl[i].innerHTML
-    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}`)
+    // const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}`)
+    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}`)
     const cached = infographicCache.get(cacheKey)
 
     if (cached) {
@@ -294,7 +320,7 @@ export async function getOrRenderInfographicSvg(html: string, el = `.infographic
   const rendering = document.querySelectorAll(el)
   for (let i = 0; i < rendering.length; i++) {
     const code = rendering[i].innerHTML
-    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}`)
+    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}`)
     const cached = infographicCache.get(cacheKey)
 
     if (cached) {

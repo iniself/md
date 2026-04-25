@@ -333,6 +333,25 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         </div>
       </div>
       <div class="space-y-2">
+        <h2>SVG兼容模式</h2>
+        <div class="grid grid-cols-5 justify-items-center gap-2">
+          <Button
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': store.isSvgCompatibility,
+            }" @click="!store.isSvgCompatibility && store.svgCompatibilityChanged()"
+          >
+            开启
+          </Button>
+          <Button
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': !store.isSvgCompatibility,
+            }" @click="store.isSvgCompatibility && store.svgCompatibilityChanged()"
+          >
+            关闭
+          </Button>
+        </div>
+      </div>
+      <div class="space-y-2">
         <h2>保存到文件</h2>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button
