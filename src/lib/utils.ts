@@ -95,7 +95,7 @@ export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
     if (!span)
       return
 
-    const textContent: string = span.textContent.trim()
+    const textContent: string = (span.textContent ?? ``).trim()
     if (!textContent)
       return
 
@@ -283,7 +283,7 @@ function convertMermaidForeignObjects(svg: SVGSVGElement): SVGSVGElement {
     if (!span)
       return
 
-    const textContent: string = span.textContent.trim()
+    const textContent: string = (span.textContent ?? ``).trim()
     if (!textContent)
       return
 
@@ -447,7 +447,7 @@ export function sanitizeMermaidSvg(svgStr: string, options: mermaidOptions) {
     }
 
     el.setAttribute(`transform`, `translate(${x},${y}) rotate(${angle})`)
-    svg.appendChild(el)
+    svg!.appendChild(el)
   }
 
   paths.forEach((path) => {
@@ -492,7 +492,7 @@ export function sanitizeMermaidSvg(svgStr: string, options: mermaidOptions) {
 export function replaceGradientsWithSolidColors(doc: Document, mode: string) {
   const infographicsContainer = doc.querySelectorAll(`.${infographicClassName}`)
 
-  if (mode !== `txt`)
+  if (mode !== `txt` && mode !== `pdf`)
     return
 
   infographicsContainer.forEach((container) => {
@@ -533,6 +533,9 @@ export function replaceGradientsWithSolidColors(doc: Document, mode: string) {
           fill: `rgba(${hexToRgb(baseColor)}, ${fillOpacity})`,
         })
       })
+      if (gradientColorMap.size === 0) {
+        return
+      }
 
       const targets = svg.querySelectorAll<SVGElement>(`[stroke],[fill]`)
 
@@ -547,9 +550,19 @@ export function replaceGradientsWithSolidColors(doc: Document, mode: string) {
             return
 
           const id = match[1]
-          const mapped = gradientColorMap.get(id)
-          if (!mapped)
+
+          let mapped = gradientColorMap.get(id)
+          if (!mapped) {
+            for (const key of gradientColorMap.keys()) {
+              if (id.includes(key)) {
+                mapped = gradientColorMap.get(key)
+              }
+            }
+          }
+
+          if (!mapped) {
             return
+          }
 
           if (attr === `stroke`) {
             el.setAttribute(`stroke`, mapped.stroke)

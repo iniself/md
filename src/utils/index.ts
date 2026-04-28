@@ -13,16 +13,17 @@ import * as prettierPluginMarkdown from 'prettier/plugins/markdown'
 import * as prettierPluginCss from 'prettier/plugins/postcss'
 import { format } from 'prettier/standalone'
 import { prefix } from '@/config/prefix'
+import { replaceGradientsWithSolidColors } from '@/lib/utils'
 import type { Block, ExtendedProperties, Inline, Theme } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 import { addSpacingToMarkdown } from '@/utils/autoSpace'
 import admonition_css from './admonition/index.css?inline'
+
 import chatMessage_css from './chatMessage/index.css?inline'
 
 import markedAlert from './MDAlert'
 
 import { MDKatex } from './MDKatex'
-
 import { createPDFBody, tailDoc } from './print/body'
 import { getOrRenderInfographicSvg, getOrRenderMermaidSvg } from './svgResolver'
 
@@ -419,6 +420,7 @@ declare global {
   interface Window {
     electronAPI?: {
       printHtmlToPdf: (title: string, electronPDF: string) => Promise<any>
+      printCurrentWindowToPDF: (title: string) => Promise<any>
     }
   }
 }
@@ -454,6 +456,8 @@ export function exportPDF(content: string) {
       printHTML(htmlDoc, {
         title: safeTitle,
         printCallback: async (iframeWin: Window) => {
+          replaceGradientsWithSolidColors(iframeWin.document, `pdf`)
+
           iframeWin.document.title = safeTitle
           const electronPDF = iframeWin.document.documentElement.outerHTML
           await electronAPI.printHtmlToPdf(store.posts[store.currentPostIndex].title, electronPDF)
@@ -475,16 +479,7 @@ export function exportPDF(content: string) {
       printHTML(htmlDoc, {
         title: safeTitle,
         printCallback: (iframeWin: Window) => {
-          iframeWin.document.documentElement.querySelectorAll(`[data-fixed-ref]`).forEach((el) => {
-            const which = el.getAttribute(`data-fixed-ref`) || ``
-            if (!which) {
-              return
-            }
-
-            // todo：Remove gradients from the PDF
-            const origin = el.getAttribute(`data-origin-${which}`)
-            el.setAttribute(which, `url(#${origin})`)
-          })
+          replaceGradientsWithSolidColors(iframeWin.document, `pdf`)
 
           iframeWin.document.title = safeTitle
           iframeWin.print()
@@ -547,6 +542,8 @@ export function exportPDFByTauri(content: string) {
     printHTML(tauriDoc, {
       title: safeTitle,
       printCallback: (iframeWin: Window) => {
+        replaceGradientsWithSolidColors(iframeWin.document, `pdf`)
+
         iframeWin.document.title = safeTitle
         const printHtml = iframeWin.document.documentElement.outerHTML;
         (window as any).__TAURI__.core.invoke(`print_html`, { html: printHtml })
