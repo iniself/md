@@ -37,6 +37,7 @@ function isBlockToken(token: Tokens.Generic) {
     `image`,
     `admonition`,
     `infographic`,
+    `blockKatex`,
   ].includes(token.type)
 }
 
