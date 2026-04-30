@@ -101,7 +101,7 @@ export const useStore = defineStore(`store`, () => {
   const toggleUseIndent = useToggle(isUseIndent)
 
   // 段落对齐方式
-  const isJustify = useStorage(`isJustify`, true)
+  const isJustify = useStorage(`isJustify`, false)
   const toggleJustify = useToggle(isJustify)
 
   // 表头文字是否居中
