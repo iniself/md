@@ -112,8 +112,8 @@ export const useStore = defineStore(`store`, () => {
   const isPageBreak = useStorage(`isPageBreak`, true)
   const togglePageBreak = useToggle(isPageBreak)
 
-  // pdf 是否分页
-  const isSvgCompatibility = useStorage(`enableSvgCompatibility`, true)
+  // pdf 兼容模式
+  const isSvgCompatibility = useStorage(`isSvgCompatibility`, true)
   const toggleSvgCompatibility = useToggle(isSvgCompatibility)
 
   // 是否自动保存到文件
