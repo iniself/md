@@ -22,6 +22,82 @@ export function hexToRgb(hex: string): string {
   return `${r}, ${g}, ${b}`
 }
 
+type PdfRuntime =
+  | {
+    type: `vivliostyle`
+    print: typeof import(`@vivliostyle/print`).printHTML
+  }
+  | {
+    type: `paged`
+    code: string
+  }
+
+const pdfRuntimeMap = new Map<PdfLib, Promise<PdfRuntime>>()
+
+async function loadPdfRuntime(pdfLib: PdfLib): Promise<PdfRuntime> {
+  if (pdfLib === `vivliostyle`) {
+    const { printHTML } = await import(`@vivliostyle/print`)
+    return { type: `vivliostyle`, print: printHTML }
+  }
+
+  if (pdfLib === `paged`) {
+    const mod = await import(`@/lib/paged.min@0.4.3.js?raw`)
+    return { type: `paged`, code: mod.default }
+  }
+
+  throw new Error(`Unknown pdfLib: ${pdfLib}`)
+}
+
+export function getRuntime(pdfLib: PdfLib) {
+  if (!pdfRuntimeMap.has(pdfLib)) {
+    const promise = loadPdfRuntime(pdfLib).catch((err) => {
+      pdfRuntimeMap.delete(pdfLib)
+      throw err
+    })
+    pdfRuntimeMap.set(pdfLib, promise)
+  }
+  return pdfRuntimeMap.get(pdfLib)!
+}
+
+/**
+ * create Tag
+ *
+ * createTag('script', code)
+ * createTag('script', code, {type: 'module', defer: true})
+ * createTag('div', 'hello', { class: 'box' })
+ *
+ *  createTag('style', `
+ *  body {
+ *    background: #fff;
+ *  }
+ *  `)
+ *
+ */
+
+function escapeAttr(value: string) {
+  return value
+    .replace(/&/g, `&amp;`)
+    .replace(/"/g, `&quot;`)
+    .replace(/</g, `&lt;`)
+    .replace(/>/g, `&gt;`)
+    .replace(/'/g, `&#39;`)
+}
+
+export function createTag(
+  tag: string,
+  content = ``,
+  attrs: Record<string, string | boolean | undefined> = {},
+) {
+  const attrString = Object.entries(attrs)
+    .filter(([, v]) => v !== false && v != null)
+    .map(([k, v]) => (v === true ? k : `${k}="${escapeAttr(String(v))}"`))
+    .join(` `)
+
+  const openTag = attrString ? `<${tag} ${attrString}>` : `<${tag}>`
+
+  return `${openTag}\n${content.trim()}\n</${tag}>`
+}
+
 /**
  * svg utils
  *
@@ -578,5 +654,17 @@ export function replaceGradientsWithSolidColors(doc: Document, mode: string) {
         defs.remove()
       }
     })
+  })
+}
+
+export function fixGradientIDChangedByVivliostyle(iframeWin: Window) {
+  iframeWin.document.documentElement.querySelectorAll(`[data-fixed-ref]`).forEach((el) => {
+    const which = el.getAttribute(`data-fixed-ref`) || ``
+    if (!which) {
+      return
+    }
+
+    const origin = el.getAttribute(`data-origin-${which}`)
+    el.setAttribute(which, `url(#${origin})`)
   })
 }

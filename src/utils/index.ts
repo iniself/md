@@ -2,7 +2,6 @@ import type { PropertiesHyphen } from 'csstype'
 import type { ReadTimeResults } from 'reading-time'
 
 import fontawesome_css from '@fortawesome/fontawesome-free/css/all.min.css?inline'
-import { printHTML } from '@vivliostyle/print'
 import DOMPurify from 'isomorphic-dompurify'
 import juice from 'juice'
 
@@ -13,7 +12,7 @@ import * as prettierPluginMarkdown from 'prettier/plugins/markdown'
 import * as prettierPluginCss from 'prettier/plugins/postcss'
 import { format } from 'prettier/standalone'
 import { prefix } from '@/config/prefix'
-import { replaceGradientsWithSolidColors } from '@/lib/utils'
+import { fixGradientIDChangedByVivliostyle, getRuntime } from '@/lib/utils'
 import type { Block, ExtendedProperties, Inline, Theme } from '@/types'
 import type { RendererAPI } from '@/types/renderer-types'
 import { addSpacingToMarkdown } from '@/utils/autoSpace'
@@ -24,7 +23,7 @@ import chatMessage_css from './chatMessage/index.css?inline'
 import markedAlert from './MDAlert'
 
 import { MDKatex } from './MDKatex'
-import { createPDFBody, tailDoc } from './print/body'
+import { createPDFBody, createPDFScript, tailDoc } from './print/html'
 import { getOrRenderInfographicSvg, getOrRenderMermaidSvg } from './svgResolver'
 
 export function addPrefix(str: string) {
@@ -425,141 +424,222 @@ declare global {
   }
 }
 
-export function exportPDF(content: string) {
+export async function exportPDF(content: string) {
   const store = useStore()
-  return new Promise<void>((resolve, reject) => {
-    const htmlStr = content
-    const hasChat = htmlStr.includes(`chat-container`)
-    const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
 
-    let safeTitle = ``
+  const pdfLib = store.pdfLib
+  const pdfRuntime = await getRuntime(pdfLib)
+  const htmlStr = content
+  const hasChat = htmlStr.includes(`chat-container`)
+  const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
 
-    if (store.currentPdfTitle) {
-      safeTitle = sanitizeTitle(store.currentPdfTitle)
-    }
+  let safeTitle = ``
 
-    const printMargin = store.printMargin ? store.printMargin : `0px`
+  if (store.currentPdfTitle) {
+    safeTitle = sanitizeTitle(store.currentPdfTitle)
+  }
+  const printMargin = store.printMargin ? store.printMargin : `0px`
 
-    const options = {
-      topLeft: store.topLeft,
-      topRight: store.topRight,
-      bottomLeft: store.bottomLeft,
-      bottomRight: store.bottomRight,
-      isPageBreak: store.isPageBreak,
-    }
-    const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin)
+  const options = {
+    topLeft: store.topLeft,
+    topRight: store.topRight,
+    bottomLeft: store.bottomLeft,
+    bottomRight: store.bottomRight,
+    isPageBreak: store.isPageBreak,
+  }
 
-    const htmlDoc = bodyDoc + tailDoc
+  const electronAPI = window.electronAPI
 
-    const electronAPI = window.electronAPI
+  if (pdfRuntime.type === `vivliostyle`) {
+    const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin, pdfLib)
+    const scriptDoc = createPDFScript(pdfLib, {
+      isElectron: store.isElectron,
+      isTauri: store.isTauri,
+      title: store.posts[store.currentPostIndex].title,
+    })
+    const htmlDoc = bodyDoc + scriptDoc + tailDoc
     if (store.isElectron && electronAPI) {
-      printHTML(htmlDoc, {
-        title: safeTitle,
-        printCallback: async (iframeWin: Window) => {
-          replaceGradientsWithSolidColors(iframeWin.document, `pdf`)
+      await new Promise<void>((resolve, reject) => {
+        pdfRuntime.print(htmlDoc, {
+          title: safeTitle,
+          printCallback: (iframeWin: Window) => {
+            fixGradientIDChangedByVivliostyle(iframeWin)
 
-          iframeWin.document.title = safeTitle
-          const electronPDF = iframeWin.document.documentElement.outerHTML
-          await electronAPI.printHtmlToPdf(store.posts[store.currentPostIndex].title, electronPDF)
-          setTimeout(() => {
-            const iframes = document.querySelectorAll(`iframe`)
-            iframes.forEach(f => f.remove())
-          }, 500)
-          resolve()
-        },
-        errorCallback: (err: unknown) => {
-          console.error(err)
-          reject(err)
-        },
+            iframeWin.document.title = safeTitle
+            const electronPDF = iframeWin.document.documentElement.outerHTML.replace(/onload="parent\.printInstance\.runInIframe\(window\)"/g, ``)
+            electronAPI.printHtmlToPdf(store.posts[store.currentPostIndex].title, electronPDF).then(() => {
+              const iframes = document.querySelectorAll(`iframe`)
+              iframes.forEach(f => f.remove())
+              resolve()
+            }).catch((err: unknown) => {
+              console.error(err)
+              reject(err)
+            })
+          },
+          errorCallback: (err: unknown) => {
+            console.error(err)
+            reject(err)
+          },
+        })
       })
     }
     else {
       const oldTitle = document.title
       document.title = safeTitle
-      printHTML(htmlDoc, {
+      await new Promise<void>((resolve, reject) => {
+        pdfRuntime.print(htmlDoc, {
+          title: safeTitle,
+          printCallback: async (iframeWin: Window) => {
+            try {
+              fixGradientIDChangedByVivliostyle(iframeWin)
+
+              iframeWin.document.title = safeTitle
+              iframeWin.print()
+              document.title = oldTitle
+
+              await new Promise<void>((innerResolve) => {
+                const handler = (e: MessageEvent) => {
+                  if (e.data?.type === `PRINT_DONE`) {
+                    window.removeEventListener(`message`, handler)
+                    document.querySelectorAll(`iframe`).forEach(f => f.remove())
+                    innerResolve()
+                  }
+                }
+                window.addEventListener(`message`, handler)
+              })
+
+              resolve()
+            }
+            catch (err) {
+              reject(err)
+            }
+          },
+          errorCallback: (err: unknown) => {
+            document.title = oldTitle
+            console.error(err)
+            reject(err)
+          },
+        })
+      })
+    }
+  }
+  else if (pdfRuntime.type === `paged`) {
+    const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin, pdfLib, pdfRuntime.code)
+    const scriptDoc = createPDFScript(pdfLib, {
+      isElectron: store.isElectron,
+      isTauri: store.isTauri,
+      title: store.posts[store.currentPostIndex].title,
+    })
+    const htmlDoc = bodyDoc + scriptDoc + tailDoc
+    if (store.isElectron && electronAPI) {
+      try {
+        await electronAPI.printHtmlToPdf(store.posts[store.currentPostIndex].title, htmlDoc)
+      }
+      catch (err) {
+        console.error(err)
+        throw err
+      }
+      return
+    }
+
+    const printWindow = window.open(``, `_blank`)
+    if (!printWindow) {
+      console.error(`无法打开打印窗口`)
+      return
+    }
+    printWindow.document.write(htmlDoc)
+    printWindow.document.close()
+    await new Promise<void>((resolve) => {
+      const handler = (event: MessageEvent) => {
+        if (event.data?.type === `PRINT_DONE`) {
+          printWindow.close()
+          window.removeEventListener(`message`, handler)
+          resolve()
+        }
+      }
+
+      window.addEventListener(`message`, handler)
+    })
+  }
+}
+
+export async function exportPDFByTauri(content: string) {
+  const store = useStore()
+
+  const pdfLib = store.pdfLib
+  const pdfRuntime = await getRuntime(pdfLib)
+  const htmlStr = content
+  const hasChat = htmlStr.includes(`chat-container`)
+  const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
+
+  let safeTitle = ``
+
+  if (store.currentPdfTitle) {
+    safeTitle = sanitizeTitle(store.currentPdfTitle)
+  }
+
+  const printMargin = store.printMargin ? store.printMargin : `0px`
+
+  const options = {
+    topLeft: store.topLeft,
+    topRight: store.topRight,
+    bottomLeft: store.bottomLeft,
+    bottomRight: store.bottomRight,
+    isPageBreak: store.isPageBreak,
+  }
+
+  if (pdfRuntime.type === `vivliostyle`) {
+    const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin, pdfLib)
+    const scriptDoc = createPDFScript(pdfLib, {
+      isElectron: store.isElectron,
+      isTauri: store.isTauri,
+      title: store.posts[store.currentPostIndex].title,
+    })
+    const htmlDoc = bodyDoc + scriptDoc + tailDoc
+    document.title = safeTitle
+
+    await new Promise<void>((resolve, reject) => {
+      pdfRuntime.print(htmlDoc, {
         title: safeTitle,
         printCallback: (iframeWin: Window) => {
-          replaceGradientsWithSolidColors(iframeWin.document, `pdf`)
+          fixGradientIDChangedByVivliostyle(iframeWin)
 
           iframeWin.document.title = safeTitle
-          iframeWin.print()
-          document.title = oldTitle
-
-          setTimeout(() => {
+          const printHtml = iframeWin.document.documentElement.outerHTML.replace(/onload="parent\.printInstance\.runInIframe\(window\)"/g, ``);
+          (window as any).__TAURI__.core.invoke(`print_html`, { html: printHtml }).then(() => {
+            resolve()
             const iframes = document.querySelectorAll(`iframe`)
             iframes.forEach(f => f.remove())
-          }, 500)
-          resolve()
+          }).catch((err: unknown) => {
+            console.error(err)
+            reject(err)
+          })
         },
         errorCallback: (err: unknown) => {
-          document.title = oldTitle
           console.error(err)
           reject(err)
         },
       })
-    }
-  })
-}
-
-export function exportPDFByTauri(content: string) {
-  const store = useStore()
-  return new Promise<void>((resolve, reject) => {
-    const htmlStr = content
-    const hasChat = htmlStr.includes(`chat-container`)
-    const chatVarCss = hasChat ? extractAllCSSVariables(chatMessage_css) : ``
-
-    let safeTitle = ``
-
-    if (store.currentPdfTitle) {
-      safeTitle = sanitizeTitle(store.currentPdfTitle)
-    }
-
-    const printMargin = store.printMargin ? store.printMargin : `0px`
-
-    const options = {
-      topLeft: store.topLeft,
-      topRight: store.topRight,
-      bottomLeft: store.bottomLeft,
-      bottomRight: store.bottomRight,
-      isPageBreak: store.isPageBreak,
-    }
-    const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin)
-
-    const scriptDoc = `
-        <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-          window.onafterprint = () => window.close()
-          window.print()
-          setTimeout(() => {
-            try { window.close() } catch (e) {}
-          }, 50)
-        })
-      </script>
-    `
-
-    const tauriDoc = bodyDoc + scriptDoc + tailDoc
-
-    printHTML(tauriDoc, {
-      title: safeTitle,
-      printCallback: (iframeWin: Window) => {
-        replaceGradientsWithSolidColors(iframeWin.document, `pdf`)
-
-        iframeWin.document.title = safeTitle
-        const printHtml = iframeWin.document.documentElement.outerHTML;
-        (window as any).__TAURI__.core.invoke(`print_html`, { html: printHtml })
-
-        setTimeout(() => {
-          const iframes = document.querySelectorAll(`iframe`)
-          iframes.forEach(f => f.remove())
-        }, 500)
-        resolve()
-      },
-      errorCallback: (err: unknown) => {
-        console.error(err)
-        reject(err)
-      },
     })
-  })
+  }
+  else if (pdfRuntime.type === `paged`) {
+    const bodyDoc = createPDFBody(options, safeTitle, htmlStr, chatVarCss, printMargin, pdfLib, pdfRuntime.code)
+    const scriptDoc = createPDFScript(pdfLib, {
+      isElectron: store.isElectron,
+      isTauri: store.isTauri,
+      title: store.posts[store.currentPostIndex].title,
+    })
+    const htmlDoc = bodyDoc + scriptDoc + tailDoc
+
+    try {
+      await (window as any).__TAURI__.core.invoke(`print_html`, {
+        html: htmlDoc,
+      })
+    }
+    catch (err) {
+      console.error(err)
+    }
+  }
 }
 
 export function checkImage(file: File) {

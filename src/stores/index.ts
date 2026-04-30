@@ -112,7 +112,10 @@ export const useStore = defineStore(`store`, () => {
   const isPageBreak = useStorage(`isPageBreak`, true)
   const togglePageBreak = useToggle(isPageBreak)
 
-  // pdf 兼容模式
+  // pdf 排版引擎
+  const pdfLib = useStorage<PdfLib>(`pdfLib`, `paged`)
+
+  // svg 兼容模式
   const isSvgCompatibility = useStorage(`isSvgCompatibility`, true)
   const toggleSvgCompatibility = useToggle(isSvgCompatibility)
 
@@ -686,6 +689,10 @@ export const useStore = defineStore(`store`, () => {
     togglePageBreak()
   })
 
+  const pdfLibChanged = withAfterRefresh((runtime) => {
+    pdfLib.value = runtime
+  })
+
   const svgCompatibilityChanged = withAfterRefresh(() => {
     toggleSvgCompatibility()
   })
@@ -876,6 +883,9 @@ export const useStore = defineStore(`store`, () => {
     isPageBreak,
     pageBreakChanged,
 
+    pdfLib,
+    pdfLibChanged,
+
     isSvgCompatibility,
     svgCompatibilityChanged,
 
@@ -1033,6 +1043,7 @@ export function getAllStoreStates() {
     isJustify: store.isJustify,
     isCenterHeader: store.isCenterHeader,
     isPageBreak: store.isPageBreak,
+    pdfLib: store.pdfLib,
     isSvgCompatibility: store.isSvgCompatibility,
     isAutoSync: store.isAutoSync,
     exportPdfDialogVisible: store.exportPdfDialogVisible,

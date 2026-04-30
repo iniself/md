@@ -333,6 +333,17 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         </div>
       </div>
       <div class="space-y-2">
+        <h2>PDF排版引擎</h2>
+        <div class="grid grid-cols-5 justify-items-center gap-2">
+          <Button
+            v-for="value in ['paged', 'vivliostyle']" :key="value" variant="outline" class="w-full"
+            :class="{ 'border-black dark:border-white border-2': store.pdfLib === value }" @click="store.pdfLibChanged(value)"
+          >
+            {{ value === 'vivliostyle' ? 'vivlio' : value }}
+          </Button>
+        </div>
+      </div>
+      <div class="space-y-2">
         <h2>SVG兼容模式</h2>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button

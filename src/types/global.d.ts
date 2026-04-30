@@ -47,3 +47,5 @@ interface FileSystemDirectoryHandle {
   values: () => AsyncIterableIterator<FileSystemHandle>
   [Symbol.asyncIterator]: () => AsyncIterableIterator<FileSystemHandle>
 }
+
+type PdfLib = `paged` | `vivliostyle`
