@@ -189,7 +189,15 @@
 .chat-container .bubble > p {
   margin-bottom: 0px!important;
 }
-  
+
+.chat-container .bubble > ul:not(:first-child) {
+  margin-top: 0.6em!important;
+}
+
+.chat-container .bubble > ol:not(:first-child) {
+  margin-top: 0.6em!important;
+}
+
 .chat-container .bubble > p:last-child {
   margin-bottom: 0px!important;
 }

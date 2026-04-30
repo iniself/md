@@ -30,11 +30,9 @@ function isBlockToken(token: Tokens.Generic) {
   return [
     `code`,
     `blockquote`,
-    `list`,
     `table`,
     `spanTable`,
     `heading`,
-    `hr`,
     `html`,
     `image`,
     `admonition`,
