@@ -19,7 +19,6 @@ const {
 
 const {
   export2HTML,
-  exportEditorContent2PureHTML,
   exportEditorContent2MD,
   downloadAsCardImage,
   export2PDF,
@@ -65,10 +64,6 @@ const importMarkdownContent = useImportMarkdownContent()
       <MenubarItem @click="export2HTML(emit)">
         <FileCode class="mr-2 size-4" />
         导出 .html
-      </MenubarItem>
-      <MenubarItem @click="exportEditorContent2PureHTML()">
-        <FileCode class="mr-2 size-4" />
-        导出 .html（无样式）
       </MenubarItem>
       <MenubarItem @click="exportPdfDialogVisible = true">
         <FileText class="mr-2 size-4" />

@@ -36,4 +36,9 @@ export const storeLabels: Record<string, string> = {
   isShowInsertMpCardDialog: `显示插入公众号名片对话框`,
   isShowUploadImgDialog: `显示上传图片对话框`,
   aiDialogVisible: `AI 对话框可见`,
+  useWsrv: `启用 Wsrv 图片代理`,
+  isPageBreak: `PDF分页模式`,
+  pdfLib: `PDF排版引擎`,
+  isSvgCompatibility: `SVG兼容模式`,
+  syncFileToPost: `保存文件模式`,
 }
