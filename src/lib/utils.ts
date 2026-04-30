@@ -25,7 +25,7 @@ export function hexToRgb(hex: string): string {
 type PdfRuntime =
   | {
     type: `vivliostyle`
-    print: typeof import(`@vivliostyle/print`).printHTML
+    print: any
   }
   | {
     type: `paged`
