@@ -54,6 +54,22 @@ function isParagraphAsBlock(t: Tokens.Generic) {
   )
 }
 
+function hasRealContent(tokens: Tokens.Generic[]) {
+  if (!tokens || tokens.length === 0)
+    return false
+
+  if (
+    tokens.length === 1
+    && tokens[0].type === `space`
+    && typeof (tokens[0] as any).raw === `string`
+    && /^\n+$/.test((tokens[0] as any).raw)
+  ) {
+    return false
+  }
+
+  return true
+}
+
 const STYLE_PRESETS = {
   width: new Set([`narrow`, `standard`, `wide`]),
   padding: new Set([`compact`, `standard`, `spacious`]),
@@ -342,7 +358,7 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
                         : ``}
 
                       <section style="max-width: 100%; display: flex; flex-direction: ${msg.side === `right` ? `row` : `row-reverse`};">
-                        <section class="bubble bubble-${msg.side} ${msg.inlineTokens.length ? `` : `empty`}">
+                        <section class="bubble bubble-${msg.side}  ${hasRealContent(msg.inlineTokens) ? `` : `empty`}">
                           ${marked.parser(msg.inlineTokens)}
 
                           ${msg.quote
