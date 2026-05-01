@@ -30,6 +30,20 @@ async function renderMermaid(id: string, code: string, cacheKey: string, options
     return
 
   try {
+    const isValid = async (code: string) => {
+      try {
+        await mermaid.parse(code)
+        return true
+      }
+      catch {
+        return false
+      }
+    }
+
+    if (!(await isValid(code))) {
+      return ``
+    }
+
     const result = await mermaid.render(`mermaid-svg-${cacheKey}`, code)
     let finalSvg = result.svg
     if (options.isSvgCompatibility) {
