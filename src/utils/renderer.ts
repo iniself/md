@@ -473,7 +473,12 @@ export function initRenderer(opts: IOpts): RendererAPI {
 
     image({ href, title, text }: Tokens.Image): string {
       const store = useStore()
-      const styleParts = []
+
+      const figureStyleParts = []
+      figureStyleParts.push(`margin: 0 auto`)
+
+      const imgStyleParts = []
+      imgStyleParts.push(`width: 100%; height: 100%`)
 
       let { relHref, width, height, fit } = extractImageInfo(href)
       if (relHref) {
@@ -492,22 +497,26 @@ export function initRenderer(opts: IOpts): RendererAPI {
         if (height && isNumeric(height)) {
           height = `${height}px`
         }
-
-        if (width)
-          styleParts.push(`width: ${width};`)
-        if (height)
-          styleParts.push(`height: ${height};`)
-        if (fit)
-          styleParts.push(`object-fit: ${fit};`)
+        if (width) {
+          figureStyleParts.push(`width: ${width}`)
+        }
+        if (height) {
+          figureStyleParts.push(`height: ${height}`)
+        }
+        if (fit) {
+          imgStyleParts.push(`object-fit: ${fit}`)
+        }
       }
-      const imgWidthStyles = styleParts.length > 0 ? `${styleParts.join(` `)}` : ``
+
+      const imgStyles = imgStyleParts.length > 0 ? `${imgStyleParts.join(`; `)}` : ``
+      const figureStyles = figureStyleParts.length > 0 ? `${figureStyleParts.join(`; `)}` : ``
+
+      const figureAllStyles = styles(`figure`, `; ${figureStyles}`)
+      const imgAllStyles = `style="${styles(`image`).replace(/^style="/, ``).replace(/"$/, ``).trim().replace(/;$/, ``)}; ${imgStyles}"`
 
       const subText = styledContent(`figcaption`, transform(opts.legend!, text, title))
-      const figureStyles = styles(`figure`)
-      const imgStyles = styles(`image`)
 
-      const mergeImgStyles = `style="${imgStyles.replace(/^style="/, ``).replace(/"$/, ``).trim().replace(/;$/, ``)}; ${imgWidthStyles}"`
-      return `<figure ${figureStyles}><img ${mergeImgStyles} src="${href}" title="${title}" alt="${text}"/>${subText}</figure>`
+      return `<figure ${figureAllStyles}><img ${imgAllStyles} src="${href}" title="${title}" alt="${text}"/>${subText}</figure>`
     },
 
     link({ href, title, text, tokens }: Tokens.Link): string {
