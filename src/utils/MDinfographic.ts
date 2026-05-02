@@ -19,7 +19,6 @@ export default function markedInfographic(): MarkedExtension {
           return src.match(/^```infographic(?:\s|$)/m)?.index
         },
         tokenizer(src: string) {
-          // const match = /^```([^\n]+)\r?\n([\s\S]*?)\r?\n```/.exec(src)
           const match = /^```([^\n\r]+)\r?\n([\s\S]*?)\r?\n```/.exec(src)
           if (!match)
             return
@@ -27,9 +26,6 @@ export default function markedInfographic(): MarkedExtension {
           const langLine = match[1]
           const content = match[2]
 
-          // const langMatch = langLine.match(
-          //   /^infographic(?:\s+([0-9%]+(?:x[0-9%]+)?))?(?:\s+(.*))?$/
-          // )
           const langMatch = langLine.match(
             /^infographic(?:\s+([0-9%]+(?:x[0-9%]+)?))?(?:\s+(\S.*))?$/,
           )

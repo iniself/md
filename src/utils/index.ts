@@ -893,7 +893,7 @@ export function renderMarkdown(raw: string, renderer: RendererAPI) {
   nextTick().then(() => {
     requestAnimationFrame(() => {
       getOrRenderMermaidSvg()
-      getOrRenderInfographicSvg(html)
+      getOrRenderInfographicSvg()
     })
   })
 
