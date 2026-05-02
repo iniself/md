@@ -386,7 +386,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
 
         // eslint-disable-next-line regexp/no-super-linear-backtracking
         const match = lang.match(/^mermaid(?:\s+([0-9%]+(?:x[0-9%]+)?))?(?:\s+(.*))?$/)
-        let style = `width:80%;margin:0 auto;display:block;`
+        let style = `width:100%;margin:0 auto;display:block;`
         let caption = ``
         if (match) {
           const size = match[1]

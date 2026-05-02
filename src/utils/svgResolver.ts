@@ -166,14 +166,15 @@ registerResourceLoader(async (config) => {
 
 const infographicCache = new Map<string, string>()
 
+setFontExtendFactor(1.1)
+setDefaultFont(`-apple-system-font, "system-ui", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif`)
+
 async function renderInfographic(containerId: string, code: string, cacheKey: string, options?: InfographicOptions): Promise<void> {
   if (typeof window === `undefined`)
     return
 
   return new Promise((resolve, reject) => {
     try {
-      setFontExtendFactor(1.1)
-      setDefaultFont(`-apple-system-font, "system-ui", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif`)
       const findContainer = (retries = 5, delay = 100) => {
         const container = document.getElementById(containerId)
 
@@ -285,7 +286,7 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
   })
 }
 
-export async function getOrRenderInfographicSvg(html: string, el = `.infographic`) {
+export async function getOrRenderInfographicSvg(el = `.infographic`) {
   const store = useStore()
   const { isDark, fontSize, primaryColor, isSvgCompatibility } = storeToRefs(store)
   const options: InfographicOptions = {
@@ -295,30 +296,24 @@ export async function getOrRenderInfographicSvg(html: string, el = `.infographic
     isSvgCompatibility,
   }
 
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(html, `text/html`)
-  const infographicEl = doc.querySelectorAll(el)
-  const rendered = document.querySelectorAll(`.infographic-diagram`)
-
-  for (let i = 0; i < rendered.length; i++) {
-    const code = infographicEl[i].innerHTML
-    // const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}`)
+  const elements = document.querySelectorAll(el)
+  for (const node of elements) {
+    const code = node.textContent ?? ``
     const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}`)
     const cached = infographicCache.get(cacheKey)
 
     if (cached) {
       const uniqueId = `infographic-instances-${Math.random().toString(36).slice(2)}`
-      rendered[i].outerHTML = `<section id="${uniqueId}" style="width: 100%;" class="${infographicClassName}">${cached}</section>`
+      node.outerHTML = `<section id="${uniqueId}" style="width: 100%;" class="${infographicClassName}">${cached}</section>`
       continue
     }
 
+    const id = `infographic-${cacheKey}`
     let container: HTMLElement | null = null
-    const id = `infographic-${cacheKey}`
-    rendered[i].outerHTML = `<div id="${id}" style="width: 100%;" class="${infographicClassName}">正在加载 Infographic...</div>`
-
-    container = document.getElementById(id)!
 
     try {
+      node.outerHTML = `<section id="${id}" style="width: 100%;" class="${infographicClassName}">正在加载 Infographic...</section>`
+      container = document.getElementById(id)!
       await renderInfographic(id, code, cacheKey, options)
 
       if (!container.innerHTML) {
@@ -327,37 +322,9 @@ export async function getOrRenderInfographicSvg(html: string, el = `.infographic
     }
     catch (e) {
       console.error(e)
-      container.innerHTML = `<div style="color:red">渲染失败</div>`
-    }
-  }
-
-  const rendering = document.querySelectorAll(el)
-  for (let i = 0; i < rendering.length; i++) {
-    const code = rendering[i].innerHTML
-    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}`)
-    const cached = infographicCache.get(cacheKey)
-
-    if (cached) {
-      const uniqueId = `infographic-instances-${Math.random().toString(36).slice(2)}`
-      rendering[i].outerHTML = `<div id="${uniqueId}" style="width: 100%;" class="${infographicClassName}">${cached}</div>`
-      continue
-    }
-
-    const id = `infographic-${cacheKey}`
-    rendering[i].outerHTML = `<div id="${id}" style="width: 100%;" class="${infographicClassName}">正在加载 Infographic...</div>`
-
-    const container = document.getElementById(id)!
-
-    try {
-      await renderInfographic(id, code, cacheKey, options)
-
-      if (!container.innerHTML) {
+      if (container) {
         container.innerHTML = `<div style="color:red">渲染失败</div>`
       }
-    }
-    catch (e) {
-      console.error(e)
-      container.innerHTML = `<div style="color:red">渲染失败</div>`
     }
   }
 }
