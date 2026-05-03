@@ -310,7 +310,7 @@ export async function exportPureHTML(raw: string, title: string = `untitled`) {
   nextTick().then(() => {
     requestAnimationFrame(() => {
       getOrRenderMermaidSvg()
-      getOrRenderInfographicSvg(pureHtml)
+      getOrRenderInfographicSvg()
       downloadFile(pureHtml, `${safeTitle}.html`, `text/html`)
     })
   })

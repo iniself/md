@@ -276,6 +276,14 @@
   padding-right: 8px;
 }
 
+.chat-container .message-left .chat-block-image {
+  padding-left: 8px;
+}
+
+.chat-container .message-right .chat-block-image {
+  padding-right: 8px;
+}
+
 .chat-container .message .chat-block-spanTable > * {
   padding: 0px!important;
 }
