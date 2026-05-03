@@ -328,3 +328,26 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
     }
   }
 }
+
+/**
+ * Legacy fallback alignment logic.
+ * CSS-based layout is now the primary implementation.
+ * Kept for potential future use.
+ */
+
+export function adjustFullWidthBlocksAlignmentInChat(selectors = [`.chat-block-mermaid`, `.chat-block-infographic`, `.chat-block-image`]) {
+  const elements = document.querySelectorAll(selectors.join(`, `))
+  elements.forEach((el) => {
+    const htmlEl = el as HTMLElement
+    htmlEl.style.width = `100%`
+
+    Array.from(htmlEl.children).forEach((child) => {
+      if (htmlEl.classList.contains(`chat-block-right`)) {
+        (child as HTMLElement).style.margin = `0 0 0 auto`
+      }
+      else if (htmlEl.classList.contains(`chat-block-left`)) {
+        (child as HTMLElement).style.margin = `0 auto 0 0`
+      }
+    })
+  })
+}

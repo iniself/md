@@ -382,7 +382,7 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
                       </section>
 
                       ${msg.blockTokens.map(t => `
-                        <section class="chat-block chat-block-${t._realTokenType || t.type} chat-block-${msg.side}">
+                        <section class="chat-block chat-block-${t._realTokenType || t.type}">
                           ${marked.parser([t])}
                         </section>
                       `).join(``)}

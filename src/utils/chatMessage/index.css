@@ -8,7 +8,6 @@
 
   width: 100%;
   padding: 20px 0;
-  color: var(--chat-text);
 }
 
 .chat-container.width-wide{
@@ -36,6 +35,14 @@
 }
 
 .dark .chat-container .bubble-left p{
+  color: #e5e7eb!important;
+}
+
+.dark .chat-container .bubble-right ol li, .dark .chat-container .bubble-right ul li{
+  color: #000000!important;
+}
+
+.dark .chat-container .bubble-left ol li, .dark .chat-container .bubble-left ul li{
   color: #e5e7eb!important;
 }
 
@@ -204,7 +211,6 @@
 
 .chat-container .chat-name {
   font-size: 0.8em;
-  color: hsl(var(--foreground));
   margin-bottom: 4px;
   opacity: 0.7;
   max-width:100%;
@@ -254,6 +260,14 @@
   padding-right: 8px;
 }
 
+.chat-container .message-left .chat-block-infographic {
+  padding-left: 8px;
+}
+
+.chat-container .message-right .chat-block-infographic {
+  padding-right: 8px;
+}
+
 .chat-container .message-left .chat-block-code {
   padding-left: 8px;
 }
@@ -272,6 +286,14 @@
 
 .chat-container .message-right .chat-block-spanTable {
   padding-right: 8px;
+}
+
+.chat-container .message-left .chat-block-blockKatex {
+  padding-left: 10px;
+}
+
+.chat-container .message-right .chat-block-blockKatex {
+  padding-right: 10px;
 }
 
 .chat-container .quote {
@@ -331,4 +353,16 @@
 .chat-notice > hr {
   width: 100%;
   max-width: 100% !important;
+}
+
+.chat-container .chat-block-infographic, .chat-container .chat-block-mermaid, .chat-container .chat-block-image {
+  width: 100%;
+}
+
+.chat-container .message-left .chat-block-infographic > figure, .chat-container .message-left .chat-block-mermaid > figure, .chat-container .message-left .chat-block-image > figure {
+  margin: 0 auto 0 0 !important;
+}
+
+.chat-container .message-right .chat-block-infographic > figure, .chat-container .message-right .chat-block-mermaid > figure, .chat-container .message-right .chat-block-image > figure {
+  margin: 0 0 0 auto !important;
 }
