@@ -104,8 +104,6 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
     const cacheKey = simpleHash(`${code}-${options.themeMode || `light`}-${options.isSvgCompatibility}`)
     const cached = mermaidCache.get(cacheKey)
 
-    node.parentElement!.style.background = setBackgroundColor
-
     if (cached) {
       const uniqueId = `mermaid-instances-${Math.random().toString(36).slice(2)}`
       node.outerHTML = `<section id="${uniqueId}" class="${mermaidClassName}" style="margin:0 auto">${cached}</section>`
