@@ -1,4 +1,5 @@
 import type { MarkedExtension } from 'marked'
+import { infographicDSLStore } from '@/lib/utils.ts'
 
 let __infographicIdCounter = 0
 
@@ -64,6 +65,9 @@ export default function markedInfographic(): MarkedExtension {
 
             const preId = `infographic-pre-${genInfographicId()}`
             const figureHTML = `<figure style="text-align:center; ${style}"><pre class="infographic" data-processed="true" id="${preId}">${token.text}</pre>${caption}</figure>`
+
+            infographicDSLStore.set(preId, token.text)
+
             return figureHTML
           }
         },

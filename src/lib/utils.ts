@@ -668,3 +668,23 @@ export function fixGradientIDChangedByVivliostyle(iframeWin: Window) {
     el.setAttribute(which, `url(#${origin})`)
   })
 }
+
+const mermaidDSLCache = new Map<string, string>()
+
+export const mermaidDSLStore = {
+  set: (id: string, text: string) => mermaidDSLCache.set(id, text),
+  get: (id: string) => mermaidDSLCache.get(id),
+  delete: (id: string) => mermaidDSLCache.delete(id),
+  clear: () => mermaidDSLCache.clear(),
+  getAll: () => mermaidDSLCache,
+}
+
+const infographicDSLCache = new Map<string, string>()
+
+export const infographicDSLStore = {
+  set: (id: string, text: string) => infographicDSLCache.set(id, text),
+  get: (id: string) => infographicDSLCache.get(id),
+  delete: (id: string) => infographicDSLCache.delete(id),
+  clear: () => infographicDSLCache.clear(),
+  getAll: () => infographicDSLCache,
+}

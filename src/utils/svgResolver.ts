@@ -3,7 +3,7 @@ import { exportToSVG, Infographic, loadSVGResource, registerResourceLoader, setD
 import { Marked } from 'marked'
 import mermaid from 'mermaid'
 import { infographicClassName } from '@/config/infographicConfig'
-import { convertInfographicForeignObjects, fixInfographicGradientFromDom, sanitizeMermaidSvg, toHSLString } from '@/lib/utils'
+import { convertInfographicForeignObjects, fixInfographicGradientFromDom, infographicDSLStore, mermaidDSLStore, sanitizeMermaidSvg, toHSLString } from '@/lib/utils'
 import markedTextExtension from './MDTextExtension'
 
 function simpleHash(str: string): string {
@@ -94,7 +94,13 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
 
   const elements = document.querySelectorAll(el)
   for (const node of elements) {
-    const code = node.textContent ?? ``
+    let code = ``
+    if (options.isSvgCompatibility) {
+      code = node.textContent ?? ``
+    }
+    else {
+      code = mermaidDSLStore.get(node.id) ?? ``
+    }
     const cacheKey = simpleHash(`${code}-${options.themeMode || `light`}-${options.isSvgCompatibility}`)
     const cached = mermaidCache.get(cacheKey)
 
@@ -123,6 +129,7 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
       }
     }
   }
+  mermaidDSLStore.clear()
 }
 
 // Infographic
@@ -298,7 +305,14 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
 
   const elements = document.querySelectorAll(el)
   for (const node of elements) {
-    const code = node.textContent ?? ``
+    let code = ``
+    if (options.isSvgCompatibility?.value) {
+      code = node.textContent ?? ``
+    }
+    else {
+      code = infographicDSLStore.get(node.id) ?? ``
+    }
+
     const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}`)
     const cached = infographicCache.get(cacheKey)
 
@@ -327,6 +341,7 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
       }
     }
   }
+  infographicDSLStore.clear()
 }
 
 /**

@@ -8,9 +8,10 @@ import { marked } from 'marked'
 
 import mermaid from 'mermaid'
 import readingTime from 'reading-time'
+import { mermaidDSLStore } from '@/lib/utils.ts'
 import type { ExtendedProperties, IOpts, ThemeStyles } from '@/types'
-import type { RendererAPI } from '@/types/renderer-types'
 
+import type { RendererAPI } from '@/types/renderer-types'
 import { delwsrv } from '@/utils'
 import { getStyleString } from '.'
 import markedAdmonitionExtension from './admonition/index.ts'
@@ -411,6 +412,9 @@ export function initRenderer(opts: IOpts): RendererAPI {
           <pre class="mermaid" data-processed="true" id="${preId}">${text}</pre>
           ${caption}
         </figure>`
+
+        mermaidDSLStore.set(preId, text)
+
         return figureHTML
       }
 
