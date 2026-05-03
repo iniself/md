@@ -316,7 +316,7 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
 
     if (cached) {
       const uniqueId = `infographic-instances-${Math.random().toString(36).slice(2)}`
-      node.outerHTML = `<section id="${uniqueId}" style="width: 100%;" class="${infographicClassName}">${cached}</section>`
+      node.outerHTML = `<section id="${uniqueId}" style="display: flex; justify-content: center;" class="${infographicClassName}">${cached}</section>`
       continue
     }
 
@@ -324,7 +324,7 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
     let container: HTMLElement | null = null
 
     try {
-      node.outerHTML = `<section id="${id}" style="width: 100%;" class="${infographicClassName}">正在加载 Infographic...</section>`
+      node.outerHTML = `<section id="${id}" style="display: flex; justify-content: center;" class="${infographicClassName}">正在加载 Infographic...</section>`
       container = document.getElementById(id)!
       await renderInfographic(id, code, cacheKey, options)
 
