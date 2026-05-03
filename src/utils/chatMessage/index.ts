@@ -27,8 +27,14 @@ interface ChatToken extends Tokens.Generic {
 }
 
 function isBlockToken(token: Tokens.Generic) {
+  if (token.type === `code`) {
+    if (token.lang.startsWith(`mermaid`)) {
+      // 是 mermaid
+      token._realTokenType = `mermaid`
+    }
+    return true
+  }
   return [
-    `code`,
     `blockquote`,
     `table`,
     `spanTable`,
@@ -48,10 +54,13 @@ function isParagraphAsBlock(t: Tokens.Generic) {
   if (!tokens || tokens.length === 0)
     return false
 
-  return tokens.every(
+  if (tokens.every(
     tk =>
       tk.type === `image`,
-  )
+  )) {
+    ;(t as any)._realTokenType = `image`
+    return true
+  }
 }
 
 function hasRealContent(tokens: Tokens.Generic[]) {
@@ -373,7 +382,7 @@ export default function markedChat(newMarked: Marked): MarkedExtension {
                       </section>
 
                       ${msg.blockTokens.map(t => `
-                        <section class="chat-block chat-block-${t.type}">
+                        <section class="chat-block chat-block-${t._realTokenType || t.type} chat-block-${msg.side}">
                           ${marked.parser([t])}
                         </section>
                       `).join(``)}
