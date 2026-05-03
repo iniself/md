@@ -68,10 +68,12 @@ function hasRealContent(tokens: Tokens.Generic[]) {
     return false
 
   if (
-    tokens.length === 1
-    && tokens[0].type === `space`
-    && typeof (tokens[0] as any).raw === `string`
-    && /^\n+$/.test((tokens[0] as any).raw)
+    tokens.length > 0
+    && tokens.every(t =>
+      t.type === `space`
+      && typeof (t as any).raw === `string`
+      && /^\s+$/.test((t as any).raw),
+    )
   ) {
     return false
   }
