@@ -484,7 +484,7 @@ export function sanitizeMermaidSvg(svgStr: string, options: mermaidOptions) {
 
   svg.insertBefore(bg, svg.firstChild)
 
-  const paths = Array.from(svg.querySelectorAll(`path`))
+  const paths = Array.from(svg.querySelectorAll(`path, line, polyline`))
 
   function getDirection(path: SVGPathElement) {
     const len = path.getTotalLength()
@@ -538,20 +538,32 @@ export function sanitizeMermaidSvg(svgStr: string, options: mermaidOptions) {
 
     const angle = Math.atan2(vec.y2 - vec.y1, vec.x2 - vec.x1) * 180 / Math.PI
     const stroke = window.getComputedStyle(path).stroke || `#333`
-    const strokeWidth = Number.parseFloat(path.getAttribute(`stroke-width`) || `1`)
+    const strokeWidth = Math.max(2, Number.parseFloat(path.getAttribute(`stroke-width`) || `2`))
     const size = Math.max(4, strokeWidth * 6)
 
-    if (end?.includes(`pointEnd`)) {
-      drawArrow(`point`, vec.x2, vec.y2, angle, stroke, size)
-    }
+    let endType: string | null = null
+
     if (end?.includes(`circleEnd`)) {
-      drawArrow(`circle`, vec.x2, vec.y2, angle, stroke, size)
+      endType = `circle`
     }
-    if (end?.includes(`crossEnd`)) {
-      drawArrow(`cross`, vec.x2, vec.y2, angle, stroke, size)
+    else if (end?.includes(`crossEnd`)) {
+      endType = `cross`
+    }
+    else if (
+      end?.includes(`arrowhead`)
+      || end?.includes(`pointEnd`)
+    ) {
+      endType = `point`
+    }
+    else if (end) {
+      endType = `point`
     }
 
-    if (start?.includes(`pointStart`)) {
+    if (endType) {
+      drawArrow(endType, vec.x2, vec.y2, angle, stroke, size)
+    }
+
+    if (start?.includes(`pointStart`) || start) {
       drawArrow(`point`, vec.x1, vec.y1, angle + 180, stroke, size)
     }
 
