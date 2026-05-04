@@ -192,7 +192,7 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
               colorPrimary: primaryColor?.value || undefined,
               colorBg: isDark ? `transparent` : toHSLString(backgroundColor) || undefined,
               title: {
-                'font-size': fontSize?.value,
+                'font-size': fontSize?.value ? typeof fontSize?.value === `number` ? fontSize?.value : Number.parseFloat(fontSize?.value) : undefined,
                 'font-weight': `bold`,
               },
               desc: {
@@ -200,23 +200,6 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
               },
             },
           })
-
-          watch(
-            () => fontSize?.value,
-            (val) => {
-              instance.update?.({
-                themeConfig: {
-                  title: {
-                    'font-size': val ? typeof val === `number` ? val : Number.parseFloat(val) : undefined,
-                  },
-                  desc: {
-                    'font-size': val ? Math.floor((typeof val === `number` ? val : Number.parseFloat(val)) * 0.8) : undefined,
-                  },
-                },
-              })
-            },
-            { immediate: true },
-          )
 
           let resolved = false
           const timeoutId = setTimeout(() => {
@@ -297,7 +280,7 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
       code = infographicDSLStore.get(node.id) ?? ``
     }
 
-    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}`)
+    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}-${options.fontSize?.value}`)
     const cached = infographicCache.get(cacheKey)
 
     if (cached) {
