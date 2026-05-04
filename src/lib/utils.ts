@@ -115,12 +115,6 @@ export function toHSLString(variant: string): string {
   return ``
 }
 
-interface mermaidOptions {
-  themeMode?: `dark` | `light`
-  backgroundColor?: string
-  isSvgCompatibility?: boolean
-}
-
 function hasVisibleBackground(style: CSSStyleDeclaration): boolean {
   const bg = style.backgroundColor
 
@@ -473,16 +467,18 @@ export function sanitizeMermaidSvg(svgStr: string, options: mermaidOptions) {
   svg.style.margin = `0 auto`
   document.body.appendChild(svg)
 
-  const vb = svg.viewBox.baseVal
+  if (!options.isSvgBackgroundless) {
+    const vb = svg.viewBox.baseVal
 
-  const bg = doc.createElementNS(`http://www.w3.org/2000/svg`, `rect`)
-  bg.setAttribute(`x`, String(vb.x))
-  bg.setAttribute(`y`, String(vb.y))
-  bg.setAttribute(`width`, String(vb.width))
-  bg.setAttribute(`height`, String(vb.height))
-  bg.setAttribute(`fill`, options.backgroundColor || `currentColor`)
+    const bg = doc.createElementNS(`http://www.w3.org/2000/svg`, `rect`)
+    bg.setAttribute(`x`, String(vb.x))
+    bg.setAttribute(`y`, String(vb.y))
+    bg.setAttribute(`width`, String(vb.width))
+    bg.setAttribute(`height`, String(vb.height))
+    bg.setAttribute(`fill`, options.backgroundColor || `currentColor`)
 
-  svg.insertBefore(bg, svg.firstChild)
+    svg.insertBefore(bg, svg.firstChild)
+  }
 
   const paths = Array.from(svg.querySelectorAll(`path, line, polyline`))
 

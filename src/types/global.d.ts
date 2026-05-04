@@ -49,3 +49,17 @@ interface FileSystemDirectoryHandle {
 }
 
 type PdfLib = `paged` | `vivliostyle`
+
+interface mermaidOptions {
+  themeMode?: `dark` | `light`
+  backgroundColor?: string
+  isSvgCompatibility?: boolean
+  isSvgBackgroundless?: boolean
+}
+
+interface InfographicOptions {
+  themeMode?: `dark` | `light`
+  fontSize?: Ref<string | number>
+  primaryColor?: Ref<string>
+  isSvgCompatibility?: Ref<boolean>
+}

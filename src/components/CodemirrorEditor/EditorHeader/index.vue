@@ -32,6 +32,8 @@ const {
   isCountStatus,
   output,
   primaryColor,
+  isSvgCompatibility,
+  isSvgBackgroundless,
   isOpenLeftSlider,
   editor,
 } = storeToRefs(store)
@@ -331,10 +333,11 @@ async function copy() {
     toggleDark()
     isDarkToggle = true
   }
+  const isBackgroundless = isSvgCompatibility.value ? isSvgBackgroundless.value : false
 
   setTimeout(() => {
     nextTick(async () => {
-      processClipboardContent(primaryColor.value)
+      processClipboardContent(primaryColor.value, isBackgroundless)
       const clipboardDiv = document.getElementById(`output`)!
       clipboardDiv.focus()
       window.getSelection()!.removeAllRanges()

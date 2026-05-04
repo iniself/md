@@ -119,6 +119,10 @@ export const useStore = defineStore(`store`, () => {
   const isSvgCompatibility = useStorage(`isSvgCompatibility`, true)
   const toggleSvgCompatibility = useToggle(isSvgCompatibility)
 
+  // svg 是否带背景
+  const isSvgBackgroundless = useStorage(`isSvgBackgroundless`, true)
+  const toggleSvgBackgroundless = useToggle(isSvgBackgroundless)
+
   // 是否自动保存到文件
   const isAutoSync = useStorage(`isAutoSync`, false)
   const toggleAutoSync = useToggle(isAutoSync)
@@ -697,6 +701,10 @@ export const useStore = defineStore(`store`, () => {
     toggleSvgCompatibility()
   })
 
+  const svgBackgroundlessChanged = withAfterRefresh(() => {
+    toggleSvgBackgroundless()
+  })
+
   const autoSyncChanged = withAfterRefresh(() => {
     toggleAutoSync()
   })
@@ -889,6 +897,9 @@ export const useStore = defineStore(`store`, () => {
     isSvgCompatibility,
     svgCompatibilityChanged,
 
+    isSvgBackgroundless,
+    svgBackgroundlessChanged,
+
     isAutoSync,
     autoSyncChanged,
 
@@ -1045,6 +1056,7 @@ export function getAllStoreStates() {
     isPageBreak: store.isPageBreak,
     pdfLib: store.pdfLib,
     isSvgCompatibility: store.isSvgCompatibility,
+    isSvgBackgroundless: store.isSvgBackgroundless,
     isAutoSync: store.isAutoSync,
     isOpenRightSlider: store.isOpenRightSlider,
     isOpenLeftSlider: store.isOpenLeftSlider,

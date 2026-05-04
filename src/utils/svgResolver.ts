@@ -1,4 +1,3 @@
-import type { Ref } from 'vue'
 import { exportToSVG, Infographic, loadSVGResource, registerResourceLoader, setDefaultFont, setFontExtendFactor } from '@antv/infographic'
 import { Marked } from 'marked'
 import mermaid from 'mermaid'
@@ -18,12 +17,6 @@ function simpleHash(str: string): string {
 
 const mermaidClassName = `mermaid-diagram`
 const mermaidCache = new Map<string, string>()
-
-interface mermaidOptions {
-  themeMode?: `dark` | `light`
-  backgroundColor?: string
-  isSvgCompatibility?: boolean
-}
 
 async function renderMermaid(id: string, code: string, cacheKey: string, options: mermaidOptions): Promise<string | void> {
   if (typeof window === `undefined`)
@@ -76,8 +69,7 @@ async function renderMermaid(id: string, code: string, cacheKey: string, options
 
 export async function getOrRenderMermaidSvg(el = `.mermaid`) {
   const store = useStore()
-  const { isDark, isSvgCompatibility } = storeToRefs(store)
-
+  const { isDark, isSvgCompatibility, primaryColor, isSvgBackgroundless } = storeToRefs(store)
   const themeMode = isDark.value ? `dark` : `light`
 
   const root = document.documentElement
@@ -90,6 +82,7 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
     themeMode,
     backgroundColor: setBackgroundColor,
     isSvgCompatibility: isSvgCompatibility.value,
+    isSvgBackgroundless: isSvgBackgroundless.value,
   }
 
   const elements = document.querySelectorAll(el)
@@ -101,7 +94,7 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
     else {
       code = mermaidDSLStore.get(node.id) ?? ``
     }
-    const cacheKey = simpleHash(`${code}-${options.themeMode || `light`}-${options.isSvgCompatibility}`)
+    const cacheKey = simpleHash(`${code}-${options.themeMode || `light`}-${primaryColor.value}-${options.isSvgCompatibility}-${options.isSvgBackgroundless}`)
     const cached = mermaidCache.get(cacheKey)
 
     if (cached) {
@@ -131,13 +124,6 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
 }
 
 // Infographic
-
-interface InfographicOptions {
-  themeMode?: `dark` | `light`
-  fontSize?: Ref<string | number>
-  primaryColor?: Ref<string>
-  isSvgCompatibility?: Ref<boolean>
-}
 
 const markedInstance = new Marked()
 markedInstance.use(markedTextExtension({ mode: `infographic` }))

@@ -184,6 +184,8 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
     isCiteStatus,
     output,
     primaryColor,
+    isSvgCompatibility,
+    isSvgBackgroundless,
     editor,
   } = storeToRefs(store)
 
@@ -208,15 +210,16 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
       toggleDark()
       isDarkToggle = true
     }
+    const isBackgroundless = isSvgCompatibility.value ? isSvgBackgroundless.value : false
 
     setTimeout(() => {
       nextTick(async () => {
         let all_css = ``
         if (mode === `outhtml`) {
-          all_css = processClipboardToHtmlFile(primaryColor.value)
+          all_css = processClipboardToHtmlFile(primaryColor.value, isBackgroundless)
         }
         else {
-          processClipboardContent(primaryColor.value)
+          processClipboardContent(primaryColor.value, isBackgroundless)
         }
         const clipboardDiv = document.getElementById(`output`)!
         clipboardDiv.focus()

@@ -381,9 +381,61 @@ export function initRenderer(opts: IOpts): RendererAPI {
         //   mermaid 80%
         //   mermaid 100%x400
         const store = useStore()
-        mermaid.initialize({
-          theme: store.isDark ? `dark` : `default`,
-        })
+
+        if (store.isSvgCompatibility && store.isSvgBackgroundless) {
+          mermaid.initialize({
+            theme: `base`,
+            themeCSS: `
+  .flowchart-link, .edgePath path {
+    stroke-width: 2px !important;
+  }
+  .messageLine0, .messageLine1 {
+    stroke-width: 2px !important;
+  }
+  .transition {
+    stroke-width: 2px !important;
+  }
+  `,
+            themeVariables: {
+              primaryColor: store.primaryColor,
+              primaryTextColor: `white`,
+              secondaryTextColor: `white`,
+              primaryBorderColor: store.primaryColor,
+
+              lineColor: store.primaryColor,
+              arrowheadColor: store.primaryColor,
+
+              nodeBorder: store.primaryColor,
+              edgeLabelBackground: store.primaryColor,
+              clusterBkg: `#f2f2f2`,
+              clusterBorder: `#4a4a4a`,
+
+              noteBkgColor: `#fff5ad`,
+              noteTextColor: `black`,
+
+              actorBkg: store.primaryColor,
+              actorBorder: store.primaryColor,
+              actorTextColor: `white`,
+
+              signalColor: store.primaryColor,
+              signalTextColor: store.primaryColor,
+
+              activationBkgColor: store.primaryColor,
+              activationBorderColor: store.primaryColor,
+
+              classBkg: store.primaryColor,
+              classBorder: store.primaryColor,
+              classText: `white`,
+
+              labelBackground: store.primaryColor,
+            },
+          })
+        }
+        else {
+          mermaid.initialize({
+            theme: store.isDark ? `dark` : `default`,
+          })
+        };
 
         // eslint-disable-next-line regexp/no-super-linear-backtracking
         const match = lang.match(/^mermaid(?:\s+([0-9%]+(?:x[0-9%]+)?))?(?:\s+(.*))?$/)

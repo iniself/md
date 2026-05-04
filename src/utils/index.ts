@@ -762,7 +762,7 @@ function checkNeedFontawesomeClass(doc: HTMLElement) {
   return [...svgs].some(el => el.classList.length > 2)
 }
 
-export function processClipboardContent(primaryColor: string) {
+export function processClipboardContent(primaryColor: string, isSvgBackgroundless: boolean) {
   const clipboardDiv = document.getElementById(`output`)!
 
   // 先合并 CSS 和修改 HTML 结构
@@ -810,7 +810,7 @@ export function processClipboardContent(primaryColor: string) {
   // fix: mermaid 部分文本颜色被 stroke 覆盖
   const container = clipboardDiv.querySelector(`.mermaid-diagram`)
 
-  if (container) {
+  if (container && !isSvgBackgroundless) {
     const tspans = container.querySelectorAll<SVGElement>(`svg tspan`)
 
     tspans.forEach((tspan) => {
@@ -821,7 +821,7 @@ export function processClipboardContent(primaryColor: string) {
   }
 }
 
-export function processClipboardToHtmlFile(_primaryColor: string) {
+export function processClipboardToHtmlFile(_primaryColor: string, isSvgBackgroundless: boolean = false) {
   const clipboardDiv = document.getElementById(`output`)!
 
   const hljsStyle = document.getElementById(`hljs`)
@@ -862,7 +862,7 @@ export function processClipboardToHtmlFile(_primaryColor: string) {
 
   const container = clipboardDiv.querySelector(`.mermaid-diagram`)
 
-  if (container) {
+  if (container && !isSvgBackgroundless) {
     const tspans = container.querySelectorAll<SVGElement>(`svg tspan`)
 
     tspans.forEach((tspan) => {

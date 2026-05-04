@@ -344,7 +344,25 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         </div>
       </div>
       <div class="space-y-2">
-        <h2>SVG兼容模式</h2>
+        <div class="flex items-center gap-2">
+          <h2>SVG兼容模式</h2>
+          <Popover>
+            <PopoverTrigger as-child>
+              <button>
+                ?
+              </button>
+            </PopoverTrigger>
+            <PopoverContent class="w-64 text-sm">
+              <div class="space-y-2">
+                <div class="font-bold">
+                  兼容模式说明：
+                </div>
+                <p>当 SVG 需要导出文件或则复制到微信公众号时，需要开启兼容模式。</p>
+                <p>💡 仅对 mermaid 和 infograhpic 有效</p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button
             class="w-full" variant="outline" :class="{
@@ -359,6 +377,47 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
             }" @click="store.isSvgCompatibility && store.svgCompatibilityChanged()"
           >
             关闭
+          </Button>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-center gap-2">
+          <h2>SVG背景</h2>
+          <Popover>
+            <PopoverTrigger as-child>
+              <button>
+                ?
+              </button>
+            </PopoverTrigger>
+            <PopoverContent class="w-64 text-sm">
+              <div class="space-y-2">
+                <div class="font-bold">
+                  背景说明：
+                </div>
+                <p>该设置用于适配深色和浅色主题。</p>
+                <p>“移除”的 SVG 透明。采用 Docs<sup style="color:red">+</sup> 主题色作为 SVG 主题颜色。</p>
+                <p>“保留“则有白色背景，效果类似深色主题下的一张有白色背景的图片。</p>
+                <p>💡 仅兼容模式开启时有效</p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div class="grid grid-cols-5 justify-items-center gap-2">
+          <Button
+            :disabled="!store.isSvgCompatibility"
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': store.isSvgBackgroundless,
+            }" @click="!store.isSvgBackgroundless && store.svgBackgroundlessChanged()"
+          >
+            移除
+          </Button>
+          <Button
+            :disabled="!store.isSvgCompatibility"
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': !store.isSvgBackgroundless,
+            }" @click="store.isSvgBackgroundless && store.svgBackgroundlessChanged()"
+          >
+            保留
           </Button>
         </div>
       </div>

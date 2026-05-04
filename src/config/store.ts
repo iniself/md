@@ -40,5 +40,6 @@ export const storeLabels: Record<string, string> = {
   isPageBreak: `PDF分页模式`,
   pdfLib: `PDF排版引擎`,
   isSvgCompatibility: `SVG兼容模式`,
+  isSvgBackgroundless: `SVG背景`,
   syncFileToPost: `保存文件模式`,
 }
