@@ -709,8 +709,8 @@ ${admonition_css}
 ${chatMessage_css}
 `
 
-function mergeCss(html: string, needFontawesomeClass: boolean): string {
-  let css = ALL_CSS
+function mergeCss(html: string, needFontawesomeClass: boolean, mermaidStyle: string = ``): string {
+  let css = ALL_CSS + mermaidStyle
   if (needFontawesomeClass) {
     css += fontawesome_css
   }
@@ -765,8 +765,18 @@ function checkNeedFontawesomeClass(doc: HTMLElement) {
 export function processClipboardContent(primaryColor: string, isSvgBackgroundless: boolean) {
   const clipboardDiv = document.getElementById(`output`)!
 
+  const mermaidStyle = Array.from(
+    clipboardDiv.querySelectorAll(`.mermaid-diagram svg style`),
+  )
+    .map(el => el.textContent || ``)
+    .join(`\n`)
+
+  clipboardDiv
+    .querySelectorAll(`.mermaid-diagram svg style`)
+    .forEach(el => el.remove())
+
   // 先合并 CSS 和修改 HTML 结构
-  clipboardDiv.innerHTML = modifyHtmlStructure(mergeCss(clipboardDiv.innerHTML, checkNeedFontawesomeClass(clipboardDiv)))
+  clipboardDiv.innerHTML = modifyHtmlStructure(mergeCss(clipboardDiv.innerHTML, checkNeedFontawesomeClass(clipboardDiv), mermaidStyle))
 
   // 处理样式和颜色变量
   clipboardDiv.innerHTML = clipboardDiv.innerHTML

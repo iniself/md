@@ -386,16 +386,18 @@ export function initRenderer(opts: IOpts): RendererAPI {
           mermaid.initialize({
             theme: `base`,
             themeCSS: `
-  .flowchart-link, .edgePath path {
-    stroke-width: 2px !important;
-  }
-  .messageLine0, .messageLine1 {
-    stroke-width: 2px !important;
-  }
-  .transition {
-    stroke-width: 2px !important;
-  }
-  `,
+.flowchart-link, .edgePath path {
+  stroke-width: 2px !important;
+}
+.messageLine0, .messageLine1 {
+  stroke-width: 2px !important;
+}
+.transition {
+  stroke-width: 2px !important;
+}
+.statediagramTitleText { fill: ${store.primaryColor} !important; }
+.flowchartTitleText { fill: ${store.primaryColor} !important; }
+`,
             themeVariables: {
               primaryColor: store.primaryColor,
               primaryTextColor: `white`,
