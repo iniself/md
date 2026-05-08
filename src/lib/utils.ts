@@ -133,7 +133,8 @@ function hasVisibleBackground(style: CSSStyleDeclaration): boolean {
   return true
 }
 
-function getTextMetrics(text: string, fontSize: number, fontFamily: string = `sans-serif`): {
+// TODO: may be used for SVG text layout fallback in future
+function _getTextMetrics(text: string, fontSize: number, fontFamily: string = `sans-serif`): {
   ascent: number
   descent: number
 } {
@@ -171,6 +172,7 @@ export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
 
     const x: number = Number.parseFloat(fo.getAttribute(`x`) || `0`)
     const y: number = Number.parseFloat(fo.getAttribute(`y`) || `0`)
+    const height = Number.parseFloat(fo.getAttribute(`height`) || `0`)
     const width: number = Number.parseFloat(fo.getAttribute(`width`) || `0`)
 
     const style: CSSStyleDeclaration = window.getComputedStyle(span)
@@ -191,10 +193,8 @@ export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
       lineHeight = fontSize * 1.4
     }
 
-    const { ascent } = getTextMetrics(textContent, fontSize, fontFamily)
-
     const finalX: number = x + width / 2
-    const finalY: number = y + (lineHeight - fontSize) / 2 + ascent
+    const finalY: number = y + height / 2
 
     const textEl: SVGTextElement = document.createElementNS(
       `http://www.w3.org/2000/svg`,
@@ -203,6 +203,9 @@ export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
 
     textEl.setAttribute(`x`, String(finalX))
     textEl.setAttribute(`y`, String(finalY))
+    textEl.setAttribute(`dominant-baseline`, `middle`)
+    textEl.setAttribute(`alignment-baseline`, `middle`)
+
     textEl.setAttribute(`font-size`, String(fontSize))
     textEl.setAttribute(`font-weight`, String(fontWeight))
     textEl.setAttribute(`font-family`, fontFamily)
@@ -359,6 +362,7 @@ function convertMermaidForeignObjects(svg: SVGSVGElement): SVGSVGElement {
 
     const x: number = Number.parseFloat(fo.getAttribute(`x`) || `0`)
     const y: number = Number.parseFloat(fo.getAttribute(`y`) || `0`)
+    const height = Number.parseFloat(fo.getAttribute(`height`) || `0`)
     const width: number = Number.parseFloat(fo.getAttribute(`width`) || `0`)
 
     const style: CSSStyleDeclaration = window.getComputedStyle(span)
@@ -379,10 +383,8 @@ function convertMermaidForeignObjects(svg: SVGSVGElement): SVGSVGElement {
       lineHeight = fontSize * 1.4
     }
 
-    const { ascent } = getTextMetrics(textContent, fontSize, fontFamily)
-
     const finalX: number = x + width / 2
-    const finalY: number = y + (lineHeight - fontSize) / 2 + ascent
+    const finalY: number = y + height / 2
 
     const textEl: SVGTextElement = document.createElementNS(
       `http://www.w3.org/2000/svg`,
@@ -391,6 +393,9 @@ function convertMermaidForeignObjects(svg: SVGSVGElement): SVGSVGElement {
 
     textEl.setAttribute(`x`, String(finalX))
     textEl.setAttribute(`y`, String(finalY))
+    textEl.setAttribute(`dominant-baseline`, `middle`)
+    textEl.setAttribute(`alignment-baseline`, `middle`)
+
     textEl.setAttribute(`font-size`, String(fontSize))
     textEl.setAttribute(`font-weight`, String(fontWeight))
     textEl.setAttribute(`font-family`, fontFamily)
