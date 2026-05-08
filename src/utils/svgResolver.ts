@@ -2,7 +2,7 @@ import { exportToSVG, Infographic, loadSVGResource, registerResourceLoader, setD
 import { Marked } from 'marked'
 import mermaid from 'mermaid'
 import { infographicClassName } from '@/config/infographicConfig'
-import { convertInfographicForeignObjects, fixInfographicGradientFromDom, infographicDSLStore, mermaidDSLStore, sanitizeMermaidSvg, toHSLString } from '@/lib/utils'
+import { convertInfographicForeignObjects, extractInfographicDefsFromDom, infographicDSLStore, mermaidDSLStore, sanitizeMermaidSvg, toHSLString } from '@/lib/utils'
 import markedTextExtension from './MDTextExtension'
 
 function simpleHash(str: string): string {
@@ -252,7 +252,7 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
               const svg = await exportToSVG(node, { removeIds: true })
               if (isSvgCompatibility?.value) {
                 convertInfographicForeignObjects(svg)
-                container.replaceChildren(fixInfographicGradientFromDom(svg))
+                container.replaceChildren(extractInfographicDefsFromDom(svg))
               }
               else {
                 container.replaceChildren(svg)

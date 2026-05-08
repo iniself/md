@@ -268,8 +268,8 @@ export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
   svg.remove()
 }
 
-export function fixInfographicGradientFromDom(svgEl: SVGSVGElement): SVGSVGElement {
-  const gradientMap = new Map<string, boolean>()
+export function extractInfographicDefsFromDom(svgEl: SVGSVGElement): SVGSVGElement {
+  const defMap = new Map<string, boolean>()
 
   let defs = svgEl.querySelector(`defs`) as SVGDefsElement | null
 
@@ -282,56 +282,69 @@ export function fixInfographicGradientFromDom(svgEl: SVGSVGElement): SVGSVGEleme
     svgEl.insertBefore(defs, svgEl.firstChild)
   }
 
-  const elements = svgEl.querySelectorAll<SVGElement>(`[stroke],[fill]`)
+  const elements = svgEl.querySelectorAll<SVGElement>(`[stroke],[fill],[filter]`)
 
   elements.forEach((el: SVGElement) => {
-    ([`stroke`, `fill`] as const).forEach((attr) => {
+    ;([`stroke`, `fill`, `filter`] as const).forEach((attr) => {
       const val = el.getAttribute(attr)
       if (!val)
         return
 
-      const match = val.match(
-        /data:image\/svg\+xml;charset=utf-8,([\s\S]*?)(?:"|')?\)/,
-      )
-      if (!match)
+      const urlMatch = val.match(/url\((['"]?)(.*?)\1\)/)
+
+      if (!urlMatch)
         return
 
-      const decoded = decodeURIComponent(match[1])
+      const urlContent = urlMatch[2]
+      const hashIndex = urlContent.lastIndexOf(`#`)
 
-      const idMatch = decoded.match(/#([\w-]+)$/)
-      const refId = idMatch?.[1]
+      if (hashIndex === -1)
+        return
 
-      const gradients = decoded.match(
-        /<linearGradient[\s\S]*?<\/linearGradient>/g,
+      const encodedSvg = urlContent.slice(0, hashIndex)
+
+      const refId = decodeURIComponent(
+        urlContent.slice(hashIndex + 1),
       )
-      if (gradients) {
-        gradients.forEach((grad) => {
-          const idMatch = grad.match(/id="([^"]+)"/)
+
+      if (!refId)
+        return
+
+      const decoded = decodeURIComponent(encodedSvg)
+
+      const defsMatches = decoded.match(
+        /<(linearGradient|filter)[\s\S]*?<\/\1>/g,
+      )
+
+      if (defsMatches) {
+        defsMatches.forEach((def) => {
+          const idMatch = def.match(/id="([^"]+)"/)
           if (!idMatch)
             return
 
           const id = idMatch[1]
 
-          if (!gradientMap.has(id)) {
-            gradientMap.set(id, true)
+          if (!defMap.has(id)) {
+            defMap.set(id, true)
 
             const temp = document.createElementNS(
               `http://www.w3.org/2000/svg`,
               `g`,
             )
-            temp.innerHTML = grad
+            temp.innerHTML = def
 
             const node = temp.firstElementChild
+
             if (node) {
-              const gradEl = node as SVGLinearGradientElement
+              const defEl = node as SVGElement
 
-              const originalId = gradEl.getAttribute(`id`)
+              const originalId = defEl.getAttribute(`id`)
               if (originalId) {
-                gradEl.setAttribute(`data-origin-id`, originalId)
+                defEl.setAttribute(`data-origin-id`, originalId)
               }
-
-              gradEl.setAttribute(`data-fixed-def`, gradEl.tagName.toLowerCase())
-              defs!.appendChild(gradEl)
+              defEl.setAttribute(`id`, id)
+              defEl.setAttribute(`data-fixed-def`, defEl.tagName.toLowerCase())
+              defs!.appendChild(defEl.cloneNode(true))
             }
           }
         })
