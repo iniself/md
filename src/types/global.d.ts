@@ -62,4 +62,5 @@ interface InfographicOptions {
   fontSize?: Ref<string | number>
   primaryColor?: Ref<string>
   isSvgCompatibility?: Ref<boolean>
+  isSvgBackgroundless?: Ref<boolean>
 }

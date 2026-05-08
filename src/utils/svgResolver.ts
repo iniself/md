@@ -174,32 +174,66 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
           const fontSize = options?.fontSize
           const primaryColor = options?.primaryColor
           const isSvgCompatibility = options?.isSvgCompatibility
+          const isSvgBackgroundless = options?.isSvgBackgroundless
 
           const root = document.documentElement
           const computedStyle = getComputedStyle(root)
           const backgroundColor = computedStyle.getPropertyValue(`--background`).trim()
-
-          const instance = new Infographic({
-            container,
-            svg: {
-              style: {
-                width: `100%`,
-                height: `100%`,
+          const instance = isSvgCompatibility?.value && isSvgBackgroundless?.value
+            ? new Infographic({
+              container,
+              svg: {
+                style: {
+                  width: `100%`,
+                  height: `100%`,
+                },
               },
-            },
-            theme: isDark ? `dark` : `default`,
-            themeConfig: {
-              colorPrimary: primaryColor?.value || undefined,
-              colorBg: isDark ? `transparent` : toHSLString(backgroundColor) || undefined,
-              title: {
-                'font-size': fontSize?.value ? typeof fontSize?.value === `number` ? fontSize?.value : Number.parseFloat(fontSize?.value) : undefined,
-                'font-weight': `bold`,
+              themeConfig: {
+                colorBg: `transparent`,
+                colorPrimary: primaryColor?.value || undefined,
+                base: {
+                  shape: {
+                    stroke: primaryColor?.value,
+                  },
+                  text: {
+                    fill: primaryColor?.value,
+                  },
+                },
+                item: {
+                  shape: {
+                    fill: `white`,
+                  },
+                },
+                title: {
+                  'font-size': fontSize?.value ? typeof fontSize?.value === `number` ? fontSize?.value : Number.parseFloat(fontSize?.value) : undefined,
+                  'font-weight': `bold`,
+                },
+                desc: {
+                  'font-size': fontSize?.value ? Math.floor((typeof fontSize.value === `number` ? fontSize.value : Number.parseFloat(fontSize.value)) * 0.8) : undefined,
+                },
               },
-              desc: {
-                'font-size': fontSize?.value ? Math.floor((typeof fontSize.value === `number` ? fontSize.value : Number.parseFloat(fontSize.value)) * 0.8) : undefined,
+            })
+            : new Infographic({
+              container,
+              svg: {
+                style: {
+                  width: `100%`,
+                  height: `100%`,
+                },
               },
-            },
-          })
+              theme: isDark ? `dark` : `default`,
+              themeConfig: {
+                colorPrimary: primaryColor?.value || undefined,
+                colorBg: isDark ? `transparent` : toHSLString(backgroundColor) || undefined,
+                title: {
+                  'font-size': fontSize?.value ? typeof fontSize?.value === `number` ? fontSize?.value : Number.parseFloat(fontSize?.value) : undefined,
+                  'font-weight': `bold`,
+                },
+                desc: {
+                  'font-size': fontSize?.value ? Math.floor((typeof fontSize.value === `number` ? fontSize.value : Number.parseFloat(fontSize.value)) * 0.8) : undefined,
+                },
+              },
+            })
 
           let resolved = false
           const timeoutId = setTimeout(() => {
@@ -262,12 +296,13 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
 
 export async function getOrRenderInfographicSvg(el = `.infographic`) {
   const store = useStore()
-  const { isDark, fontSize, primaryColor, isSvgCompatibility } = storeToRefs(store)
+  const { isDark, fontSize, primaryColor, isSvgCompatibility, isSvgBackgroundless } = storeToRefs(store)
   const options: InfographicOptions = {
     themeMode: isDark.value ? `dark` : `light`,
     fontSize,
     primaryColor,
     isSvgCompatibility,
+    isSvgBackgroundless,
   }
 
   const elements = document.querySelectorAll(el)
@@ -280,7 +315,7 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
       code = infographicDSLStore.get(node.id) ?? ``
     }
 
-    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}-${options.fontSize?.value}`)
+    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}-${options.fontSize?.value}-${options.primaryColor?.value}`)
     const cached = infographicCache.get(cacheKey)
 
     if (cached) {
