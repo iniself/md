@@ -37,7 +37,7 @@
     "package:extension": "npm --prefix ./src/extension run package"
   },
   "dependencies": {
-    "@antv/infographic": "^0.2.13",
+    "@antv/infographic": "^0.2.19",
     "@aws-sdk/client-s3": "^3.777.0",
     "@aws-sdk/s3-request-presigner": "^3.777.0",
     "@fortawesome/fontawesome-free": "^7.2.0",
