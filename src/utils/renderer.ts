@@ -534,7 +534,6 @@ export function initRenderer(opts: IOpts): RendererAPI {
       figureStyleParts.push(`margin: 0 auto`)
 
       const imgStyleParts = []
-      imgStyleParts.push(`width: 100%; height: 100%`)
 
       let { relHref, width, height, fit } = extractImageInfo(href)
       if (relHref) {
