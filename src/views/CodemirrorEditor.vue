@@ -19,11 +19,13 @@ import {
 } from '@/components/ui/resizable'
 import { SearchTab } from '@/components/ui/search-tab'
 import getImgHostOptions from '@/composables/imageHostOptions'
+import { infographicDSLStore, mermaidDSLStore } from '@/lib/utils'
 import { useFolderSourceStore } from '@/stores/folderSource'
 import { checkImage, toBase64 } from '@/utils'
 import { createExtraKeys } from '@/utils/editor'
 import fetch from '@/utils/fetch'
 import { fileMigrate, fileUpload } from '@/utils/file'
+import { svgToTransparentPng } from '@/utils/svg2png'
 
 const store = useStore()
 const folderSourceStore = useFolderSourceStore()
@@ -123,42 +125,89 @@ function leftAndRightScroll() {
 const migrateImg: {
   file: File | null
   oldUrl: string
+  isSVG: boolean
 } = {
   file: null,
   oldUrl: ``,
+  isSVG: false,
 }
 
 async function onPreviewContextMenu(e: MouseEvent) {
+  const svgElement = (e.target as HTMLElement).closest(`svg`)
   const img = (e.target as HTMLElement).closest(`img`)
-  if (!img)
+
+  if (!img && !svgElement)
     return
 
-  e.preventDefault()
-  const imgUrl = img.getAttribute(`src`)
-  if (!imgUrl) {
-    return
-  }
-  try {
-    const migrateImgBlob: Blob = await fetch.get(imgUrl!, {
-      responseType: `blob`,
-    })
-    toggleShowUploadImgToAnotherHostDialog()
-    if (migrateImgBlob) {
-      const ext = migrateImgBlob.type.split(`/`)[1]
-      const random = crypto.randomUUID()
-      const filename = `${random}.${ext}`
-
-      migrateImg.file = new File([migrateImgBlob], filename, {
-        type: migrateImgBlob.type,
-      })
-      migrateImg.oldUrl = imgUrl
+  if (img) {
+    e.preventDefault()
+    const imgUrl = img.getAttribute(`src`)
+    if (!imgUrl) {
+      return
     }
-    else {
+    try {
+      const migrateImgBlob: Blob = await fetch.get(imgUrl!, {
+        responseType: `blob`,
+      })
+      displayStore.migrateType = `image`
+      toggleShowUploadImgToAnotherHostDialog()
+      if (migrateImgBlob) {
+        const ext = migrateImgBlob.type.split(`/`)[1]
+        const random = crypto.randomUUID()
+        const filename = `${random}.${ext}`
+
+        migrateImg.file = new File([migrateImgBlob], filename, {
+          type: migrateImgBlob.type,
+        })
+        migrateImg.oldUrl = imgUrl
+      }
+      else {
+        toast.error(`获取图片失败，请手动操作`)
+      }
+    }
+    catch {
       toast.error(`获取图片失败，请手动操作`)
     }
   }
-  catch {
-    toast.error(`获取图片失败，请手动操作`)
+
+  if (svgElement && (svgElement.parentElement!.classList.contains(`mermaid-diagram`) || svgElement.parentElement!.classList.contains(`infographic-diagram`))) {
+    e.preventDefault()
+
+    const figureEl = svgElement.closest(`figure`)
+    if (!figureEl || !figureEl.id)
+      return
+
+    const id = figureEl.id
+    let dsl = ``
+    if (id.startsWith(`infographic`)) {
+      dsl = infographicDSLStore.get(figureEl.id) ?? ``
+    }
+    else if (id.startsWith(`mermaid`)) {
+      dsl = mermaidDSLStore.get(figureEl.id) ?? ``
+    }
+
+    try {
+      const migrateImgBlob = await svgToTransparentPng(svgElement)
+      displayStore.migrateType = `svg`
+      toggleShowUploadImgToAnotherHostDialog()
+      if (migrateImgBlob) {
+        const ext = migrateImgBlob.type.split(`/`)[1]
+        const random = crypto.randomUUID()
+        const filename = `${random}.${ext}`
+
+        migrateImg.file = new File([migrateImgBlob], filename, {
+          type: migrateImgBlob.type,
+        })
+        migrateImg.oldUrl = dsl
+        migrateImg.isSVG = true
+      }
+      else {
+        toast.error(`获取图片失败，请手动操作`)
+      }
+    }
+    catch {
+      toast.error(`获取图片失败，请手动操作`)
+    }
   }
 }
 
@@ -271,7 +320,7 @@ function uploaded(imageUrl: string) {
 }
 
 // 图片迁移结束
-function migrated(newUrl: string, oldUrl: string) {
+function migrated(newUrl: string, oldUrl: string, isSVG: boolean) {
   if (!newUrl) {
     toast.error(`上传图片未知异常`)
     return
@@ -280,10 +329,48 @@ function migrated(newUrl: string, oldUrl: string) {
     toggleShowUploadImgToAnotherHostDialog(false)
   }, 1000)
 
-  // 代替当前链接
   const oldContent = editor.value!.getValue()
-  const newConent = oldContent.split(oldUrl).join(newUrl)
-  editor.value!.setValue(newConent)
+
+  if (isSVG) {
+    const blockRegex
+      = /^```(infographic|mermaid)([^\r\n]*)\r?\n([\s\S]*?)\r?\n```[ \t]*$/gm
+
+    const matches = [...oldContent.matchAll(blockRegex)]
+
+    for (const match of matches) {
+      const fullBlock = match[0]
+
+      const headerLine = match[2].trim()
+      const code = match[3]
+
+      const parts = headerLine.split(/\s+/)
+
+      const size = parts.length >= 1 ? parts[0] : null
+      const caption = parts.length >= 2 ? parts.slice(1).join(` `) : null
+
+      if (code.trim() === oldUrl.trim()) {
+        const start = match.index!
+        const end = start + fullBlock.length
+
+        const sizeStr = size ? `=${size}` : ``
+        const captionStr = caption || ``
+        const replacement = `![${captionStr}](${newUrl} ${sizeStr})`
+
+        const newContent
+          = oldContent.slice(0, start)
+            + replacement
+            + oldContent.slice(end)
+
+        editor.value!.setValue(newContent)
+        return
+      }
+    }
+  }
+  else {
+    const newContent = oldContent.split(oldUrl).join(newUrl)
+    editor.value!.setValue(newContent)
+  }
+
   toast.success(`图片迁移成功`)
 }
 
@@ -337,7 +424,7 @@ async function migrateImage(
       isUploadWithDefaultImageHostConfirmDialog.value = true
     }
     else {
-      await migrateImageReal(migrateImg.file, migrateImg.oldUrl, cb, applyUrl)
+      await migrateImageReal(migrateImg.file, migrateImg.oldUrl, migrateImg.isSVG, cb, applyUrl)
     }
   }
 }
@@ -393,6 +480,7 @@ async function uploadImageReal(
 async function migrateImageReal(
   file?: File,
   oldUrl?: string,
+  isSVG?: boolean,
   cb?: { (url: any, data: string): void, (arg0: unknown): void } | undefined,
   applyUrl?: boolean,
 ) {
@@ -412,10 +500,10 @@ async function migrateImageReal(
       cb(url, base64Content)
     }
     else {
-      migrated(url, oldUrl!)
+      migrated(url, oldUrl!, isSVG!)
     }
     if (applyUrl) {
-      return migrated(url, oldUrl!)
+      return migrated(url, oldUrl!, isSVG!)
     }
   }
   catch (err) {
@@ -1021,6 +1109,14 @@ onUnmounted(() => {
 }
 
 #preview :deep(img) {
+  cursor: pointer;
+}
+
+#preview :deep(.infographic-diagram svg) {
+  cursor: pointer;
+}
+
+#preview :deep(.mermaid-diagram svg) {
   cursor: pointer;
 }
 </style>

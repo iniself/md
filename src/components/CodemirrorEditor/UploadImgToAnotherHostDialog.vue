@@ -402,9 +402,9 @@ function emitUploads() {
   <Dialog v-model:open="displayStore.isShowUploadImgToAnotherHostDialog">
     <DialogContent class="max-w-max" @pointer-down-outside="ev => ev.preventDefault()">
       <DialogHeader>
-        <DialogTitle>迁移图片</DialogTitle>
+        <DialogTitle>{{ displayStore.migrateType === "image" ? "迁移图片" : "迁移 SVG" }}</DialogTitle>
         <DialogDescription>
-          用于将已有图片上传到其他图床
+          {{ displayStore.migrateType === "image" ? "将已有图片上传到其他图床。" : "将 SVG 转 PNG 并上传到图床" }}
         </DialogDescription>
       </DialogHeader>
       <Progress v-model="progressValue" class="absolute left-0 right-0 rounded-none" style="height: 2px;" />

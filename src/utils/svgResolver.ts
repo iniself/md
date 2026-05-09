@@ -123,7 +123,6 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
       }
     }
   }
-  mermaidDSLStore.clear()
 }
 
 // Infographic
@@ -349,7 +348,6 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
       }
     }
   }
-  infographicDSLStore.clear()
 }
 
 /**
