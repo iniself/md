@@ -320,7 +320,7 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
       code = infographicDSLStore.get(figureEl.id) ?? ``
     }
 
-    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}-${options.fontSize?.value}-${options.primaryColor?.value}`)
+    const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}-${options.fontSize?.value}-${options.primaryColor?.value}-${options.isSvgBackgroundless?.value}`)
     const cached = infographicCache.get(cacheKey)
 
     if (cached) {
