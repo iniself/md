@@ -64,9 +64,10 @@ export default function markedInfographic(): MarkedExtension {
             }
 
             const preId = `infographic-pre-${genInfographicId()}`
-            const figureHTML = `<figure style="text-align:center; ${style}"><pre class="infographic" data-processed="true" id="${preId}">${token.text}</pre>${caption}</figure>`
+            const figureId = `infographic-figure-${genInfographicId()}`
+            const figureHTML = `<figure id=${figureId} style="text-align:center; ${style}"><pre class="infographic" data-processed="true" id="${preId}">${token.text}</pre>${caption}</figure>`
 
-            infographicDSLStore.set(preId, token.text)
+            infographicDSLStore.set(figureId, token.text)
 
             return figureHTML
           }

@@ -461,13 +461,11 @@ export function initRenderer(opts: IOpts): RendererAPI {
         }
 
         const preId = `mermaid-pre-${genMermaidId()}`
+        const figureId = `mermaid-figure-${genMermaidId()}`
 
-        const figureHTML = `<figure style="text-align:center; ${style}">
-          <pre class="mermaid" data-processed="true" id="${preId}">${text}</pre>
-          ${caption}
-        </figure>`
+        const figureHTML = `<figure id=${figureId} style="text-align:center; ${style}"><pre class="mermaid" data-processed="true" id="${preId}">${text}</pre>${caption}</figure>`
 
-        mermaidDSLStore.set(preId, text)
+        mermaidDSLStore.set(figureId, text)
 
         return figureHTML
       }

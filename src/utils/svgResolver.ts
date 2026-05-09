@@ -87,12 +87,15 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
 
   const elements = document.querySelectorAll(el)
   for (const node of elements) {
+    const figureEl = node.parentElement
+    if (!figureEl || figureEl.tagName.toLowerCase() !== `figure`)
+      return
     let code = ``
     if (options.isSvgCompatibility) {
       code = node.textContent ?? ``
     }
     else {
-      code = mermaidDSLStore.get(node.id) ?? ``
+      code = mermaidDSLStore.get(figureEl.id) ?? ``
     }
     const cacheKey = simpleHash(`${code}-${options.themeMode || `light`}-${primaryColor.value}-${options.isSvgCompatibility}-${options.isSvgBackgroundless}`)
     const cached = mermaidCache.get(cacheKey)
@@ -307,12 +310,15 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
 
   const elements = document.querySelectorAll(el)
   for (const node of elements) {
+    const figureEl = node.parentElement
+    if (!figureEl || figureEl.tagName.toLowerCase() !== `figure`)
+      return
     let code = ``
     if (options.isSvgCompatibility?.value) {
       code = node.textContent ?? ``
     }
     else {
-      code = infographicDSLStore.get(node.id) ?? ``
+      code = infographicDSLStore.get(figureEl.id) ?? ``
     }
 
     const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}-${options.fontSize?.value}-${options.primaryColor?.value}`)
