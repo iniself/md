@@ -28,8 +28,8 @@ export async function svgToTransparentPng(svgElement: SVGSVGElement): Promise<Bl
 
   const canvas = document.createElement(`canvas`)
 
-  canvas.width = width * scale
-  canvas.height = height * scale
+  canvas.width = Math.round(width * scale)
+  canvas.height = Math.round(height * scale)
 
   canvas.style.width = `${width}px`
   canvas.style.height = `${height}px`
