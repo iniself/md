@@ -134,29 +134,29 @@ function hasVisibleBackground(style: CSSStyleDeclaration): boolean {
 }
 
 // TODO: may be used for SVG text layout fallback in future
-function _getTextMetrics(text: string, fontSize: number, fontFamily: string = `sans-serif`): {
-  ascent: number
-  descent: number
-} {
-  const canvas: HTMLCanvasElement = document.createElement(`canvas`)
-  const ctx = canvas.getContext(`2d`)
+// function getTextMetrics(text: string, fontSize: number, fontFamily: string = `sans-serif`): {
+//   ascent: number
+//   descent: number
+// } {
+//   const canvas: HTMLCanvasElement = document.createElement(`canvas`)
+//   const ctx = canvas.getContext(`2d`)
 
-  if (!ctx) {
-    return {
-      ascent: fontSize * 0.8,
-      descent: fontSize * 0.2,
-    }
-  }
+//   if (!ctx) {
+//     return {
+//       ascent: fontSize * 0.8,
+//       descent: fontSize * 0.2,
+//     }
+//   }
 
-  ctx.font = `${fontSize}px ${fontFamily}`
+//   ctx.font = `${fontSize}px ${fontFamily}`
 
-  const metrics = ctx.measureText(text)
+//   const metrics = ctx.measureText(text)
 
-  return {
-    ascent: metrics.actualBoundingBoxAscent || fontSize * 0.8,
-    descent: metrics.actualBoundingBoxDescent || fontSize * 0.2,
-  }
-}
+//   return {
+//     ascent: metrics.actualBoundingBoxAscent || fontSize * 0.8,
+//     descent: metrics.actualBoundingBoxDescent || fontSize * 0.2,
+//   }
+// }
 
 export function convertInfographicForeignObjects(svg: SVGSVGElement): void {
   const foreignObjects: NodeListOf<SVGForeignObjectElement> = svg.querySelectorAll(`foreignObject`)
@@ -498,22 +498,44 @@ export function sanitizeMermaidSvg(svgStr: string, options: mermaidOptions) {
     svg.insertBefore(bg, svg.firstChild)
   }
 
-  const paths = Array.from(svg.querySelectorAll(`path, line, polyline`))
+  const paths = Array.from(svg.querySelectorAll(`path, line, polyline`)) as SVGGraphicsElement[]
 
-  function getDirection(path: SVGPathElement) {
-    const len = path.getTotalLength()
-    if (len < 2)
-      return null
+  function getDirection(el: SVGGraphicsElement) {
+    // path
+    if (el instanceof SVGPathElement) {
+      const len = el.getTotalLength()
+      if (len < 2)
+        return null
 
-    const p2 = path.getPointAtLength(len)
-    const p1 = path.getPointAtLength(len - 1)
+      const p2 = el.getPointAtLength(len)
+      const p1 = el.getPointAtLength(len - 1)
 
-    return {
-      x1: p1.x,
-      y1: p1.y,
-      x2: p2.x,
-      y2: p2.y,
+      return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y }
     }
+
+    // line
+    if (el instanceof SVGLineElement) {
+      return {
+        x1: el.x1.baseVal.value,
+        y1: el.y1.baseVal.value,
+        x2: el.x2.baseVal.value,
+        y2: el.y2.baseVal.value,
+      }
+    }
+
+    // polyline
+    if (el instanceof SVGPolylineElement) {
+      const points = el.points
+      if (points.length < 2)
+        return null
+
+      const p1 = points.getItem(points.length - 2)
+      const p2 = points.getItem(points.length - 1)
+
+      return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y }
+    }
+
+    return null
   }
 
   function drawArrow(type: string, x: number, y: number, angle: number, color: string, size: number) {
