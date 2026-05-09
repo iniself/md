@@ -255,7 +255,7 @@ Markdown 允许嵌入 LaTeX 语法展示数学公式：
 
 ## Mermaid 流程图：可视化流程
 
-Mermaid 是强大的可视化工具，可以在 Markdown 中创建流程图、时序图等。Doc^red:+^ 支持设置图形大小和标题。
+Mermaid 是强大的可视化工具，可以在 Markdown 中创建流程图、时序图等。Doc^red:+^ 支持设置图形大小和图注。
 
 ```mermaid 70% 横向流程图
 graph LR
@@ -332,7 +332,7 @@ pie
 
 ## Infographic 信息图：可视化数据
 
-新一代信息图可视化引擎，让文字信息栩栩如生！
+新一代信息图可视化引擎，让文字信息栩栩如生！Docs^red:+^ 还支持设置图形大小和图注（语法同 mermaid）
 
 `icon`可以使用 infographic 语义化搜索（需要联网查询）。但我们更建议使用 Docs^red:+^ 本地无需联网的 FontAwesome 语法。
 

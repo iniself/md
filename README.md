@@ -54,13 +54,14 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 17.  增加 csv 格式转成表格的语法。
 18.  增加打开、保存为本地文件及同步功能。
 19.  提供 ruby 注音扩展支持，支持两种格式：[文字]{注音}、[文字]^(注音)，支持 `・`、`．`、`。`、`-` 分隔符。
-20.  支持 Infographic 信息图
+20.  支持 Infographic 信息图。支持设置图形大小、居中和标题。
 21.  新增生成 chat 聊天样式的语法
 22.  支持 fontawesome icons
 23.  自动配对中文标点：“”, 「」, 《》, 【】, （）
 24.  导出 html 文件支持 dark | light 模式切换
 25.  GFM alerts 已经支持自定义图标(FontAwesome)和标题
 26.  导出 PDF 时支持页眉页脚页边距等配置。可选择是否自动分页。并支持 `+++` 手动分页
+27.  增加 mermaid 和 infographic 多平台兼容能力。且支持一键转图片。
 
 #### 删减
 1. 删除 google analytics
