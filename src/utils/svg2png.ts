@@ -7,29 +7,22 @@ export async function svgToTransparentPng(svgElement: SVGSVGElement): Promise<Bl
 
   const svgString = serializer.serializeToString(svgElement)
 
-  const svgBlob = new Blob([svgString], {
-    type: `image/svg+xml;charset=utf-8`,
-  })
-
-  const url = URL.createObjectURL(svgBlob)
+  const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`
 
   const img = new Image()
 
   await new Promise<void>((resolve, reject) => {
     img.onload = () => resolve()
     img.onerror = reject
-    img.src = url
+
+    img.src = svgDataUrl
   })
 
-  const width
-    = svgElement.width.baseVal.value
-      || svgElement.viewBox.baseVal.width
-      || img.width
+  const rect = svgElement.getBoundingClientRect()
 
-  const height
-    = svgElement.height.baseVal.value
-      || svgElement.viewBox.baseVal.height
-      || img.height
+  const width = rect.width || img.width
+
+  const height = rect.height || img.height
 
   const scale = window.devicePixelRatio || 1
 
@@ -46,8 +39,6 @@ export async function svgToTransparentPng(svgElement: SVGSVGElement): Promise<Bl
   ctx.scale(scale, scale)
 
   ctx.drawImage(img, 0, 0, width, height)
-
-  URL.revokeObjectURL(url)
 
   return await new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {

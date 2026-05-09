@@ -165,7 +165,8 @@ async function onPreviewContextMenu(e: MouseEvent) {
         toast.error(`获取图片失败，请手动操作`)
       }
     }
-    catch {
+    catch (err) {
+      console.error(err)
       toast.error(`获取图片失败，请手动操作`)
     }
   }
@@ -205,7 +206,8 @@ async function onPreviewContextMenu(e: MouseEvent) {
         toast.error(`获取图片失败，请手动操作`)
       }
     }
-    catch {
+    catch (err) {
+      console.error(err)
       toast.error(`获取图片失败，请手动操作`)
     }
   }
