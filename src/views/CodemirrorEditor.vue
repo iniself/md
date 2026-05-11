@@ -21,7 +21,7 @@ import { SearchTab } from '@/components/ui/search-tab'
 import getImgHostOptions from '@/composables/imageHostOptions'
 import { infographicDSLStore, mermaidDSLStore } from '@/lib/utils'
 import { useFolderSourceStore } from '@/stores/folderSource'
-import { checkImage, toBase64 } from '@/utils'
+import { checkImage, formatFileSize, toBase64 } from '@/utils'
 import { createExtraKeys } from '@/utils/editor'
 import fetch from '@/utils/fetch'
 import { fileMigrate, fileUpload } from '@/utils/file'
@@ -150,6 +150,7 @@ async function onPreviewContextMenu(e: MouseEvent) {
         responseType: `blob`,
       })
       displayStore.migrateType = `image`
+      displayStore.migrateSize = formatFileSize(migrateImgBlob.size)
       toggleShowUploadImgToAnotherHostDialog()
       if (migrateImgBlob) {
         const ext = migrateImgBlob.type.split(`/`)[1]
@@ -190,6 +191,7 @@ async function onPreviewContextMenu(e: MouseEvent) {
     try {
       const migrateImgBlob = await svgToTransparentPng(svgElement)
       displayStore.migrateType = `svg`
+      displayStore.migrateSize = formatFileSize(migrateImgBlob.size)
       toggleShowUploadImgToAnotherHostDialog()
       if (migrateImgBlob) {
         const ext = migrateImgBlob.type.split(`/`)[1]

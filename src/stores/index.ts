@@ -1010,6 +1010,7 @@ export const useDisplayStore = defineStore(`display`, () => {
 
   // 是否展示上传到其他图库对话框
   const migrateType = ref(`image`)
+  const migrateSize = ref(``)
   const isShowUploadImgToAnotherHostDialog = ref(false)
   const toggleShowUploadImgToAnotherHostDialog = useToggle(isShowUploadImgToAnotherHostDialog)
 
@@ -1027,6 +1028,7 @@ export const useDisplayStore = defineStore(`display`, () => {
     isShowInsertMpCardDialog,
     toggleShowInsertMpCardDialog,
     migrateType,
+    migrateSize,
     isShowUploadImgDialog,
     isShowUploadImgToAnotherHostDialog,
     toggleShowUploadImgDialog,
