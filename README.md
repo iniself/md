@@ -61,7 +61,8 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 24.  导出 html 文件支持 dark | light 模式切换
 25.  GFM alerts 已经支持自定义图标(FontAwesome)和标题
 26.  导出 PDF 时支持页眉页脚页边距等配置。可选择是否自动分页。并支持 `+++` 手动分页
-27.  增加 mermaid 和 infographic 多平台兼容能力。且支持一键转图片。
+27.  增加 mermaid 和 infographic 多平台兼容能力。且支持一键转图片
+28.  新增 slash menu，用户可在编辑区输入 / 快速唤起菜单，并通过该菜单快速插入 Chat、Infographic、Mermaid、公式、表格等 DSL 语法
 
 #### 删减
 1. 删除 google analytics

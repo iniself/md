@@ -93,16 +93,6 @@ const formatItems = [
     cmd: `${ctrlKey}-${altKey}-K`,
   },
   {
-    label: `GFM Alerts`,
-    kbd: [ctrlSign, altSign, `A`],
-    cmd: `${ctrlKey}-${altKey}-A`,
-  },
-  {
-    label: `聊天样式`,
-    kbd: [ctrlSign, altSign, `C`],
-    cmd: `${ctrlKey}-${altKey}-C`,
-  },
-  {
     label: `行内代码`,
     kbd: [ctrlSign, `E`],
     cmd: `${ctrlKey}-E`,
@@ -616,7 +606,7 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
         />
 
         <MenubarMenu>
-          <MenubarTrigger> 格式</MenubarTrigger>
+          <MenubarTrigger> 样式</MenubarTrigger>
           <MenubarContent class="w-60" align="start">
             <MenubarCheckboxItem
               v-for="{ label, kbd, cmd } in formatItems"

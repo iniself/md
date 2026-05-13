@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { Editor } from 'codemirror'
-import type { ComponentPublicInstance } from 'vue'
+import type { Component, ComponentPublicInstance } from 'vue'
 import imageCompression from 'browser-image-compression'
 import { fromTextArea } from 'codemirror'
-import { Eye, Pen } from 'lucide-vue-next'
+import { ChartCandlestick, Code, Eye, MessagesSquare, Pen, Table, TriangleAlert, Workflow } from 'lucide-vue-next'
 import { onMounted, onUnmounted, watch } from 'vue'
 import {
   AIPolishButton,
@@ -19,10 +19,11 @@ import {
 } from '@/components/ui/resizable'
 import { SearchTab } from '@/components/ui/search-tab'
 import getImgHostOptions from '@/composables/imageHostOptions'
+import { altKey, altSign, ctrlKey, ctrlSign } from '@/config'
 import { infographicDSLStore, mermaidDSLStore } from '@/lib/utils'
 import { useFolderSourceStore } from '@/stores/folderSource'
 import { checkImage, formatFileSize, toBase64 } from '@/utils'
-import { createExtraKeys } from '@/utils/editor'
+import { createExtraKeys, toggleFormat } from '@/utils/editor'
 import fetch from '@/utils/fetch'
 import { fileMigrate, fileUpload } from '@/utils/file'
 import { svgToTransparentPng } from '@/utils/svg2png'
@@ -680,6 +681,147 @@ function tableToMarkdown(text: string): string {
   return markdown
 }
 
+const showSlashMenu = ref(false)
+
+const slashMenuPosition = reactive({
+  left: 0,
+  top: 0,
+})
+
+const slashIndex = ref(0)
+const menuRef = ref<HTMLElement | null>(null)
+
+interface SlashItem {
+  label: string
+  kbd?: string[]
+  icon?: Component
+  cmd?: string
+  action?: () => void
+}
+
+const slashItems: SlashItem[] = [
+  {
+    label: `表格`,
+    icon: Table,
+    action: () => {
+      if (!editor.value)
+        return
+      toggleFormat(editor.value as CodeMirror.Editor, {
+        prefix: ``,
+        suffix: `| 成员 | 性别 | 年龄 |
+| --- | --- | --- |
+| 张三 | 男 | 28 |
+| 李四 | 男 | 33 |
+`,
+        check: s =>
+          /^\|/.test(s) && /\|/.test(s),
+        afterInsertCursorOffset: 0,
+      })
+    },
+  },
+  {
+    label: `代码`,
+    icon: Code,
+    action: () => {
+      if (!editor.value)
+        return
+      toggleFormat(editor.value as CodeMirror.Editor, {
+        prefix: `\`\`\`js\n`,
+        suffix: `console.log("Hello, You!");\n\`\`\``,
+        check: s =>
+          s.startsWith(`\`\`\`js`)
+          && s.endsWith(`\`\`\``),
+        afterInsertCursorOffset: 1,
+      })
+    },
+  },
+  {
+    label: `Mermaid`,
+    icon: Workflow,
+    action: () => {
+      if (!editor.value)
+        return
+      toggleFormat(editor.value as CodeMirror.Editor, {
+        prefix: `\`\`\`mermaid 70% 横向流程图\n`,
+        suffix: `graph LR
+  A[GraphCommand] --> B[update]
+  A --> C[goto]
+  A --> D[send]
+  
+  B --> B1[更新状态]
+  C --> C1[流程控制]
+  D --> D1[消息传递]
+\`\`\``,
+        check: s =>
+          s.startsWith(`\`\`\`mermaid`)
+          && s.endsWith(`\`\`\``),
+        afterInsertCursorOffset: 1,
+      })
+    },
+  },
+  {
+    label: `Infographic`,
+    icon: ChartCandlestick,
+    action: () => {
+      if (!editor.value)
+        return
+      toggleFormat(editor.value as CodeMirror.Editor, {
+        prefix: `\`\`\`infographic 70% 客户增长引擎\n`,
+        suffix: `infographic list-row-horizontal-icon-arrow
+data
+  title 客户增长引擎
+  desc 多渠道触达与复购提升
+  items
+    - label 线索获取
+      value 18.6
+      desc 渠道投放与内容获客
+      icon =:: {fa-solid fa-rocket}=
+    - label 转化提效
+      value 12.4
+      desc 线索评分与自动跟进
+      icon =:: {fa-solid fa-list-check}=
+    - label 复购提升
+      value 9.8
+      desc 会员体系与权益运营
+      icon =:: {fa-solid fa-arrows-spin}=
+    - label 口碑传播
+      value 6.2
+      desc 社群激励与推荐裂变
+      icon =:: {fa-solid fa-user-group}=
+\`\`\``,
+        check: s =>
+          s.startsWith(`\`\`\`infographic`)
+          && s.endsWith(`\`\`\``),
+        afterInsertCursorOffset: 1,
+      })
+    },
+  },
+  {
+    label: `GFM Alerts`,
+    icon: TriangleAlert,
+    kbd: [ctrlSign, altSign, `A`],
+    cmd: `${ctrlKey}-${altKey}-A`,
+  },
+
+  {
+    label: `Chat`,
+    icon: MessagesSquare,
+    kbd: [ctrlSign, altSign, `C`],
+    cmd: `${ctrlKey}-${altKey}-C`,
+  },
+]
+
+function slashAction(item: SlashItem) {
+  if (item.cmd) {
+    (editor.value as any).options.extraKeys[item.cmd](editor.value)
+    return
+  }
+
+  if (item.action) {
+    item.action()
+  }
+}
+
 function createFormTextArea(dom: HTMLTextAreaElement) {
   const textArea = fromTextArea(dom, {
     mode: `text/x-markdown`,
@@ -690,6 +832,28 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
     autoCloseBrackets: true,
     extraKeys: createExtraKeys(openSearchWithSelection),
     undoDepth: 200,
+  })
+
+  textArea.on(`keydown`, (_editor, e) => {
+    if (e.key === `Escape` && showSlashMenu.value === true) {
+      showSlashMenu.value = false
+    }
+
+    if (e.key === `ArrowDown` && showSlashMenu.value === true) {
+      e.preventDefault()
+      slashIndex.value = (slashIndex.value + 1) % slashItems.length
+    }
+
+    if (e.key === `ArrowUp` && showSlashMenu.value === true) {
+      e.preventDefault()
+      slashIndex.value = (slashIndex.value - 1 + slashItems.length) % slashItems.length
+    }
+
+    if (e.key === `Enter` && showSlashMenu.value) {
+      e.preventDefault()
+      slashAction(slashItems[slashIndex.value])
+      showSlashMenu.value = false
+    }
   })
 
   textArea.on(`change`, (editor) => {
@@ -716,10 +880,70 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
     triggerFocus.value = true
   })
 
+  textArea.on(`blur`, async (_editor, _event) => {
+    setTimeout(() => {
+      const active = document.activeElement
+      if (!menuRef.value || !menuRef.value.contains(active)) {
+        showSlashMenu.value = false
+      }
+    }, 0)
+  })
+
   textArea.on(`beforeChange`, async (editor, change) => {
     let text = change.text?.join(``)
     if (!text)
       return
+
+    if (showSlashMenu.value && text !== `/`) {
+      showSlashMenu.value = false
+    }
+
+    if (text === `/`) {
+      requestAnimationFrame(async () => {
+        const cursor = editor.getCursor()
+        const slashTriggerCursor = {
+          line: cursor.line,
+          ch: cursor.ch - 1,
+        }
+
+        const line = editor.getLine(cursor.line)
+
+        const beforeText = line.slice(0, cursor.ch)
+
+        const shouldOpen
+          = beforeText.trim() === `/`
+
+        if (!shouldOpen) {
+          return
+        }
+
+        const coords = editor.cursorCoords(cursor, `page`)
+
+        showSlashMenu.value = true
+
+        await nextTick()
+
+        const menuHeight = menuRef.value?.offsetHeight ?? 160
+        const viewportHeight = window.innerHeight
+        const spaceBelow = viewportHeight - coords.bottom
+        const shouldOpenUp = spaceBelow < menuHeight
+        slashMenuPosition.left = coords.left
+        slashMenuPosition.top = shouldOpenUp ? coords.top - menuHeight - 6 : coords.bottom + 6
+
+        if (!slashTriggerCursor) {
+          return
+        }
+
+        editor.replaceRange(
+          ``,
+          slashTriggerCursor,
+          {
+            line: slashTriggerCursor.line,
+            ch: slashTriggerCursor.ch + 1,
+          },
+        )
+      })
+    }
 
     const PAIRS: Record<string, string> = {
       '“': `”`,
@@ -1049,6 +1273,41 @@ onUnmounted(() => {
     </main>
 
     <Footer />
+  </div>
+  <div class="relative">
+    <div
+      v-if="showSlashMenu"
+      ref="menuRef"
+      class="fixed z-[9999] w-52 border rounded-xl bg-white p-2 shadow-xl dark:bg-gray-800"
+      :style="{
+        left: `${slashMenuPosition.left}px`,
+        top: `${slashMenuPosition.top}px`,
+      }"
+    >
+      <div class="space-y-1">
+        <button
+          v-for="(item, i) in slashItems"
+          :key="item.label"
+          class="w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+          :class="slashIndex === i ? 'bg-gray-200 dark:bg-gray-600' : ''"
+          @click="slashAction(item)"
+        >
+          <div class="flex items-center gap-2">
+            <component :is="item.icon" class="h-4 w-4" />
+            <span>{{ item.label }}</span>
+          </div>
+          <div class="flex items-center gap-1 text-xs text-gray-500">
+            <kbd
+              v-for="key in item.kbd"
+              :key="key"
+              class="border rounded bg-gray-50 px-1.5 py-0.5 text-[10px] font-mono shadow-sm"
+            >
+              {{ key }}
+            </kbd>
+          </div>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
