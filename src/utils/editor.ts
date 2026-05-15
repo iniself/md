@@ -134,9 +134,9 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
     [`${ctrlKey}-J`]: function moretextstyle(editor) {
       toggleFormat(editor, {
         prefix: `=:: `,
-        suffix: `=`,
-        check: s => s.startsWith(`=:: `) && s.endsWith(`=`),
-        afterInsertCursorOffset: -1,
+        suffix: `::=`,
+        check: s => s.startsWith(`=:: `) && s.endsWith(`::=`),
+        afterInsertCursorOffset: -3,
       })
     },
 

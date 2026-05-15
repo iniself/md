@@ -317,6 +317,7 @@ const defaultTheme: Theme = {
       'overflow-x': `auto`,
       'padding-bottom': `5px`,
       'vertical-align': `middle`,
+      'font-size': `inherit!important`,
     },
   },
 }

@@ -48,7 +48,7 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
         tokenizer(src: string) {
           const match = src.match(
             // 要求 =color:background:size 内容=
-            /^=(#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?(?::(#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?)?(?::([\d.]+[a-z%]*)?)? ([^=]+)=/,
+            /^=(#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?(?::(#[0-9a-fA-F]{3,6}|rgba?\([^)]+\)|[a-zA-Z]+)?)?(?::([\d.]+[a-z%]*)?)? (.+?)::=/,
           )
 
           if (match) {
@@ -74,7 +74,7 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
           const tokens = token.tokens ?? []
 
           const rawText = token.text?.trim()
-          const iconMatch = rawText?.match(/\{([^}]+)\}/)
+          const iconMatch = rawText.trimStart().startsWith(`$`) ? null : rawText?.match(/\{([^}]+)\}/)
 
           let scaleSize: string = ``
           let textSize: string = ``
@@ -160,7 +160,7 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
             }
           }
           else {
-            return `<span style="${styleStr}">${this.parser.parseInline(tokens)}</span>`
+            return `<span ${styleStr ? ` style="${styleStr}"` : ``}>${this.parser.parseInline(tokens)}</span>`
           }
         },
       },
