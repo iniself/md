@@ -336,19 +336,19 @@ data
     - label 线索获取
       value 18.6
       desc 渠道投放与内容获客
-      icon =:: {fa-solid fa-rocket}=
+      icon =:: {fa-solid fa-rocket} ::=
     - label 转化提效
       value 12.4
       desc 线索评分与自动跟进
-      icon =:: {fa-solid fa-list-check}=
+      icon =:: {fa-solid fa-list-check} ::=
     - label 复购提升
       value 9.8
       desc 会员体系与权益运营
-      icon =:: {fa-solid fa-arrows-spin}=
+      icon =:: {fa-solid fa-arrows-spin} ::=
     - label 口碑传播
       value 6.2
       desc 社群激励与推荐裂变
-      icon =:: {fa-solid fa-user-group}=
+      icon =:: {fa-solid fa-user-group} ::=
 ```
 
 > 更多用法，参见：[AntV Infographic Gallery](https://infographic.antv.vision/gallery)。
@@ -373,19 +373,19 @@ data
     - label 2023年
       value 120
       desc 转型初期，稳步试水
-      icon =:: {fa-solid fa-seedling}=
+      icon =:: {fa-solid fa-seedling} ::=
     - label 2024年
       value 150
       desc 平台优化，效率显著提升
-      icon =:: {fa-solid fa-bolt-lightning}=
+      icon =:: {fa-solid fa-bolt-lightning} ::=
     - label 2025年
       value 190
       desc 深化数智融合，全面增长
-      icon =:: {fa-solid fa-microchip}=
+      icon =:: {fa-solid fa-microchip} ::=
     - label 2026年
       value 260
       desc 拓展生态协同，冲击新高
-      icon =:: {fa-solid fa-trophy}=
+      icon =:: {fa-solid fa-trophy} ::=
 theme light
   palette antv
 ```
