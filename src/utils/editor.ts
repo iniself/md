@@ -58,6 +58,31 @@ export function toggleFormat(
   }
 }
 
+interface InsertSnippetOptions {
+  template: string
+  cursorMark?: string
+}
+
+export function insertSnippet(
+  editor: CodeMirror.Editor,
+  {
+    template,
+    cursorMark = `⟦cursor⟧`,
+  }: InsertSnippetOptions,
+): void {
+  const from = editor.getCursor(`from`)
+  const cursorIndex = template.indexOf(cursorMark)
+  const text = template.replace(cursorMark, ``)
+  editor.replaceSelection(text)
+
+  if (cursorIndex === -1)
+    return
+
+  const startIndex = editor.indexFromPos(from)
+  const pos = editor.posFromIndex(startIndex + cursorIndex)
+  editor.setCursor(pos)
+}
+
 function applyHeading(editor: CodeMirror.Editor, level: number) {
   editor.operation(() => {
     const ranges = editor.listSelections()
@@ -132,11 +157,9 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
     },
 
     [`${ctrlKey}-J`]: function moretextstyle(editor) {
-      toggleFormat(editor, {
-        prefix: `=:: `,
-        suffix: `::=`,
-        check: s => s.startsWith(`=:: `) && s.endsWith(`::=`),
-        afterInsertCursorOffset: -3,
+      insertSnippet(editor, {
+        template:
+`=:: ⟦cursor⟧::=`,
       })
     },
 
@@ -177,22 +200,25 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
     },
 
     [`${ctrlKey}-${altKey}-A`]: function admonition(editor) {
-      toggleFormat(editor, {
-        prefix: `::: tip 提示\n`,
-        suffix: `Docs^red:+^ 是个 markdown 写作工具\n:::`,
-        check: s =>
-          /^::: tip[^\n]*\n/.test(s)
-          && /\r?\n:::$/.test(s),
-        afterInsertCursorOffset: 1,
+      insertSnippet(editor, {
+        template:
+`::: tip 提示
+Docs^red:+^ 是个 markdown 写作工具⟦cursor⟧
+:::
+`,
       })
     },
 
     [`${ctrlKey}-${altKey}-C`]: function chatMessage(editor) {
-      toggleFormat(editor, {
-        prefix: `!!! chat`,
-        suffix: `\nroles:\n Docs^red:+^ as docs, avatar=${DEFAULT_AVATAR}, side=right\n\n>> docs\n你好朋友！\n!!!`,
-        check: s => /^!!! chat\r?\n/.test(s) && /\r?\n!!!$/.test(s),
-        afterInsertCursorOffset: 1,
+      insertSnippet(editor, {
+        template:
+`!!! chat
+roles:
+ Docs^red:+^ as docs, avatar=${DEFAULT_AVATAR}, side=right
+
+>> docs\n你好朋友！⟦cursor⟧
+!!!
+`,
       })
     },
 
