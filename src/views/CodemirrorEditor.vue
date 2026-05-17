@@ -726,8 +726,9 @@ const slashItems: SlashItem[] = [
       insertSnippet(editor.value as CodeMirror.Editor, {
         template:
 `\`\`\`js
-console.log("Hello, You!");⟦cursor⟧
+⟦selection⟧⟦cursor⟧
 \`\`\``,
+        defaultSelection: `console.log("Hello, You!");⟦cursor⟧`,
       })
     },
   },

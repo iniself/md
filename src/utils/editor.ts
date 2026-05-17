@@ -60,19 +60,52 @@ export function toggleFormat(
 
 interface InsertSnippetOptions {
   template: string
+  defaultSelection?: string
   cursorMark?: string
+  selectionMark?: string
 }
 
 export function insertSnippet(
   editor: CodeMirror.Editor,
   {
     template,
+    defaultSelection = ``,
     cursorMark = `⟦cursor⟧`,
+    selectionMark = `⟦selection⟧`,
   }: InsertSnippetOptions,
 ): void {
   const from = editor.getCursor(`from`)
-  const cursorIndex = template.indexOf(cursorMark)
-  const text = template.replace(cursorMark, ``)
+
+  const selectedText = editor.getSelection()
+  const hasSelection = selectedText.length > 0
+
+  let mergedTemplate = template
+
+  if (hasSelection) {
+    mergedTemplate = mergedTemplate.replace(selectionMark, selectedText)
+    const cursorIndex = mergedTemplate.indexOf(cursorMark)
+    const text = (mergedTemplate as any).replaceAll(cursorMark, ``)
+    editor.replaceSelection(text)
+
+    if (cursorIndex === -1)
+      return
+
+    const startIndex = editor.indexFromPos(from)
+    const pos = editor.posFromIndex(startIndex + cursorIndex)
+    editor.setCursor(pos)
+
+    return
+  }
+
+  const defaultHasCursor = defaultSelection.includes(cursorMark)
+
+  if (defaultHasCursor) {
+    mergedTemplate = mergedTemplate.replace(cursorMark, ``)
+  }
+
+  mergedTemplate = mergedTemplate.replace(selectionMark, defaultSelection)
+  const cursorIndex = mergedTemplate.indexOf(cursorMark)
+  const text = (mergedTemplate as any).replaceAll(cursorMark, ``)
   editor.replaceSelection(text)
 
   if (cursorIndex === -1)
@@ -158,8 +191,8 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
 
     [`${ctrlKey}-J`]: function moretextstyle(editor) {
       insertSnippet(editor, {
-        template:
-`=:: ⟦cursor⟧::=`,
+        template: `=⟦cursor⟧:: ⟦selection⟧::=`,
+        defaultSelection: `⟦cursor⟧`,
       })
     },
 
@@ -203,9 +236,10 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
       insertSnippet(editor, {
         template:
 `::: tip 提示
-Docs^red:+^ 是个 markdown 写作工具⟦cursor⟧
+Docs^red:+^ ⟦selection⟧⟦cursor⟧
 :::
 `,
+        defaultSelection: `是个 markdown 写作工具⟦cursor⟧`,
       })
     },
 
@@ -216,9 +250,11 @@ Docs^red:+^ 是个 markdown 写作工具⟦cursor⟧
 roles:
  Docs^red:+^ as docs, avatar=${DEFAULT_AVATAR}, side=right
 
->> docs\n你好朋友！⟦cursor⟧
+>> docs
+⟦selection⟧⟦cursor⟧
 !!!
 `,
+        defaultSelection: `你好朋友！⟦cursor⟧`,
       })
     },
 
