@@ -18,7 +18,13 @@ export default defineConfig({
   define: { process },
   envPrefix: [`VITE_`, `CF_`],
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: tag => tag === `math-field`,
+        },
+      },
+    }),
     UnoCSS(),
     vueDevTools(),
     nodePolyfills({

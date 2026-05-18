@@ -3,7 +3,7 @@ import type { Editor } from 'codemirror'
 import type { Component, ComponentPublicInstance } from 'vue'
 import imageCompression from 'browser-image-compression'
 import { fromTextArea } from 'codemirror'
-import { ChartCandlestick, Code, Eye, MessagesSquare, Pen, Table, TriangleAlert, Workflow } from 'lucide-vue-next'
+import { ChartCandlestick, Code, Eye, MessagesSquare, Pen, Sigma, Table, TriangleAlert, Workflow } from 'lucide-vue-next'
 import { onMounted, onUnmounted, watch } from 'vue'
 import {
   AIPolishButton,
@@ -12,6 +12,7 @@ import {
 } from '@/components/AIPolish'
 import FolderSourcePanel from '@/components/CodemirrorEditor/FolderSourcePanel.vue'
 import SaveAsFile from '@/components/CodemirrorEditor/SaveAsFile.vue'
+import MathEditorDialog from '@/components/MathEditorDialog.vue'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -681,6 +682,15 @@ function tableToMarkdown(text: string): string {
   return markdown
 }
 
+const showMathDialog = ref(false)
+function insertMath(some: string) {
+  if (!editor.value)
+    return
+  insertSnippet(editor.value as CodeMirror.Editor, {
+    template: `${some}⟦cursor⟧`,
+  })
+}
+
 const showSlashMenu = ref(false)
 
 const slashMenuPosition = reactive({
@@ -700,6 +710,14 @@ interface SlashItem {
 }
 
 const slashItems: SlashItem[] = [
+  {
+    label: `公式`,
+    icon: Sigma,
+    kbd: [ctrlSign, altSign, `L`],
+    action: () => {
+      showMathDialog.value = true
+    },
+  },
   {
     label: `表格`,
     icon: Table,
@@ -846,6 +864,11 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
       e.preventDefault()
       slashAction(slashItems[slashIndex.value])
       showSlashMenu.value = false
+    }
+
+    if ((e.metaKey || e.ctrlKey) && e.altKey && e.code === `KeyL` && !showSlashMenu.value) {
+      e.preventDefault()
+      showMathDialog.value = true
     }
   })
 
@@ -1263,6 +1286,7 @@ onUnmounted(() => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <MathEditorDialog v-model:open="showMathDialog" @confirm="insertMath" />
     </main>
 
     <Footer />

@@ -74,7 +74,9 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
           const tokens = token.tokens ?? []
 
           const rawText = token.text?.trim()
+
           const iconMatch = rawText.trimStart().startsWith(`$`) ? null : rawText?.match(/\{([^}]+)\}/)
+          const isLatex = rawText.trimStart().startsWith(`$`)
 
           let scaleSize: string = ``
           let textSize: string = ``
@@ -160,6 +162,9 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
             }
           }
           else {
+            if (isLatex) {
+              return `<span class="inline-latex-extension" ${styleStr ? ` style="${styleStr}"` : ``}>${this.parser.parseInline(tokens)}</span>`
+            }
             return `<span ${styleStr ? ` style="${styleStr}"` : ``}>${this.parser.parseInline(tokens)}</span>`
           }
         },

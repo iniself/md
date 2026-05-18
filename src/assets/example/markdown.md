@@ -244,6 +244,8 @@ Markdown 允许嵌入 LaTeX 语法展示数学公式：
       \chi^2 = \sum \frac{(|O - E| - 0.5)^2}{E}
       $$
 
+💡 **可以通过 slash menu 或则 `Command + Option + L` 使用 [MathLive](https://mathlive.io/) 便捷输入公式**
+
 ## Mermaid 流程图：可视化流程
 
 Mermaid 是强大的可视化工具，可以在 Markdown 中创建流程图、时序图等。Doc^red:+^ 支持设置图形大小和图注。
