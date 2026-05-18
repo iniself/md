@@ -10,7 +10,7 @@ const emit = defineEmits<{
   confirm: [latex: string]
 }>()
 
-const open = defineModel<boolean>(`open`)
+const open = defineModel<boolean>('open')
 
 const mf = ref()
 
@@ -44,18 +44,24 @@ function handleOutside(e: Event) {
 
 const isVirtualKeyboardOpened = ref(false)
 
-window.mathVirtualKeyboard.addEventListener(
-  `before-virtual-keyboard-toggle`,
-  (evt) => {
-    const e = evt as CustomEvent<{ visible: boolean }>
-    if (e.detail.visible) {
-      isVirtualKeyboardOpened.value = true
-    }
-    else {
-      isVirtualKeyboardOpened.value = false
-    }
-  },
-)
+function virtualKeyboardToggle(evt: Event) {
+  if (!('detail' in evt))
+    return
+
+  const e = evt as CustomEvent<{ visible: boolean }>
+  isVirtualKeyboardOpened.value = e.detail.visible
+}
+
+onMounted(() => {
+  window.mathVirtualKeyboard.addEventListener(
+    'before-virtual-keyboard-toggle',
+    virtualKeyboardToggle,
+  )
+})
+
+onUnmounted(() => {
+  window.mathVirtualKeyboard.removeEventListener('before-virtual-keyboard-toggle', virtualKeyboardToggle)
+})
 
 function onPressDown(e: KeyboardEvent) {
   if (!e.target)
