@@ -191,7 +191,7 @@ export function createExtraKeys(openSearchWithSelection: (cm: CodeMirror.Editor)
 
     [`${ctrlKey}-J`]: function moretextstyle(editor) {
       insertSnippet(editor, {
-        template: `=⟦cursor⟧:: ⟦selection⟧::=`,
+        template: `=⟦cursor⟧:: ⟦selection⟧ ::=`,
         defaultSelection: `⟦cursor⟧`,
       })
     },
