@@ -2,7 +2,7 @@ import { exportToSVG, Infographic, loadSVGResource, registerResourceLoader, setD
 import { Marked } from 'marked'
 import mermaid from 'mermaid'
 import { infographicClassName } from '@/config/infographicConfig'
-import { convertInfographicForeignObjects, extractInfographicDefsFromDom, infographicDSLStore, mermaidDSLStore, sanitizeMermaidSvg, toHSLString } from '@/lib/utils'
+import { convertInfographicForeignObjects, extractInfographicDefsFromDom, infographicDSLStore, mermaidDSLStore, replaceSvgId, sanitizeMermaidSvg, toHSLString } from '@/lib/utils'
 import markedTextExtension from './MDTextExtension'
 
 function simpleHash(str: string): string {
@@ -18,7 +18,7 @@ function simpleHash(str: string): string {
 const mermaidClassName = `mermaid-diagram`
 const mermaidCache = new Map<string, string>()
 
-async function renderMermaid(id: string, code: string, cacheKey: string, options: mermaidOptions): Promise<string | void> {
+async function renderMermaid(id: string, svgId: string, code: string, cacheKey: string, options: mermaidOptions): Promise<string | void> {
   if (typeof window === `undefined`)
     return
 
@@ -37,7 +37,7 @@ async function renderMermaid(id: string, code: string, cacheKey: string, options
       return ``
     }
 
-    const result = await mermaid.render(`mermaid-svg-${cacheKey}`, code)
+    const result = await mermaid.render(svgId, code)
     let finalSvg = result.svg
     if (options.isSvgCompatibility) {
       finalSvg = sanitizeMermaidSvg(result.svg, options)
@@ -95,23 +95,27 @@ export async function getOrRenderMermaidSvg(el = `.mermaid`) {
       code = node.textContent ?? ``
     }
     else {
-      code = mermaidDSLStore.get(figureEl.id) ?? ``
+      code = mermaidDSLStore.getById(figureEl.id)[1]
     }
     const cacheKey = simpleHash(`${code}-${options.themeMode || `light`}-${primaryColor.value}-${options.isSvgCompatibility}-${options.isSvgBackgroundless}`)
     const cached = mermaidCache.get(cacheKey)
 
+    const id = `mermaid-${cacheKey}`
+    const svgId = `mermaid-svg-${cacheKey}`
+
     if (cached) {
-      const uniqueId = `mermaid-instances-${Math.random().toString(36).slice(2)}`
-      node.outerHTML = `<section id="${uniqueId}" class="${mermaidClassName}" style="margin:0 auto">${cached}</section>`
+      const randomStr = Math.random().toString(36).slice(2)
+      const uniqueId = `mermaid-instances-${randomStr}`
+      const newSvgId = `${svgId}-instances-${randomStr}`
+      node.outerHTML = `<section id="${uniqueId}" class="${mermaidClassName}" style="margin:0 auto">${replaceSvgId(cached, svgId, newSvgId)}</section>`
       continue
     }
 
-    const id = `mermaid-${cacheKey}`
     let container: HTMLElement | null = null
     try {
       node.outerHTML = `<section id="${id}" class="${mermaidClassName}" style="margin:0 auto">正在加载 Mermaid...</section>`
       container = document.getElementById(id)!
-      const svg = await renderMermaid(id, code, cacheKey, options)
+      const svg = await renderMermaid(id, svgId, code, cacheKey, options)
       if (svg) {
         container.innerHTML = svg
       }
@@ -162,7 +166,7 @@ const infographicCache = new Map<string, string>()
 setFontExtendFactor(1.1)
 setDefaultFont(`-apple-system-font, "system-ui", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif`)
 
-async function renderInfographic(containerId: string, code: string, cacheKey: string, options?: InfographicOptions): Promise<void> {
+async function renderInfographic(containerId: string, svgId: string, code: string, cacheKey: string, options?: InfographicOptions): Promise<void> {
   if (typeof window === `undefined`)
     return
 
@@ -252,6 +256,7 @@ async function renderInfographic(containerId: string, code: string, cacheKey: st
 
             try {
               const svg = await exportToSVG(node, { removeIds: true })
+              svg.id = svgId
               if (isSvgCompatibility?.value) {
                 convertInfographicForeignObjects(svg)
                 container.replaceChildren(extractInfographicDefsFromDom(svg))
@@ -317,25 +322,29 @@ export async function getOrRenderInfographicSvg(el = `.infographic`) {
       code = node.textContent ?? ``
     }
     else {
-      code = infographicDSLStore.get(figureEl.id) ?? ``
+      code = infographicDSLStore.getById(figureEl.id)[1]
     }
 
     const cacheKey = simpleHash(`${code}-${options?.themeMode || `light`}-${options.isSvgCompatibility?.value}-${options.fontSize?.value}-${options.primaryColor?.value}-${options.isSvgBackgroundless?.value}`)
     const cached = infographicCache.get(cacheKey)
 
+    const id = `infographic-${cacheKey}`
+    const svgId = `infographic-svg-${cacheKey}`
+
     if (cached) {
-      const uniqueId = `infographic-instances-${Math.random().toString(36).slice(2)}`
-      node.outerHTML = `<section id="${uniqueId}" style="display: flex; justify-content: center;" class="${infographicClassName}">${cached}</section>`
+      const randomStr = Math.random().toString(36).slice(2)
+      const uniqueId = `infographic-instances-${randomStr}`
+      const newSvgId = `${svgId}-instances-${randomStr}`
+      node.outerHTML = `<section id="${uniqueId}" style="display: flex; justify-content: center;" class="${infographicClassName}">${replaceSvgId(cached, svgId, newSvgId)}</section>`
       continue
     }
 
-    const id = `infographic-${cacheKey}`
     let container: HTMLElement | null = null
 
     try {
       node.outerHTML = `<section id="${id}" style="display: flex; justify-content: center;" class="${infographicClassName}">正在加载 Infographic...</section>`
       container = document.getElementById(id)!
-      await renderInfographic(id, code, cacheKey, options)
+      await renderInfographic(id, svgId, code, cacheKey, options)
 
       if (!container.innerHTML) {
         container.innerHTML = `<div style="color:red">渲染失败</div>`

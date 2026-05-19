@@ -717,22 +717,80 @@ export function fixGradientIDChangedByVivliostyle(iframeWin: Window) {
   })
 }
 
+export function replaceSvgId(
+  svg: string,
+  oldId: string,
+  newId: string,
+) {
+  return (svg as any).replaceAll(oldId, newId)
+}
+
 const mermaidDSLCache = new Map<string, string>()
+const mermaidOrder: string[] = []
 
 export const mermaidDSLStore = {
-  set: (id: string, text: string) => mermaidDSLCache.set(id, text),
-  get: (id: string) => mermaidDSLCache.get(id),
-  delete: (id: string) => mermaidDSLCache.delete(id),
-  clear: () => mermaidDSLCache.clear(),
-  getAll: () => mermaidDSLCache,
+  set: (id: string, text: string) => {
+    mermaidOrder.push(id)
+    mermaidDSLCache.set(id, text)
+  },
+  getById: (id: string): [number, string] => {
+    return [
+      mermaidOrder.indexOf(id),
+      mermaidDSLCache.get(id) ?? '',
+    ]
+  },
+  deleteById: (id: string) => {
+    mermaidDSLCache.delete(id)
+
+    const index = mermaidOrder.indexOf(id)
+    if (index !== -1) {
+      mermaidOrder.splice(index, 1)
+    }
+  },
+  clear: () => {
+    mermaidDSLCache.clear()
+    mermaidOrder.length = 0
+  },
+  getAll: () => {
+    return mermaidOrder.map((id, index) => ({
+      id,
+      text: mermaidDSLCache.get(id),
+      index,
+    }))
+  },
 }
 
 const infographicDSLCache = new Map<string, string>()
+const infographicOrder: string[] = []
 
 export const infographicDSLStore = {
-  set: (id: string, text: string) => infographicDSLCache.set(id, text),
-  get: (id: string) => infographicDSLCache.get(id),
-  delete: (id: string) => infographicDSLCache.delete(id),
-  clear: () => infographicDSLCache.clear(),
-  getAll: () => infographicDSLCache,
+  set: (id: string, text: string) => {
+    infographicOrder.push(id)
+    infographicDSLCache.set(id, text)
+  },
+  getById: (id: string): [number, string] => {
+    return [
+      infographicOrder.indexOf(id),
+      infographicDSLCache.get(id) ?? '',
+    ]
+  },
+  deleteById: (id: string) => {
+    infographicDSLCache.delete(id)
+
+    const index = infographicOrder.indexOf(id)
+    if (index !== -1) {
+      infographicOrder.splice(index, 1)
+    }
+  },
+  clear: () => {
+    infographicDSLCache.clear()
+    infographicOrder.length = 0
+  },
+  getAll: () => {
+    return infographicOrder.map((id, index) => ({
+      id,
+      text: infographicDSLCache.get(id),
+      index,
+    }))
+  },
 }

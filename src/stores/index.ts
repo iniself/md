@@ -18,6 +18,8 @@ import {
   DEFAULT_TOP_LEFT,
   DEFAULT_TOP_RIGHT,
 } from '@/constants/PDFConfig'
+import { infographicDSLStore, mermaidDSLStore } from '@/lib/utils'
+
 import { usePDFExportStore } from '@/stores/pdf'
 
 import {
@@ -31,9 +33,9 @@ import {
   formatDoc,
   sanitizeTitle,
 } from '@/utils'
-
 import { css2json, customCssWithTemplate, customizeTheme, postProcessHtml, renderMarkdown } from '@/utils/'
 import { copyPlain } from '@/utils/clipboard'
+
 import copy from '@/utils/contentExporter'
 
 import { initRenderer } from '@/utils/renderer'
@@ -455,6 +457,9 @@ export const useStore = defineStore(`store`, () => {
 
   // 更新编辑器
   const editorRefresh = () => {
+    infographicDSLStore.clear()
+    mermaidDSLStore.clear()
+
     codeThemeChange()
     renderer.reset({
       citeStatus: isCiteStatus.value,
