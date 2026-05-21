@@ -794,3 +794,52 @@ export const infographicDSLStore = {
     }))
   },
 }
+
+const mathDSLCache = new Map<string, string>()
+const mathOrder: string[] = []
+
+export const mathDSLStore = {
+  set: (id: string, text: string) => {
+    mathOrder.push(id)
+    mathDSLCache.set(id, text)
+  },
+  getById: (id: string): [number, string] => {
+    return [
+      mathOrder.indexOf(id),
+      mathDSLCache.get(id) ?? '',
+    ]
+  },
+  getByDSL: (dsl: string): { id: string, text: string, index: number }[] => {
+    return mathOrder.flatMap((id, index) => {
+      const text = mathDSLCache.get(id)
+
+      if (text !== dsl) {
+        return []
+      }
+
+      return [{
+        id,
+        text,
+        index,
+      }]
+    })
+  },
+  deleteById: (id: string) => {
+    mathDSLCache.delete(id)
+    const index = mathOrder.indexOf(id)
+    if (index !== -1) {
+      mathOrder.splice(index, 1)
+    }
+  },
+  clear: () => {
+    mathDSLCache.clear()
+    mathOrder.length = 0
+  },
+  getAll: () => {
+    return mathOrder.map((id, index) => ({
+      id,
+      text: mathDSLCache.get(id),
+      index,
+    }))
+  },
+}

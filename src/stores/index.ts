@@ -18,7 +18,7 @@ import {
   DEFAULT_TOP_LEFT,
   DEFAULT_TOP_RIGHT,
 } from '@/constants/PDFConfig'
-import { infographicDSLStore, mermaidDSLStore } from '@/lib/utils'
+import { infographicDSLStore, mathDSLStore, mermaidDSLStore } from '@/lib/utils'
 
 import { usePDFExportStore } from '@/stores/pdf'
 
@@ -459,6 +459,7 @@ export const useStore = defineStore(`store`, () => {
   const editorRefresh = () => {
     infographicDSLStore.clear()
     mermaidDSLStore.clear()
+    mathDSLStore.clear()
 
     codeThemeChange()
     renderer.reset({

@@ -64,3 +64,11 @@ interface InfographicOptions {
   isSvgCompatibility?: Ref<boolean>
   isSvgBackgroundless?: Ref<boolean>
 }
+
+interface LatexContent {
+  initialDSL: string
+  modifyDSL: string
+  type: 'block' | 'inline'
+  id: string
+  index: number
+}

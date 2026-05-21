@@ -1,3 +1,14 @@
+import { mathDSLStore } from '@/lib/utils'
+
+let __mathIdCounter = 0
+
+function genMathId() {
+  const ts = Date.now()
+  __mathIdCounter = (__mathIdCounter + 1) % 10000
+  const counter = __mathIdCounter.toString().padStart(4, `0`)
+  return `${ts}${counter}`
+}
+
 const inlineRule = /^(\${1,2})(?!\$)((?:\\.|[^\\\n])*?(?:\\.|[^\\\n$]))\1(?=[\s?!.,:？！。，：]|$)/
 const inlineRuleNonStandard = /^(\${1,2})(?!\$)((?:\\.|[^\\\n])*?(?:\\.|[^\\\n$]))\1/ // Non-standard, even if there are no spaces before and after $ or $$, try to parse
 
@@ -14,10 +25,16 @@ function createRenderer(display, inlineStyle, blockStyle) {
     svg.style = `max-width: 300vw !important; display: initial; flex-shrink: 0;`
     svg.style.width = width
 
+    const mathID = `math-svg-${genMathId()}`
+    mathDSLStore.set(mathID, token.text)
+    svg.id = mathID
+
     if (!display) {
+      svg.classList.add('math-span')
       return `<span ${inlineStyle}>${svg.outerHTML}</span>`
     }
 
+    svg.classList.add('math-section')
     return `<section ${blockStyle}>${svg.outerHTML}</section>`
   }
 }

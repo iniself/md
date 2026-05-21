@@ -63,7 +63,7 @@ Docs<sup style="color:red">+</sup>  forked from [Doocs](https://github.com/doocs
 26.  导出 PDF 时支持页眉页脚页边距等配置。可选择是否自动分页。并支持 `+++` 手动分页
 27.  增加 mermaid 和 infographic 多平台兼容能力。且支持一键转图片
 28.  新增 slash menu，用户可在编辑区输入 / 快速唤起菜单，并通过该菜单快速插入 Chat、Infographic、Mermaid、公式、表格等 DSL 语法
-29.  引入 MathLive 库。通过 slash menu 或则 `Command + Option + L` 使用
+29.  引入 MathLive 库。通过 slash menu 或则 `Command + Option + L` 使用；同时支持点击预览窗口的公式在 MathLive 中修改
 
 #### 删减
 1. 删除 google analytics

@@ -21,7 +21,7 @@ import {
 import { SearchTab } from '@/components/ui/search-tab'
 import getImgHostOptions from '@/composables/imageHostOptions'
 import { altKey, altSign, ctrlKey, ctrlSign } from '@/config'
-import { infographicDSLStore, mermaidDSLStore } from '@/lib/utils'
+import { infographicDSLStore, mathDSLStore, mermaidDSLStore } from '@/lib/utils'
 import { useFolderSourceStore } from '@/stores/folderSource'
 import { checkImage, formatFileSize, toBase64 } from '@/utils'
 import { createExtraKeys, insertSnippet } from '@/utils/editor'
@@ -210,6 +210,24 @@ async function onPreviewSVGMigrateIMGMenu(svgEl: SVGSVGElement, type: string) {
   }
 }
 
+const showMathDialog = ref(false)
+const mathLatex = ref<LatexContent>({ initialDSL: '', modifyDSL: '', type: 'block', id: '', index: -1 })
+
+async function onPreviewMathModifyMenu(mathEl: SVGSVGElement, type: string) {
+  if (type !== 'math')
+    return
+
+  const [index, latex] = mathDSLStore.getById(mathEl.id)
+  mathLatex.value = {
+    initialDSL: latex ?? '',
+    modifyDSL: '',
+    type: mathEl.classList.contains('math-span') ? 'inline' : 'block',
+    id: mathEl.id,
+    index,
+  }
+  showMathDialog.value = true
+}
+
 async function onPreviewContextMenu(e: MouseEvent) {
   const svgElement = (e.target as HTMLElement).closest(`svg`)
   const imgEl = (e.target as HTMLElement).closest(`img`)
@@ -228,6 +246,11 @@ async function onPreviewContextMenu(e: MouseEvent) {
     if (id.startsWith('infographic')) {
       e.preventDefault()
       onPreviewSVGMigrateIMGMenu(svgElement, 'infographic')
+    }
+
+    if (id.startsWith('math')) {
+      e.preventDefault()
+      onPreviewMathModifyMenu(svgElement, 'math')
     }
   }
 
@@ -710,13 +733,55 @@ function tableToMarkdown(text: string): string {
   return markdown
 }
 
-const showMathDialog = ref(false)
-function insertMath(some: string) {
+async function modifyMath(isSVG: boolean) {
+  const cleanNewDSL = mathLatex.value.modifyDSL.trim()
+  const cleanOldDSL = mathLatex.value.initialDSL.trim()
+
+  if (!cleanOldDSL || !isSVG || mathLatex.value.index === -1) {
+    toast.error('公式修改出现问题')
+    return
+  }
+
+  if (cleanNewDSL === cleanOldDSL) {
+    toast.info('公式没有变动')
+    return
+  }
+
+  const oldContent = editor.value!.getValue()
+
+  const theMathDSLS = mathDSLStore.getByDSL(cleanOldDSL)
+  const indexOfmathDSLStore = theMathDSLS.findIndex(item => item.id === mathLatex.value.id)
+
+  let index = -1
+
+  let count = 0
+
+  while (count < indexOfmathDSLStore + 1) {
+    index = oldContent.indexOf(cleanOldDSL, index + 1)
+    if (index === -1)
+      return oldContent
+    count++
+  }
+
+  const cm = editor.value!
+  const from = cm.posFromIndex(index)
+  const to = cm.posFromIndex(index + cleanOldDSL.length)
+  cm.replaceRange(cleanNewDSL, from, to)
+
+  toast.success(`公式修改成功`)
+}
+
+async function insertMath() {
   if (!editor.value)
     return
-  insertSnippet(editor.value as CodeMirror.Editor, {
-    template: `${some}⟦cursor⟧`,
-  })
+  if (mathLatex.value.initialDSL) {
+    await modifyMath(true)
+  }
+  else {
+    insertSnippet(editor.value as CodeMirror.Editor, {
+      template: `${mathLatex.value.modifyDSL}⟦cursor⟧`,
+    })
+  }
 }
 
 const showSlashMenu = ref(false)
@@ -737,13 +802,18 @@ interface SlashItem {
   action?: () => void
 }
 
+function openBlankMathlive() {
+  mathLatex.value.initialDSL = ''
+  showMathDialog.value = true
+}
+
 const slashItems: SlashItem[] = [
   {
     label: `公式`,
     icon: Sigma,
     kbd: [ctrlSign, altSign, `L`],
     action: () => {
-      showMathDialog.value = true
+      openBlankMathlive()
     },
   },
   {
@@ -896,7 +966,7 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
 
     if ((e.metaKey || e.ctrlKey) && e.altKey && e.code === `KeyL` && !showSlashMenu.value) {
       e.preventDefault()
-      showMathDialog.value = true
+      openBlankMathlive()
     }
   })
 
@@ -1314,7 +1384,7 @@ onUnmounted(() => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <MathEditorDialog v-model:open="showMathDialog" @confirm="insertMath" />
+      <MathEditorDialog v-model:open="showMathDialog" v-model:math-latex="mathLatex" @confirm="insertMath" />
     </main>
 
     <Footer />
@@ -1425,6 +1495,11 @@ onUnmounted(() => {
 }
 
 #preview :deep(.mermaid-diagram svg) {
+  cursor: pointer;
+}
+
+#preview :deep(.math-section),
+#preview :deep(.math-span) {
   cursor: pointer;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { Checkbox } from '@/components/ui/checkbox'
 import { altSign, ctrlSign } from '@/config'
 
@@ -7,10 +7,12 @@ import 'mathlive'
 import 'mathlive/static.css'
 
 const emit = defineEmits<{
-  confirm: [latex: string]
+  (e: 'confirm'): void
 }>()
 
 const open = defineModel<boolean>('open')
+
+const mathLatex = defineModel<LatexContent>('mathLatex')
 
 const mf = ref()
 
@@ -18,23 +20,37 @@ const useTextExtension = ref(false)
 const useBlockLatex = ref(false)
 
 function handleDSL(dsl: string): string {
-  const safeDsl = dsl.replace(/\$/g, `\\$`)
-  let mathLatex = useBlockLatex.value
-    ? `$$
-${safeDsl}${useTextExtension.value ? `` : `⟦cursor⟧`}
-$$`
-    : `$${safeDsl}${useTextExtension.value ? `` : `⟦cursor⟧`}$`
+  let finalDsl = dsl.replace(/\$/g, `\\$`)
 
-  if (useTextExtension.value && !useBlockLatex.value) {
-    mathLatex = `=⟦cursor⟧:: ${mathLatex} ::=`
+  if (mathLatex.value?.initialDSL) {
+    if (useTextExtension.value && !useBlockLatex.value) {
+      finalDsl = `=:: ${finalDsl} ::=`
+    }
+
+    return finalDsl
   }
 
-  return mathLatex
+  finalDsl = useBlockLatex.value
+    ? `$$
+${finalDsl}${useTextExtension.value ? `` : `⟦cursor⟧`}
+$$`
+    : `$${finalDsl}${useTextExtension.value ? `` : `⟦cursor⟧`}$`
+
+  if (useTextExtension.value && !useBlockLatex.value) {
+    finalDsl = `=⟦cursor⟧:: ${finalDsl} ::=`
+  }
+
+  return finalDsl
 }
 
 function save() {
-  const mathLatex = handleDSL(mf.value.getValue())
-  emit(`confirm`, mathLatex)
+  if (!mathLatex.value) {
+    toast.error('修改公式失败')
+    return
+  }
+
+  mathLatex.value.modifyDSL = handleDSL(mf.value.getValue())
+  emit(`confirm`)
   open.value = false
 }
 
@@ -86,6 +102,10 @@ function onPressDown(e: KeyboardEvent) {
 }
 
 watch(useBlockLatex, (val) => {
+  if (!mathLatex.value)
+    return
+  mathLatex.value.type = val ? 'block' : 'inline'
+
   if (val) {
     useTextExtension.value = false
   }
@@ -93,8 +113,16 @@ watch(useBlockLatex, (val) => {
 
 watch(open, async (v) => {
   if (v) {
-    await nextTick()
-    mf.value?.focus()
+    useBlockLatex.value = mathLatex.value?.type === 'block'
+
+    requestAnimationFrame(() => {
+      try {
+        mf.value?.focus()
+      }
+      catch (err) {
+        console.error(err)
+      }
+    })
   }
 })
 
@@ -173,6 +201,7 @@ const shortCutsTips = [
       </DialogHeader>
       <math-field
         ref="mf"
+        :value="mathLatex?.initialDSL"
         math-virtual-keyboard-policy="auto"
         smart-fence
         style="border: 1px solid #ccc; border-radius: 4px; padding: 2px 4px;"
@@ -181,11 +210,11 @@ const shortCutsTips = [
       <DialogFooter class="items-center !flex !flex-row">
         <div class="mr-auto flex items-center gap-5">
           <div class="flex items-center gap-2">
-            <Label class="text-muted-foreground text-sm">{{ useBlockLatex ? '块级公式' : '行内公式' }}</Label>
-            <Switch v-model:checked="useBlockLatex" name="UseCompression" class="h-5 w-10" />
+            <Label class="text-muted-foreground text-sm" :class="(mathLatex?.initialDSL ? true : false) ? 'opacity-30 cursor-not-allowed line-through' : ''">{{ useBlockLatex ? '块级公式' : '行内公式' }}</Label>
+            <Switch v-model:checked="useBlockLatex" :disabled="mathLatex?.initialDSL ? true : false" name="UseCompression" class="h-5 w-10" />
           </div>
           <div class="flex items-center gap-2">
-            <Label for="latex-textstyle" class="text-muted-foreground text-sm" :class="useBlockLatex ? 'opacity-30 cursor-not-allowed line-through' : ''">额外样式
+            <Label for="latex-textstyle" class="text-muted-foreground text-sm" :class="(useBlockLatex || (mathLatex?.initialDSL ? true : false)) ? 'opacity-30 cursor-not-allowed line-through' : ''">额外样式
               <Popover>
                 <PopoverTrigger as-child>
                   <button>
@@ -207,9 +236,26 @@ const shortCutsTips = [
               id="latex-textstyle"
               v-model="useTextExtension"
               class="bg-background border-foreground/50 data-[state=checked]:bg-foreground data-[state=checked]:text-background h-5 h-5 w-5 w-5 border data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40"
-              :disabled="useBlockLatex"
+              :disabled="useBlockLatex || (mathLatex?.initialDSL ? true : false)"
             />
           </div>
+          <Label v-if="mathLatex?.initialDSL ? true : false" class="text-muted-foreground text-sm">
+            <Popover>
+              <PopoverTrigger as-child>
+                <button>
+                  💡
+                </button>
+              </PopoverTrigger>
+              <PopoverContent class="w-64 text-sm">
+                <div class="space-y-2">
+                  <div class="font-bold">
+                    为何无效？
+                  </div>
+                  <p>修改公式时，是“块级还是行内”及是否“添加额外样式”以原公式为准。该配置此时无效。</p>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </Label>
         </div>
         <Button variant="outline" @click="open = false">
           退 出
