@@ -124,16 +124,11 @@ function leftAndRightScroll() {
   editor.value!.on(`scroll`, editorScrollCB)
 }
 
-const migrateImg: {
-  file: File | null
-  oldUrl: string
-  order?: number
-  isSVG: boolean
-} = {
+const migrateImg: MigrateContent = {
   file: null,
   order: -1,
   oldUrl: ``,
-  isSVG: false,
+  type: 'image',
 }
 
 async function onPreviewIMGMenu(imgEl: HTMLImageElement) {
@@ -157,6 +152,7 @@ async function onPreviewIMGMenu(imgEl: HTMLImageElement) {
         type: migrateImgBlob.type,
       })
       migrateImg.oldUrl = imgUrl
+      migrateImg.type = 'image'
     }
     else {
       toast.error(`获取图片失败，请手动操作`)
@@ -168,7 +164,7 @@ async function onPreviewIMGMenu(imgEl: HTMLImageElement) {
   }
 }
 
-async function onPreviewSVGMigrateIMGMenu(svgEl: SVGSVGElement, type: string) {
+async function onPreviewSVGMigrateIMGMenu(svgEl: SVGSVGElement, type: MigrateType) {
   const figureEl = svgEl.closest(`figure`)
   if (!figureEl || !figureEl.id)
     return
@@ -198,7 +194,7 @@ async function onPreviewSVGMigrateIMGMenu(svgEl: SVGSVGElement, type: string) {
       })
       migrateImg.oldUrl = dsl
       migrateImg.order = order
-      migrateImg.isSVG = true
+      migrateImg.type = type
     }
     else {
       toast.error(`获取图片失败，请手动操作`)
@@ -369,7 +365,7 @@ function uploaded(imageUrl: string) {
 }
 
 // 图片迁移结束
-function migrated(newUrl: string, oldUrl: string, isSVG: boolean, order: number) {
+function migrated(newUrl: string, oldUrl: string, type: string, order: number) {
   if (!newUrl) {
     toast.error(`上传图片未知异常`)
     return
@@ -380,16 +376,19 @@ function migrated(newUrl: string, oldUrl: string, isSVG: boolean, order: number)
 
   const oldContent = editor.value!.getValue()
 
-  if (isSVG) {
+  if (type === 'infographic' || type === 'mermaid') {
     if (order === -1) {
       toast.error('SVG 转图片出现问题！')
       return
     }
 
-    const blockRegex
-      = /^```(infographic|mermaid)([^\r\n]*)\r?\n([\s\S]*?)\r?\n```[ \t]*$/gm
+    const infographicRegex
+      = /^```(infographic)([^\r\n]*)\r?\n([\s\S]*?)\r?\n```[ \t]*$/gm
 
-    const matches = [...oldContent.matchAll(blockRegex)]
+    const mermaidRegex
+      = /^```(mermaid)([^\r\n]*)\r?\n([\s\S]*?)\r?\n```[ \t]*$/gm
+
+    const matches = [...oldContent.matchAll(type === 'infographic' ? infographicRegex : mermaidRegex)]
 
     const match = matches[order]
 
@@ -405,24 +404,23 @@ function migrated(newUrl: string, oldUrl: string, isSVG: boolean, order: number)
 
     if (code.trim() === oldUrl.trim()) {
       const start = match.index!
-      const end = start + fullBlock.length
 
       const sizeStr = size ? `=${size}` : ``
       const captionStr = caption || ``
       const replacement = `![${captionStr}](${newUrl} ${sizeStr})`
 
-      const newContent
-        = oldContent.slice(0, start)
-          + replacement
-          + oldContent.slice(end)
+      const cm = editor.value!
+      const from = cm.posFromIndex(start)
+      const to = cm.posFromIndex(start + fullBlock.length)
 
-      editor.value!.setValue(newContent)
+      cm.replaceRange(replacement, from, to)
     }
     else {
       toast.error('SVG 转图片出现问题！')
+      return
     }
   }
-  else {
+  else if (type === 'image') {
     const newContent = oldContent.split(oldUrl).join(newUrl)
     editor.value!.setValue(newContent)
   }
@@ -480,7 +478,7 @@ async function migrateImage(
       isUploadWithDefaultImageHostConfirmDialog.value = true
     }
     else {
-      await migrateImageReal(migrateImg.file, migrateImg.oldUrl, migrateImg.isSVG, migrateImg.order, cb, applyUrl)
+      await migrateImageReal(migrateImg.file, migrateImg.oldUrl, migrateImg.type, migrateImg.order, cb, applyUrl)
     }
   }
 }
@@ -539,7 +537,7 @@ async function uploadImageReal(
 async function migrateImageReal(
   file?: File,
   oldUrl?: string,
-  isSVG?: boolean,
+  type?: MigrateType,
   order?: number,
   cb?: { (url: any, data: string): void, (arg0: unknown): void } | undefined,
   applyUrl?: boolean,
@@ -560,10 +558,10 @@ async function migrateImageReal(
       cb(url, base64Content)
     }
     else {
-      migrated(url, oldUrl!, isSVG!, order!)
+      migrated(url, oldUrl!, type!, order!)
     }
     if (applyUrl) {
-      return migrated(url, oldUrl!, isSVG!, order!)
+      return migrated(url, oldUrl!, type!, order!)
     }
   }
   catch (err) {
@@ -739,11 +737,11 @@ function tableToMarkdown(text: string): string {
   return markdown
 }
 
-async function modifyMath(isSVG: boolean) {
+async function modifyMath(type: MigrateType) {
   const cleanNewDSL = mathLatex.value.modifyDSL.trim()
   const cleanOldDSL = mathLatex.value.initialDSL.trim()
 
-  if (!cleanOldDSL || !isSVG || mathLatex.value.index === -1) {
+  if (!cleanOldDSL || (type === 'math') || mathLatex.value.index === -1) {
     toast.error('公式修改出现问题')
     return
   }
@@ -781,7 +779,7 @@ async function insertMath() {
   if (!editor.value)
     return
   if (mathLatex.value.initialDSL) {
-    await modifyMath(true)
+    await modifyMath('math')
   }
   else {
     insertSnippet(editor.value as CodeMirror.Editor, {

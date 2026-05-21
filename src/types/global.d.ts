@@ -72,3 +72,12 @@ interface LatexContent {
   id: string
   index: number
 }
+
+type MigrateType = 'image' | 'infographic' | 'mermaid' | 'math'
+
+interface MigrateContent {
+  file: File | null
+  oldUrl: string
+  order?: number
+  type: MigrateType
+}
