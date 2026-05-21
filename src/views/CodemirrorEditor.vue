@@ -524,6 +524,9 @@ async function uploadImageReal(
   }
   catch (err) {
     toast.error((err as any).message)
+    if (cb) {
+      cb('', '')
+    }
   }
   finally {
     isImgLoading.value = false
@@ -565,6 +568,9 @@ async function migrateImageReal(
   }
   catch (err) {
     toast.error((err as any).message)
+    if (cb) {
+      cb('', '')
+    }
   }
   finally {
     isImgLoading.value = false
