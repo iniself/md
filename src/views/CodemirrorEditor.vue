@@ -754,7 +754,7 @@ async function modifyMath(type: MigrateType) {
   const cleanNewDSL = mathLatex.value.modifyDSL.trim()
   const cleanOldDSL = mathLatex.value.initialDSL.trim()
 
-  if (!cleanOldDSL || (type === 'math') || mathLatex.value.index === -1) {
+  if (!cleanOldDSL || (type !== 'math') || mathLatex.value.index === -1) {
     toast.error('公式修改出现问题')
     return
   }
