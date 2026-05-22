@@ -374,9 +374,10 @@ function migrated(newUrl: string, oldUrl: string, type: string, order: number) {
     toggleShowUploadImgToAnotherHostDialog(false)
   }, 1000)
 
-  const oldContent = editor.value!.getValue()
+  const cm = editor.value!
 
   if (type === 'infographic' || type === 'mermaid') {
+    const oldContent = cm!.getValue()
     if (order === -1) {
       toast.error('SVG 转图片出现问题！')
       return
@@ -409,23 +410,35 @@ function migrated(newUrl: string, oldUrl: string, type: string, order: number) {
       const captionStr = caption || ``
       const replacement = `![${captionStr}](${newUrl} ${sizeStr})`
 
-      const cm = editor.value!
       const from = cm.posFromIndex(start)
       const to = cm.posFromIndex(start + fullBlock.length)
 
       cm.replaceRange(replacement, from, to)
+      toast.success(`${type} 转图片成功`)
     }
     else {
       toast.error('SVG 转图片出现问题！')
-      return
     }
   }
   else if (type === 'image') {
-    const newContent = oldContent.split(oldUrl).join(newUrl)
-    editor.value!.setValue(newContent)
-  }
+    const indices: number[] = []
+    let startIndex = 0
+    while (true) {
+      const oldContent = cm!.getValue()
+      const index = oldContent.indexOf(oldUrl, startIndex)
+      if (index === -1)
+        break
+      indices.push(index)
+      startIndex = index + newUrl.length
 
-  toast.success(`图片迁移成功`)
+      const from = cm.posFromIndex(index)
+      const to = cm.posFromIndex(index + oldUrl.length)
+
+      cm.replaceRange(newUrl, from, to)
+    }
+
+    toast.success(`${indices.length} 张图片迁移成功`)
+  }
 }
 
 const isImgLoading = ref(false)
