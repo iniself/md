@@ -84,7 +84,16 @@
     <script>
       window.MathJax = {
         loader: { load: ['[tex]/ams'] },
-        tex: { packages: { '[+]': ['ams'] }, tags: 'ams' },
+        tex: { 
+          packages: { '[+]': ['ams'] }, 
+          tags: 'ams',
+          macros: {
+            coloneq: "\\mathrel{:=}",
+            Coloneq: "\\mathrel{:=}",
+            eqqcolon: "\\mathrel{=:}",
+            coloneqq: "\\mathrel{::=}"
+          }
+        },
         svg: { fontCache: 'none' },
       }
     </script>
