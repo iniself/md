@@ -297,6 +297,16 @@ function handleGlobalKeydown(e: KeyboardEvent) {
     e.preventDefault()
     editor.value?.focus()
   }
+  if (e.key === `Escape` && showMathDialog.value === true) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  if (e.key === `Escape` && (e.metaKey || e.ctrlKey) && showMathDialog.value === true) {
+    e.preventDefault()
+    e.stopPropagation()
+    showMathDialog.value = false
+  }
 }
 
 onMounted(() => {
