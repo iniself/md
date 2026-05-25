@@ -17,6 +17,10 @@ const {
 } = useStore()
 
 const {
+  exportHTMLDialogVisible,
+} = storeToRefs(useStore())
+
+const {
   toggleShowInsertFormDialog,
   toggleShowInsertMpCardDialog,
   toggleShowUploadImgDialog,
@@ -59,7 +63,7 @@ const importMarkdownContent = useImportMarkdownContent()
       <ContextMenuItem inset @click="exportEditorContent2MD()">
         导出 .md 文档
       </ContextMenuItem>
-      <ContextMenuItem inset @click="export2HTML(emit)">
+      <ContextMenuItem inset @click="exportHTMLDialogVisible = true">
         导出 .html
       </ContextMenuItem>
       <ContextMenuItem inset @click="downloadAsCardImage()">
@@ -86,4 +90,5 @@ const importMarkdownContent = useImportMarkdownContent()
       </ContextMenuItem>
     </ContextMenuContent>
   </ContextMenu>
+  <ExportHTMLDialog :visible="exportHTMLDialogVisible" @starthtml="export2HTML(emit)" @close="exportHTMLDialogVisible = false" />
 </template>

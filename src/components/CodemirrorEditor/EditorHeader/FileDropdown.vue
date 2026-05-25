@@ -15,6 +15,7 @@ const {
   isEditOnLeft,
   isOpenFolderPanel,
   exportPdfDialogVisible,
+  exportHTMLDialogVisible,
 } = storeToRefs(store)
 
 const {
@@ -61,7 +62,7 @@ const importMarkdownContent = useImportMarkdownContent()
         <Download class="mr-2 size-4" />
         导出 .md
       </MenubarItem>
-      <MenubarItem @click="export2HTML(emit)">
+      <MenubarItem @click="exportHTMLDialogVisible = true">
         <FileCode class="mr-2 size-4" />
         导出 .html
       </MenubarItem>
@@ -97,4 +98,5 @@ const importMarkdownContent = useImportMarkdownContent()
   <EditorStateDialog :visible="editorStateDialogVisible" @close="editorStateDialogVisible = false" />
 
   <ExportPdfDialog :visible="exportPdfDialogVisible" @startpdf="export2PDF(emit)" @close="exportPdfDialogVisible = false" />
+  <ExportHTMLDialog :visible="exportHTMLDialogVisible" @starthtml="export2HTML(emit)" @close="exportHTMLDialogVisible = false" />
 </template>

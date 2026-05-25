@@ -11,6 +11,14 @@ import {
   themeMap,
   widthOptions,
 } from '@/config'
+
+import {
+  HTML_DEFAULT_DESCRIPTION,
+  HTML_DEFAULT_ICON,
+  HTML_DEFAULT_MARGIN,
+  HTML_DEFAULT_MAX_WIDTH,
+} from '@/constants/HTMLConfig'
+
 import {
   DEFAULT_BOTTOM_LEFT,
   DEFAULT_BOTTOM_RIGHT,
@@ -18,8 +26,10 @@ import {
   DEFAULT_TOP_LEFT,
   DEFAULT_TOP_RIGHT,
 } from '@/constants/PDFConfig'
+
 import { infographicDSLStore, mathDSLStore, mermaidDSLStore } from '@/lib/utils'
 
+import { useHTMLExportStore } from '@/stores/html'
 import { usePDFExportStore } from '@/stores/pdf'
 
 import {
@@ -131,6 +141,9 @@ export const useStore = defineStore(`store`, () => {
 
   // 导出 pdf
   const exportPdfDialogVisible = ref(false)
+
+  // 导出 html
+  const exportHTMLDialogVisible = ref(false)
 
   const output = ref(``)
 
@@ -734,10 +747,20 @@ export const useStore = defineStore(`store`, () => {
   }
 
   async function export2HTML(emit: any) {
-    // 放入拷贝 html 的逻辑代码
-    const title = posts.value[currentPostIndex.value].title
-    const fullHtml = await copy(`outhtml`, emit)
-    downloadFile(fullHtml as string, `${sanitizeTitle(title)}.html`, `text/html`)
+    const htmlExportStore = useHTMLExportStore()
+    htmlExportStore.start()
+    try {
+      const title = posts.value[currentPostIndex.value].title
+      const fullHtml = await copy(`outhtml`, emit)
+      downloadFile(fullHtml as string, `${sanitizeTitle(title)}.html`, `text/html`)
+    }
+    catch (err) {
+      toast.error(`导出 HTML 失败`)
+      console.error(err)
+    }
+    finally {
+      htmlExportStore.end()
+    }
   }
 
   // 导出编辑器内容为无样式 HTML
@@ -845,6 +868,11 @@ export const useStore = defineStore(`store`, () => {
   const bottomLeft = useStorage<string>(`print_bottom_left`, DEFAULT_BOTTOM_LEFT)
   const bottomRight = useStorage<string>(`print_bottom_right`, DEFAULT_BOTTOM_RIGHT)
 
+  const htmlDescription = useStorage<string>(`html_description`, HTML_DEFAULT_DESCRIPTION)
+  const htmlIcon = useStorage<string>(`html_icon`, HTML_DEFAULT_ICON)
+  const htmlMaxWidth = useStorage<string>(`html_max_width`, HTML_DEFAULT_MAX_WIDTH)
+  const htmlMargin = useStorage<string>(`html_margin`, HTML_DEFAULT_MARGIN)
+
   const pdfTitle = ref<string | undefined>(undefined)
   const currentPdfTitle = computed<string>({
     get() {
@@ -865,6 +893,14 @@ export const useStore = defineStore(`store`, () => {
     bottomLeft.value = DEFAULT_BOTTOM_LEFT
     bottomRight.value = DEFAULT_BOTTOM_RIGHT
     pdfTitle.value = undefined
+  }
+
+  function resetHTMLConfig() {
+    pdfTitle.value = undefined
+    htmlDescription.value = HTML_DEFAULT_DESCRIPTION
+    htmlIcon.value = HTML_DEFAULT_ICON
+    htmlMaxWidth.value = HTML_DEFAULT_MAX_WIDTH
+    htmlMargin.value = HTML_DEFAULT_MARGIN
   }
 
   return {
@@ -910,6 +946,7 @@ export const useStore = defineStore(`store`, () => {
     autoSyncChanged,
 
     exportPdfDialogVisible,
+    exportHTMLDialogVisible,
 
     isCountStatus,
     countStatusChanged,
@@ -994,6 +1031,11 @@ export const useStore = defineStore(`store`, () => {
     bottomLeft,
     bottomRight,
     resetPdfConfig,
+    htmlDescription,
+    htmlIcon,
+    htmlMaxWidth,
+    htmlMargin,
+    resetHTMLConfig,
   }
 })
 

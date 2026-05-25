@@ -1,4 +1,8 @@
 import type { EmitFn } from 'vue'
+import {
+  HTML_DEFAULT_MARGIN,
+  HTML_DEFAULT_MAX_WIDTH,
+} from '@/constants/HTMLConfig'
 import OUT_HTML_CSS from '@/constants/OutHtmlCss'
 import { processClipboardContent, processClipboardToHtmlFile, solveWeChatImage } from '@/utils'
 
@@ -187,6 +191,12 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
     isSvgCompatibility,
     isSvgBackgroundless,
     editor,
+    currentPdfTitle,
+    htmlDescription,
+    htmlIcon,
+    htmlMaxWidth,
+    htmlMargin,
+
   } = storeToRefs(store)
 
   const {
@@ -291,6 +301,27 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
               }
               if (!isCiteStatus.value) {
                 const head = tempDoc.head
+
+                if (currentPdfTitle.value) {
+                  const htmlTitle = tempDoc.createElement(`title`)
+                  htmlTitle.textContent = store.currentPdfTitle
+                  head.appendChild(htmlTitle)
+                }
+
+                if (htmlDescription.value) {
+                  const metaDescription = tempDoc.createElement(`meta`)
+                  metaDescription.setAttribute(`name`, `description`)
+                  metaDescription.setAttribute(`content`, store.htmlDescription)
+                  head.appendChild(metaDescription)
+                }
+
+                if (htmlIcon.value) {
+                  const iconLink = document.createElement('link')
+                  iconLink.setAttribute(`rel`, 'icon')
+                  iconLink.setAttribute(`href`, store.htmlIcon)
+                  head.appendChild(iconLink)
+                }
+
                 const metaCharset = tempDoc.createElement(`meta`)
                 metaCharset.setAttribute(`charset`, `UTF-8`)
                 head.appendChild(metaCharset)
@@ -299,7 +330,19 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
                 metaViewport.setAttribute(`content`, `width=device-width, initial-scale=1.0`)
                 head.appendChild(metaViewport)
                 const style = tempDoc.createElement(`style`)
-                style.textContent = `${OUT_HTML_CSS}${all_css}`
+
+                const styles = [
+                  (htmlMaxWidth.value && htmlMaxWidth.value !== HTML_DEFAULT_MAX_WIDTH) && `max-width: ${htmlMaxWidth.value} !important;`,
+                  (htmlMargin.value && htmlMargin.value !== HTML_DEFAULT_MARGIN) && `margin: ${htmlMargin.value}  !important;`,
+                ].filter(Boolean).join('\n')
+
+                const html_config_css = styles
+                  ? `body {
+${styles}
+}`
+                  : ''
+
+                style.textContent = `${OUT_HTML_CSS}${all_css}${html_config_css}`
                 head.appendChild(style)
 
                 const btn = tempDoc.createElement(`button`)
