@@ -83,15 +83,31 @@
     </script>
     <script>
       window.MathJax = {
-        loader: { load: ['[tex]/ams'] },
         tex: { 
-          packages: { '[+]': ['ams'] }, 
+          packages: { '[+]': ['mathtools'] },
           tags: 'ams',
           macros: {
-            coloneq: "\\mathrel{:=}",
-            Coloneq: "\\mathrel{:=}",
-            eqqcolon: "\\mathrel{=:}",
-            coloneqq: "\\mathrel{::=}"
+            differentialD: '{\\mathrm{d}}',
+            capitalDifferentialD: "{\\mathrm{D}}",
+            rd: "{\\mathrm{d}}",
+            rD: "{\\mathrm{D}}",
+            exponentialE: '\\mathrm{e}',
+            imaginaryI: '{\\mathrm{i}}',
+            imaginaryJ: '{\\mathrm{j}}',
+            placeholder: "{}",
+            doubleStruckCapitalN: "\\mathbb{N}",
+            doubleStruckCapitalZ: "\\mathbb{Z}",
+            doubleStruckCapitalQ: "\\mathbb{Q}",
+            doubleStruckCapitalR: "\\mathbb{R}",
+            doubleStruckCapitalC: "\\mathbb{C}",
+            doubleStruckCapitalP: "\\mathbb{P}",
+            scriptCapitalE: "\\mathcal{E}",
+            scriptCapitalH: "\\mathcal{H}",
+            scriptCapitalL: "\\mathcal{L}",
+            gothicCapitalC: "\\mathfrak{C}",
+            gothicCapitalH: "\\mathfrak{H}",
+            gothicCapitalI: "\\mathfrak{I}",
+            gothicCapitalR: "\\mathfrak{R}",
           }
         },
         svg: { fontCache: 'none' },

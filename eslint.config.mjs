@@ -5,7 +5,7 @@ export default antfu({
   unocss: true,
   typescript: true,
   formatters: true,
-  ignores: [`.github`, `scripts`, `docker`, `md-cli`, `src/assets`, `src/lib/paged*.js`, `example`, `node_modules/**`, `dist/**`, `md-cli/dist/**`],
+  ignores: [`.github`, `scripts`, `docker`, `md-cli`, `src/assets`, `src/lib/paged*.js`, `example`, `node_modules/**`, `dist/**`, `md-cli/dist/**`, `public/assets/js/**/*.js`],
 }, {
   rules: {
     'semi': [`error`, `never`],
