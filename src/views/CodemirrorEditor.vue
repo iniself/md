@@ -966,7 +966,16 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
     lineWrapping: true,
     styleActiveLine: true,
     autoCloseBrackets: true,
-    extraKeys: createExtraKeys(openSearchWithSelection),
+    extraKeys: {
+      ...createExtraKeys(openSearchWithSelection),
+
+      Tab(cm) {
+        cm.replaceSelection('    ', 'end')
+      },
+    },
+    tabSize: 4,
+    indentUnit: 4,
+    indentWithTabs: false,
     undoDepth: 200,
   })
 
