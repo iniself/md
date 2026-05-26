@@ -49,7 +49,8 @@ function save() {
     return
   }
 
-  mathLatex.value.modifyDSL = handleDSL(mf.value.getValue())
+  const standardLatex = mf.value.getValue('latex-expanded')
+  mathLatex.value.modifyDSL = handleDSL(standardLatex)
   emit(`confirm`)
   open.value = false
 }
