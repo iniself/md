@@ -441,7 +441,7 @@ function emitUploads() {
           </Label>
           <Label label="UseMigrateCompression">
             <span class="my-4 block">
-              开启图片压缩 | <span class="text-muted-foreground text-xs">当前 {{ displayStore.migrateSize }}</span>
+              开启图片压缩 | <span class="text-muted-foreground text-xs">GIF 无效</span> | <span class="text-muted-foreground text-xs">当前 {{ displayStore.migrateSize }}</span>
             </span>
             <Switch
               v-model:checked="useMigrateCompression"

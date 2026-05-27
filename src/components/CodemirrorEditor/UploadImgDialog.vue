@@ -500,7 +500,7 @@ function emitUploads(file: File) {
           </Label>
           <Label label="UseCompression">
             <span class="my-4 block">
-              开启图片压缩
+              开启图片压缩 | <span class="text-muted-foreground text-xs">GIF 无效</span>
             </span>
             <Switch
               v-model:checked="useCompression"

@@ -459,6 +459,10 @@ async function compressImage(file: File) {
     maxWidthOrHeight: 1920,
     useWebWorker: true,
   }
+  if (file.type === 'image/gif') {
+    toast.warning('压缩对 gif 无效')
+    return file
+  }
   const compressedFile = await imageCompression(file, options)
   return compressedFile
 }
