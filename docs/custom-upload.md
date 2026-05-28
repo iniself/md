@@ -1,15 +1,13 @@
-# 自定义上传
+如果要连接的图床不是这些预定义图床，只需要自定义上传逻辑即可。这对于例如不方便使用公共图床，而是使用自己的上传服务时非常有用。
 
-在工具上没有提供预定义图床的情况下，你只需要自定义上传逻辑即可，这对于例如你不方便使用公共图床，而是使用自己的上传服务时非常有用。
-
-你只需要在给定的函数中更改上传代码即可，为了方便，这个函数提供了可能使用的一些参数：
+只需要在给定的函数中更改上传代码即可，为了方便，这个函数提供了可能使用的一些参数：
 
 示例代码：
 
 ```js
 const { file, util, okCb, errCb } = CUSTOM_ARG
 const param = new FormData()
-param.append(`file`, file)
+param.append(`file`, file, file.name || `upload.png`)
 util.axios
   .post(`http://127.0.0.1:9000/upload`, param, {
     headers: { 'Content-Type': `multipart/form-data` },
@@ -42,4 +40,4 @@ util.axios
 // }
 ```
 
-如果你创建了适用于其他第三方图床的上传代码，我们非常欢迎你分享它。
+以上只是前端代码，需要搭配图床 API 使用。如有优秀图床，我们也非常欢迎你分享它。
