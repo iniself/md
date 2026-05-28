@@ -314,7 +314,25 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         </div>
       </div>
       <div class="space-y-2">
-        <h2>PDF分页</h2>
+        <div class="flex items-center gap-2">
+          <h2>PDF分页</h2>
+          <Popover>
+            <PopoverTrigger as-child>
+              <button>
+                ?
+              </button>
+            </PopoverTrigger>
+            <PopoverContent class="w-64 text-sm">
+              <div class="space-y-2">
+                <div class="font-bold">
+                  PDF如何分页：
+                </div>
+                <p>自动：根据 H1 标题自动分页</p>
+                <p>手动：根据输入的 +++ 分页</p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button
             class="w-full" variant="outline" :class="{
@@ -333,7 +351,24 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         </div>
       </div>
       <div class="space-y-2">
-        <h2>PDF排版引擎</h2>
+        <div class="flex items-center gap-2">
+          <h2>PDF排版引擎</h2>
+          <Popover>
+            <PopoverTrigger as-child>
+              <button>
+                ?
+              </button>
+            </PopoverTrigger>
+            <PopoverContent class="w-64 text-sm">
+              <div class="space-y-2">
+                <div class="font-bold">
+                  PDF引擎：
+                </div>
+                <p>建议 paged，除非导出 PDF 有明显问题</p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button
             v-for="value in ['paged', 'vivliostyle']" :key="value" variant="outline" class="w-full"
@@ -422,7 +457,25 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         </div>
       </div>
       <div class="space-y-2">
-        <h2>保存到文件</h2>
+        <div class="flex items-center gap-2">
+          <h2>保存到文件</h2>
+          <Popover>
+            <PopoverTrigger as-child>
+              <button>
+                ?
+              </button>
+            </PopoverTrigger>
+            <PopoverContent class="w-64 text-sm">
+              <div class="space-y-2">
+                <div class="font-bold">
+                  本地文件同步模式：
+                </div>
+                <p>自动：自动保存</p>
+                <p>手动：手动保存</p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button
             class="w-full" variant="outline" :class="{
