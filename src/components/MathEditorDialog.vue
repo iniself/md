@@ -23,10 +23,6 @@ function handleDSL(dsl: string): string {
   let finalDsl = dsl.replace(/\$/g, `\\$`)
 
   if (mathLatex.value?.initialDSL) {
-    if (useTextExtension.value && !useBlockLatex.value) {
-      finalDsl = `=:: ${finalDsl} ::=`
-    }
-
     return finalDsl
   }
 
