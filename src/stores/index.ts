@@ -170,6 +170,9 @@ export const useStore = defineStore(`store`, () => {
   // 预备弃用的旧字段
   const editorContent = useStorage(`__editor_content`, DEFAULT_CONTENT)
 
+  // 是否打开新手引导
+  const skipOnboarding = useStorage<boolean>(`skip_onboarding`, false)
+
   const isOpenRightSlider = useStorage(addPrefix(`is_open_right_slider`), false)
   const isOpenLeftSlider = useStorage(addPrefix(`is_open_left_slider`), true)
   const isOpenPostSlider = useStorage(addPrefix(`is_open_post_slider`), true)
@@ -1015,6 +1018,7 @@ export const useStore = defineStore(`store`, () => {
     isOpenFolderPanel,
     isOpenTocSlider,
     isOpenRightSlider,
+    skipOnboarding,
 
     titleList,
     isMobile,

@@ -229,23 +229,37 @@ function handleSaveToFile() {
   isNeedSyncDialog.value = false
 }
 
+const onboardingByStart = ref(true)
+watch(onboardingByStart, async (newVal) => {
+  if (!newVal) {
+    const post = store.posts.find(post => post.id === store.currentPostId) || null
+    if (post && post.localFile && !post.isFolder) {
+      const folder = await runtime_folder_info.get(post.localFile)
+      if (folder) {
+        confirm({
+          title: `本地文件`,
+          description: `当前内容已与本地文件同步。如有差异将会提示。`,
+          cancelText: `知道了！`,
+          dialogType: `alert`,
+        })
+      }
+      else {
+        // 没有历史 Handle，需要重新打开文件夹获取
+        toast.error(`丢失文件权限，内容不再与文件同步`)
+        post.localFile = null
+      }
+    }
+  }
+}, {
+  immediate: true,
+})
+
 onMounted(async () => {
-  const post = store.posts.find(post => post.id === store.currentPostId) || null
-  if (post && post.localFile && !post.isFolder) {
-    const folder = await runtime_folder_info.get(post.localFile)
-    if (folder) {
-      confirm({
-        title: `本地文件`,
-        description: `当前内容已与本地文件同步。如有差异将会提示。`,
-        cancelText: `知道了！`,
-        dialogType: `alert`,
-      })
-    }
-    else {
-      // 没有历史 Handle，需要重新打开文件夹获取
-      toast.error(`丢失文件权限，内容不再与文件同步`)
-      post.localFile = null
-    }
+  if (!store.skipOnboarding) {
+    onboardingByStart.value = true
+  }
+  else {
+    onboardingByStart.value = false
   }
 })
 
@@ -614,5 +628,6 @@ async function handleSelectPost(postId: string) {
       </DialogFooter>
     </DialogContent>
   </Dialog>
+  <OnboardingDialog v-model:onboarding-by-start="onboardingByStart" v-model:skip-onboarding="store.skipOnboarding" />
   <component :is="dialog" />
 </template>

@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { BookOpenText, Heading, Signpost } from 'lucide-vue-next'
 import { v4 as uuid } from 'uuid'
 import DEFAULT_CONTENT from '@/assets/example/markdown.md?raw'
 import { useStore } from '@/stores'
 
 const aboutDialogVisible = ref(false)
 const fundDialogVisible = ref(false)
+const onboardingByMenu = ref(false)
 
 const store = useStore()
 function generateHelpContent() {
@@ -35,11 +37,17 @@ function generateHelpContent() {
     <MenubarTrigger>帮助</MenubarTrigger>
     <MenubarContent align="start">
       <MenubarCheckboxItem @click="aboutDialogVisible = true">
+        <BookOpenText class="mr-2 h-4 w-4" />
         <span>关于 Docs<sup style="color:red">+</sup></span>
       </MenubarCheckboxItem>
       <!-- <MenubarCheckboxItem @click="fundDialogVisible = true"> -->
+      <MenubarCheckboxItem @click="onboardingByMenu = true">
+        <Signpost class="mr-2 h-4 w-4" />
+        <span>新手指引</span>
+      </MenubarCheckboxItem>
       <MenubarCheckboxItem @click="generateHelpContent()">
-        Markdown语法
+        <Heading class="mr-2 h-4 w-4" />
+        <span>Markdown语法</span>
       </MenubarCheckboxItem>
     </MenubarContent>
   </MenubarMenu>
@@ -47,4 +55,5 @@ function generateHelpContent() {
   <!-- 各弹窗挂载 -->
   <AboutDialog :visible="aboutDialogVisible" @close="aboutDialogVisible = false" />
   <FundDialog :visible="fundDialogVisible" @close="fundDialogVisible = false" />
+  <OnboardingDialog v-model:onboarding-by-menu="onboardingByMenu" />
 </template>
