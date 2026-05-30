@@ -61,7 +61,7 @@ export default function markedTextExtension(options?: { mode?: `default` | `info
               bgColor,
               fontSize,
               text: content,
-              tokens: this.lexer.inlineTokens(content) || [],
+              tokens: this.lexer.inlineTokens(content.trim()) || [],
             }
           }
         },
