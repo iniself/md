@@ -8,6 +8,11 @@ const props = defineProps<{
 
 const showSearchTab = ref(false)
 
+const searchInputEl = ref<any>(null)
+async function focusSearchInput() {
+  searchInputEl.value?.$el?.focus()
+}
+
 const searchWord = ref(``)
 const indexOfMatch = ref(0)
 const showReplace = ref(false)
@@ -50,6 +55,9 @@ watch(showSearchTab, async () => {
   }
   else {
     markMatch()
+    requestAnimationFrame(() => {
+      focusSearchInput()
+    })
   }
 })
 
@@ -208,6 +216,7 @@ defineExpose({
         <!-- 查找行 -->
         <div class="flex items-center gap-1">
           <Input
+            ref="searchInputEl"
             v-model="searchWord"
             placeholder="查找"
             class="h-7 w-40 text-sm"
