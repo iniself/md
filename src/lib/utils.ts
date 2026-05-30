@@ -824,6 +824,21 @@ export const mathDSLStore = {
       }]
     })
   },
+  getIncludeDSL: (dsl: string): { id: string, text: string, index: number }[] => {
+    return mathOrder.flatMap((id, index) => {
+      const text = mathDSLCache.get(id)
+
+      if (!text || !text.includes(dsl)) {
+        return []
+      }
+
+      return [{
+        id,
+        text,
+        index,
+      }]
+    })
+  },
   deleteById: (id: string) => {
     mathDSLCache.delete(id)
     const index = mathOrder.indexOf(id)

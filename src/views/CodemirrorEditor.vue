@@ -780,7 +780,7 @@ async function modifyMath(type: MigrateType) {
 
   const oldContent = editor.value!.getValue()
 
-  const theMathDSLS = mathDSLStore.getByDSL(cleanOldDSL)
+  const theMathDSLS = mathDSLStore.getIncludeDSL(cleanOldDSL)
   const indexOfmathDSLStore = theMathDSLS.findIndex(item => item.id === mathLatex.value.id)
 
   let index = -1
