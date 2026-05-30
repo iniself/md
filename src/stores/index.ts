@@ -337,10 +337,27 @@ export const useStore = defineStore(`store`, () => {
   /********************************
    * 同步编辑器内容
    ********************************/
-  watch(currentPostId, () => {
-    const post = getPostById(currentPostId.value)
-    if (post)
-      editor.value && toRaw(editor.value).setValue(post.content)
+  const historyMap = new Map()
+
+  watch(currentPostId, (newId, oldId) => {
+    const oldPost = getPostById(oldId)
+    const newPost = getPostById(newId)
+
+    if (editor.value && newPost) {
+      if (oldPost) {
+        historyMap.set(oldId, editor.value.getHistory())
+      }
+
+      toRaw(editor.value).setValue(newPost.content)
+
+      const history = historyMap.get(newId)
+      if (history) {
+        editor.value.setHistory(history)
+      }
+      else {
+        editor.value.clearHistory()
+      }
+    }
   })
 
   onMounted(() => {
