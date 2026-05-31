@@ -715,7 +715,7 @@ async function handleSelectPost(postId: string) {
           >
           <div class="absolute right-1.5 top-1/2 flex items-center gap-0.5 -translate-y-1/2">
             <button
-              class="text-muted-foreground/50 hover:text-foreground size-5 inline-flex items-center justify-center rounded transition-colors disabled:opacity-35"
+              class="hover:text-foreground text-muted-foreground size-5 inline-flex items-center justify-center rounded transition-colors disabled:opacity-35"
               title="替换一处"
               :disabled="!searchQuery || totalMatches === 0"
               @click="replaceFirst"
@@ -723,7 +723,7 @@ async function handleSelectPost(postId: string) {
               <Replace class="size-3" />
             </button>
             <button
-              class="text-muted-foreground/50 hover:text-foreground size-5 inline-flex items-center justify-center rounded transition-colors disabled:opacity-35"
+              class="text-muted-foreground hover:text-foreground size-5 inline-flex items-center justify-center rounded transition-colors disabled:opacity-35"
               title="全部替换"
               :disabled="!searchQuery || totalMatches === 0"
               @click="replaceAll"
