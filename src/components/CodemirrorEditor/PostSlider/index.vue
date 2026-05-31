@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowUpNarrowWide, ChevronsDownUp, ChevronsUpDown, PlusSquare } from 'lucide-vue-next'
+import { ArrowUpNarrowWide, ChevronsDownUp, ChevronsUpDown, FileSearch, PlusSquare, Regex, Replace, ReplaceAll, Search, X } from 'lucide-vue-next'
 import DiffViewer from '@/components/CodemirrorEditor/DiffViewer.vue'
 import { useCustomConfirmDialog } from '@/composables/useCustomConfirmDialog'
 import { useStore } from '@/stores'
@@ -129,6 +129,207 @@ function recoverHistory() {
   toRaw(store.editor!).setValue(content)
   toast.success(`记录恢复成功`)
   isOpenHistoryDialog.value = false
+}
+
+/* ============ 全局搜索与替换 ============ */
+const isSearching = ref(false)
+const searchQuery = ref(``)
+const searchInputRef = ref<HTMLInputElement | null>(null)
+const replaceQuery = ref(``)
+const showReplace = ref(true)
+const isRegex = ref(false)
+const isCaseSensitive = ref(false)
+
+function toggleSearch() {
+  isSearching.value = !isSearching.value
+  if (isSearching.value) {
+    nextTick(() => searchInputRef.value?.focus())
+  }
+  else {
+    searchQuery.value = ``
+    replaceQuery.value = ``
+    showReplace.value = false
+  }
+}
+
+function closeSearch() {
+  isSearching.value = false
+  searchQuery.value = ``
+  replaceQuery.value = ``
+  showReplace.value = false
+}
+
+interface HighlightPart {
+  text: string
+  highlight: boolean
+}
+
+function getSearchRegex(query: string): RegExp | null {
+  if (!query.trim())
+    return null
+  try {
+    if (isRegex.value) {
+      return new RegExp(query, `gm${isCaseSensitive.value ? `` : `i`}`)
+    }
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, `\\$&`)
+    return new RegExp(escaped, `gm${isCaseSensitive.value ? `` : `i`}`)
+  }
+  catch {
+    return null
+  }
+}
+
+function highlightParts(text: string, query: string): HighlightPart[] {
+  if (!query)
+    return [{ text, highlight: false }]
+  const regex = getSearchRegex(query)
+  if (!regex)
+    return [{ text, highlight: false }]
+  const parts: HighlightPart[] = []
+  let lastIndex = 0
+  let match = regex.exec(text)
+  while (match !== null) {
+    if (match.index > lastIndex)
+      parts.push({ text: text.slice(lastIndex, match.index), highlight: false })
+    parts.push({ text: match[0], highlight: true })
+    lastIndex = match.index + match[0].length
+    if (match[0].length === 0)
+      regex.lastIndex++
+    match = regex.exec(text)
+  }
+  if (lastIndex < text.length)
+    parts.push({ text: text.slice(lastIndex), highlight: false })
+  return parts
+}
+
+function getContentSnippet(content: string, query: string): string {
+  if (!query.trim())
+    return ``
+  const regex = getSearchRegex(query)
+  if (!regex)
+    return ``
+  const match = regex.exec(content)
+  if (!match)
+    return ``
+  const idx = match.index
+  const matchLen = match[0].length
+  const start = Math.max(0, idx - 20)
+  const end = Math.min(content.length, idx + matchLen + 40)
+  let snippet = content.slice(start, end).replace(/\n/g, ` `)
+  if (start > 0)
+    snippet = `…${snippet}`
+  if (end < content.length)
+    snippet = `${snippet}…`
+  return snippet
+}
+
+const searchResults = computed(() => {
+  const q = searchQuery.value.trim()
+  if (!q)
+    return []
+  const regex = getSearchRegex(q)
+  if (!regex)
+    return []
+  return store.posts
+    .filter(post => regex.test(post.title) || regex.test(post.content))
+    .map((post) => {
+      const snippet = getContentSnippet(post.content, searchQuery.value.trim())
+      return {
+        ...post,
+        titleParts: highlightParts(post.title, searchQuery.value.trim()),
+        snippetParts: snippet ? highlightParts(snippet, searchQuery.value.trim()) : [],
+      }
+    })
+})
+
+const totalMatches = computed(() => {
+  const q = searchQuery.value.trim()
+  if (!q)
+    return 0
+  const regex = getSearchRegex(q)
+  if (!regex)
+    return 0
+  let count = 0
+  store.posts.forEach((post) => {
+    const titleMatches = (post.title.match(regex) || []).length
+    regex.lastIndex = 0
+    const contentMatches = (post.content.match(regex) || []).length
+    regex.lastIndex = 0
+    count += titleMatches + contentMatches
+  })
+  return count
+})
+
+function replaceInText(text: string, search: string, replace: string): string {
+  const regex = getSearchRegex(search)
+  if (!regex)
+    return text
+  return text.replace(regex, replace)
+}
+
+function replaceFirst() {
+  const q = searchQuery.value.trim()
+  if (!q)
+    return
+  const regex = getSearchRegex(q)
+  if (!regex)
+    return
+  for (const post of store.posts) {
+    regex.lastIndex = 0
+    if (regex.test(post.title)) {
+      regex.lastIndex = 0
+      store.renamePost(post.id, replaceInText(post.title, q, replaceQuery.value))
+      toast.success(`已替换 1 处`)
+      return
+    }
+    regex.lastIndex = 0
+    if (regex.test(post.content)) {
+      regex.lastIndex = 0
+      store.updatePostContent(post.id, replaceInText(post.content, q, replaceQuery.value))
+      if (store.currentPostId === post.id && store.editor) {
+        const ed = toRaw(store.editor)
+        ed.setValue(post.content)
+        // ed.dispatch({
+        //   changes: { from: 0, to: ed.state.doc.length, insert: post.content },
+        // })
+      }
+      toast.success(`已替换 1 处`)
+      return
+    }
+  }
+}
+
+function replaceAll() {
+  const q = searchQuery.value.trim()
+  if (!q)
+    return
+  const regex = getSearchRegex(q)
+  if (!regex)
+    return
+  let count = 0
+  store.posts.forEach((post) => {
+    regex.lastIndex = 0
+    const titleMatches = (post.title.match(regex) || []).length
+    regex.lastIndex = 0
+    const contentMatches = (post.content.match(regex) || []).length
+    if (titleMatches > 0) {
+      regex.lastIndex = 0
+      store.renamePost(post.id, replaceInText(post.title, q, replaceQuery.value))
+      count += titleMatches
+    }
+    if (contentMatches > 0) {
+      regex.lastIndex = 0
+      const newContent = replaceInText(post.content, q, replaceQuery.value)
+      store.updatePostContent(post.id, newContent)
+      if (store.currentPostId === post.id && store.editor) {
+        const ed = toRaw(store.editor)
+        ed.setValue(newContent)
+      }
+      count += contentMatches
+    }
+  })
+  if (count > 0)
+    toast.success(`已替换 ${count} 处`)
 }
 
 /* ============ 排序 ============ */
@@ -383,7 +584,22 @@ async function handleSelectPost(postId: string) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
+        <button
+          class="hover:bg-accent hover:text-foreground size-7 inline-flex items-center justify-center rounded-md transition-colors duration-150"
+          :class="{ 'text-primary bg-primary/10': isSearching }"
+          @click="toggleSearch"
+        >
+          <TooltipProvider :delay-duration="200">
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <FileSearch class="size-5" />
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                全局搜索
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </button>
         <!-- 排序 -->
         <DropdownMenu>
           <DropdownMenuTrigger>
@@ -451,6 +667,117 @@ async function handleSelectPost(postId: string) {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+      </div>
+
+      <!-- 搜索栏 -->
+      <div v-if="isSearching" class="space-y-1 shrink-0 px-2 pb-1.5">
+        <div class="relative">
+          <input
+            ref="searchInputRef"
+            v-model="searchQuery"
+            class="bg-background border-border focus:ring-ring placeholder:text-muted-foreground/50 h-8 w-full border rounded-md px-2.5 pr-20 text-xs transition-colors focus:outline-none focus:ring-1"
+            placeholder="搜索"
+            @keydown.escape="closeSearch"
+          >
+          <div class="absolute right-1.5 top-1/2 flex items-center gap-0.5 -translate-y-1/2">
+            <button
+              class="hover:text-foreground text-muted-foreground/50 size-5 inline-flex items-center justify-center rounded transition-colors"
+              :class="{ 'text-primary bg-primary/10': isRegex }"
+              title="正则表达式"
+              @click="isRegex = !isRegex"
+            >
+              <Regex class="size-3" />
+            </button>
+            <button
+              class="text-muted-foreground/50 hover:text-foreground size-5 inline-flex items-center justify-center rounded transition-colors"
+              :class="{ 'text-primary bg-primary/10': isCaseSensitive }"
+              title="区分大小写"
+              @click="isCaseSensitive = !isCaseSensitive"
+            >
+              <span class="text-[10px] font-bold">Aa</span>
+            </button>
+            <button
+              v-if="searchQuery"
+              class="text-muted-foreground/50 hover:text-foreground size-5 inline-flex items-center justify-center rounded transition-colors"
+              @click="searchQuery = ''"
+            >
+              <X class="size-3" />
+            </button>
+          </div>
+        </div>
+
+        <!-- 替换栏 -->
+        <div class="relative">
+          <input
+            v-model="replaceQuery"
+            class="border-border bg-background placeholder:text-muted-foreground/50 focus:ring-ring h-8 w-full border rounded-md px-2.5 pr-16 text-xs transition-colors focus:outline-none focus:ring-1"
+            placeholder="替换为…"
+          >
+          <div class="absolute right-1.5 top-1/2 flex items-center gap-0.5 -translate-y-1/2">
+            <button
+              class="text-muted-foreground/50 hover:text-foreground size-5 inline-flex items-center justify-center rounded transition-colors disabled:opacity-35"
+              title="替换一处"
+              :disabled="!searchQuery || totalMatches === 0"
+              @click="replaceFirst"
+            >
+              <Replace class="size-3" />
+            </button>
+            <button
+              class="text-muted-foreground/50 hover:text-foreground size-5 inline-flex items-center justify-center rounded transition-colors disabled:opacity-35"
+              title="全部替换"
+              :disabled="!searchQuery || totalMatches === 0"
+              @click="replaceAll"
+            >
+              <ReplaceAll class="size-3" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 搜索结果 -->
+      <div v-if="isSearching && searchQuery.trim()" class="thin-scrollbar flex-1 overflow-y-auto px-1.5 py-0.5">
+        <!-- 匹配统计 -->
+        <div v-if="totalMatches > 0" class="text-muted-foreground/60 px-2 py-1 text-xs">
+          共 {{ totalMatches }} 处匹配，{{ searchResults.length }} 篇内容
+        </div>
+        <template v-if="searchResults.length">
+          <a
+            v-for="result in searchResults"
+            :key="result.id"
+            class="group relative w-full flex flex-col cursor-pointer gap-0.5 rounded-lg px-2 py-[7px] text-[13px] leading-snug transition-all duration-150 ease-out"
+            :class="{
+              'bg-accent text-accent-foreground font-medium': store.currentPostId === result.id,
+              'text-foreground/70 hover:text-foreground hover:bg-accent/50': store.currentPostId !== result.id,
+            }"
+            @click="store.currentPostId = result.id; closeSearch()"
+          >
+            <span
+              v-if="store.currentPostId === result.id"
+              class="bg-primary absolute left-0 top-1/2 h-4 w-[3px] rounded-r-full -translate-y-1/2"
+            />
+            <span class="select-none truncate">
+              <template v-for="(part, i) in result.titleParts" :key="i">
+                <mark v-if="part.highlight" class="bg-primary/20 rounded-sm px-px text-inherit">{{ part.text }}</mark>
+                <span v-else>{{ part.text }}</span>
+              </template>
+            </span>
+            <span
+              v-if="result.snippetParts.length"
+              class="text-muted-foreground/60 truncate text-[11px]"
+            >
+              <template v-for="(part, i) in result.snippetParts" :key="i">
+                <mark v-if="part.highlight" class="bg-primary/20 rounded-sm px-px text-inherit">{{ part.text }}</mark>
+                <span v-else>{{ part.text }}</span>
+              </template>
+            </span>
+          </a>
+        </template>
+        <div v-else class="flex flex-col items-center justify-center gap-2 px-6 py-12">
+          <Search class="text-muted-foreground/30 size-5" />
+          <p class="text-muted-foreground/50 text-xs">
+            没有匹配的内容
+          </p>
+        </div>
       </div>
 
       <!-- 列表 -->

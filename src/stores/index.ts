@@ -320,6 +320,14 @@ export const useStore = defineStore(`store`, () => {
     }
   }
 
+  const updatePostContent = (id: string, content: string) => {
+    const post = getPostById(id)
+    if (post) {
+      post.content = content
+      post.updateDatetime = new Date()
+    }
+  }
+
   // 收起所有文章
   const collapseAllPosts = () => {
     posts.value.forEach((post) => {
@@ -1042,6 +1050,7 @@ export const useStore = defineStore(`store`, () => {
     isElectron,
     isTauri,
     updatePostParentId,
+    updatePostContent,
     collapseAllPosts,
     expandAllPosts,
     pdfTitle,
