@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type CodeMirror from 'codemirror'
-import { ChevronDown, ChevronRight, ChevronUp, Replace, ReplaceAll, X } from 'lucide-vue-next'
+import { CaseSensitive, ChevronDown, ChevronRight, ChevronUp, Regex, Replace, ReplaceAll, X } from 'lucide-vue-next'
 
 const props = defineProps<{
   editor: CodeMirror.Editor
@@ -14,6 +14,10 @@ async function focusSearchInput() {
 }
 
 const searchWord = ref(``)
+
+const isRegex = ref(false)
+const isCaseSensitive = ref(false)
+
 const indexOfMatch = ref(0)
 const showReplace = ref(false)
 const replaceWord = ref(``)
@@ -51,6 +55,12 @@ watch([indexOfMatch, matchPositions], () => {
 
 watch(showSearchTab, async () => {
   if (!showSearchTab.value) {
+    searchWord.value = ''
+    replaceWord.value = ''
+    showReplace.value = false
+    isRegex.value = false
+    isCaseSensitive.value = false
+
     clearAllMarks()
   }
   else {
@@ -80,11 +90,12 @@ function markMatch() {
 
 function findAllMatches() {
   const editor = props.editor
-  if (!searchWord.value || !showSearchTab.value)
+  if (!searchWord.value.trim() || !showSearchTab.value)
     return
 
   // 获取所有匹配项
-  const cursor = editor.getSearchCursor(searchWord.value, undefined, true)
+  const reg = new RegExp(searchWord.value, `gm${isCaseSensitive.value ? '' : 'i'}`)
+  const cursor = isRegex.value ? editor.getSearchCursor(reg) : editor.getSearchCursor(searchWord.value, undefined, !isCaseSensitive.value)
   let matchCount = 0
   const _matchPositions: CodeMirror.Position[][] = []
   while (cursor.findNext()) {
@@ -168,6 +179,16 @@ function setSearchWord(word: string) {
   }
 }
 
+function toggleCaseSensitive() {
+  isCaseSensitive.value = !isCaseSensitive.value
+  findAllMatches()
+}
+
+function toggleRegex() {
+  isRegex.value = !isRegex.value
+  findAllMatches()
+}
+
 onMounted(() => {
   const editor = props.editor
   editor.on(`changes`, handleEditorChange)
@@ -197,7 +218,7 @@ defineExpose({
   <Transition name="slide-down">
     <div
       v-if="showSearchTab"
-      class="bg-background absolute right-0 top-0 z-50 min-w-[300px] w-fit flex gap-1 border rounded-lg px-2 py-1 shadow-md transition-all"
+      class="bg-background absolute right-0 top-0 z-50 max-w-[calc(100%-1rem)] flex gap-1 border rounded-lg px-2 py-1 shadow-md transition-all"
       :class="showReplace ? 'items-start' : 'items-center'"
     >
       <!-- 折叠/展开按钮 -->
@@ -212,16 +233,42 @@ defineExpose({
       </Button>
 
       <!-- 查找 / 替换主体 -->
-      <div class="flex flex-col gap-0.5">
+      <div class="grid grid-cols-[1fr_auto] min-w-0 flex-1 items-center gap-0.5">
         <!-- 查找行 -->
-        <div class="flex items-center gap-1">
+        <div class="relative min-w-0">
           <Input
             ref="searchInputEl"
             v-model="searchWord"
             placeholder="查找"
-            class="h-7 w-40 text-sm"
+            class="h-7 min-w-0 w-full pr-12 text-sm"
             @keydown="handleSearchInputKeyDown"
           />
+          <div class="absolute right-1 top-1/2 flex items-center gap-0.5 -translate-y-1/2">
+            <Button
+              variant="ghost"
+              size="xs"
+              title="区分大小写"
+              aria-label="区分大小写"
+              class="h-5 w-5 p-0"
+              :class="{ 'bg-foreground text-background hover:bg-foreground hover:text-background': isCaseSensitive }"
+              @click="toggleCaseSensitive"
+            >
+              <CaseSensitive class="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
+              title="正则表达式"
+              aria-label="正则表达式"
+              class="h-5 w-5 p-0"
+              :class="{ 'bg-foreground text-background hover:bg-foreground hover:text-background': isRegex }"
+              @click="toggleRegex"
+            >
+              <Regex class="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
           <span class="w-10 select-none text-center text-xs">
             {{ numberOfMatches ? indexOfMatch + 1 : 0 }}/{{ numberOfMatches }}
           </span>
@@ -258,34 +305,36 @@ defineExpose({
         </div>
 
         <!-- 替换行（可折叠） -->
-        <div v-if="showReplace" class="flex items-center gap-1">
+        <template v-if="showReplace">
           <Input
             v-model="replaceWord"
             placeholder="替换"
-            class="h-7 w-40 text-sm"
+            class="mt-0.5 h-7 min-w-0 text-sm"
             @keydown="handleReplaceInputKeyDown"
           />
-          <Button
-            variant="ghost"
-            size="xs"
-            title="替换"
-            aria-label="替换"
-            class="h-6 w-6 p-0"
-            @click="handleReplace"
-          >
-            <Replace class="h-3 w-3" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="xs"
-            title="全部替换"
-            aria-label="全部替换"
-            class="h-6 w-6 p-0"
-            @click="handleReplaceAll"
-          >
-            <ReplaceAll class="h-3 w-3" />
-          </Button>
-        </div>
+          <div class="mt-0.5 flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="xs"
+              title="替换"
+              aria-label="替换"
+              class="h-6 w-6 p-0"
+              @click="handleReplace"
+            >
+              <Replace class="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
+              title="全部替换"
+              aria-label="全部替换"
+              class="h-6 w-6 p-0"
+              @click="handleReplaceAll"
+            >
+              <ReplaceAll class="h-3 w-3" />
+            </Button>
+          </div>
+        </template>
       </div>
     </div>
   </Transition>
