@@ -149,6 +149,8 @@ function toggleSearch() {
     searchQuery.value = ``
     replaceQuery.value = ``
     showReplace.value = false
+    isCaseSensitive.value = false
+    isRegex.value = false
   }
 }
 
@@ -157,6 +159,8 @@ function closeSearch() {
   searchQuery.value = ``
   replaceQuery.value = ``
   showReplace.value = false
+  isCaseSensitive.value = false
+  isRegex.value = false
 }
 
 interface HighlightPart {
