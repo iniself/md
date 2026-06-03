@@ -101,7 +101,7 @@ function onPressDown(e: KeyboardEvent) {
 watch(useBlockLatex, (val) => {
   if (!mathLatex.value)
     return
-  mathLatex.value.type = val ? 'block' : 'inline'
+  mathLatex.value.latexStyle = val ? 'block' : 'inline'
 
   if (val) {
     useTextExtension.value = false
@@ -110,7 +110,7 @@ watch(useBlockLatex, (val) => {
 
 watch(open, async (v) => {
   if (v) {
-    useBlockLatex.value = mathLatex.value?.type === 'block'
+    useBlockLatex.value = mathLatex.value?.latexStyle === 'block'
 
     requestAnimationFrame(() => {
       try {
