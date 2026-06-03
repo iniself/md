@@ -133,7 +133,16 @@ function isHasChild(postId: string) {
         />
       </Button>
 
-      <span class="line-clamp-1"><Paperclip v-if="post.localFile && !post.isFolder" class="mr-2 inline size-4" /><Folder v-else-if="post.isFolder" class="mr-2 inline size-4" /> {{ post.title }}</span>
+      <TooltipProvider :delay-duration="200">
+        <Tooltip>
+          <TooltipTrigger as-child>
+            <span class="line-clamp-1"><Paperclip v-if="post.localFile && !post.isFolder" class="mr-2 inline size-4" /><Folder v-else-if="post.isFolder" class="mr-2 inline size-4" /> {{ post.title }}</span>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            {{ post.title }}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <!-- 每条文章操作 -->
       <DropdownMenu>
