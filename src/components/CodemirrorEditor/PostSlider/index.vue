@@ -133,12 +133,9 @@ function recoverHistory() {
 
 /* ============ 全局搜索与替换 ============ */
 const isSearching = ref(false)
-const searchQuery = ref(``)
 const searchInputRef = ref<HTMLInputElement | null>(null)
-const replaceQuery = ref(``)
 const showReplace = ref(true)
-const isRegex = ref(false)
-const isCaseSensitive = ref(false)
+const { searchQuery, replaceQuery, isRegex, isCaseSensitive, openedFromGlobalSearch } = storeToRefs(store)
 
 function toggleSearch() {
   isSearching.value = !isSearching.value
@@ -245,6 +242,11 @@ const searchResults = computed(() => {
       }
     })
 })
+
+function openCurrentPostFromGlobalSearch(postId: string) {
+  store.currentPostId = postId
+  openedFromGlobalSearch.value = true
+}
 
 const totalMatches = computed(() => {
   const q = searchQuery.value.trim()
@@ -528,7 +530,7 @@ async function handleSelectPost(postId: string) {
   // 点击 post 时要执行的逻辑
   // 1. 检查权限
   // 2. 是否需要同步
-
+  openedFromGlobalSearch.value = false
   store.currentPostId = postId
   folderSourceStore.clearSync = true
   diffDone.value = false
@@ -753,7 +755,7 @@ async function handleSelectPost(postId: string) {
               'bg-accent text-accent-foreground font-medium': store.currentPostId === result.id,
               'text-foreground/70 hover:text-foreground hover:bg-accent/50': store.currentPostId !== result.id,
             }"
-            @click="store.currentPostId = result.id; closeSearch()"
+            @click="openCurrentPostFromGlobalSearch(result.id)"
           >
             <span
               v-if="store.currentPostId === result.id"

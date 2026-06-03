@@ -342,6 +342,13 @@ export const useStore = defineStore(`store`, () => {
     })
   }
 
+  // 全局搜索配置
+  const searchQuery = ref(``)
+  const replaceQuery = ref(``)
+  const isRegex = ref(false)
+  const isCaseSensitive = ref(false)
+  const openedFromGlobalSearch = ref(false)
+
   /********************************
    * 同步编辑器内容
    ********************************/
@@ -1066,6 +1073,11 @@ export const useStore = defineStore(`store`, () => {
     htmlMaxWidth,
     htmlMargin,
     resetHTMLConfig,
+    searchQuery,
+    replaceQuery,
+    isRegex,
+    isCaseSensitive,
+    openedFromGlobalSearch,
   }
 })
 

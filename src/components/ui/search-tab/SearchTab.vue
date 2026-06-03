@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import type CodeMirror from 'codemirror'
 import { CaseSensitive, ChevronDown, ChevronRight, ChevronUp, Regex, Replace, ReplaceAll, X } from 'lucide-vue-next'
+import { useStore } from '@/stores'
 
 const props = defineProps<{
   editor: CodeMirror.Editor
 }>()
+
+const store = useStore()
 
 const showSearchTab = ref(false)
 
@@ -53,6 +56,23 @@ watch([indexOfMatch, matchPositions], () => {
   markMatch()
 })
 
+const { searchQuery, replaceQuery, isCaseSensitive: isGlobalCaseSensitive, isRegex: isGlobalRegex, openedFromGlobalSearch } = storeToRefs(store)
+watch(openedFromGlobalSearch, (newVal) => {
+  if (newVal) {
+    searchWord.value = searchQuery.value
+    replaceWord.value = replaceQuery.value
+    if (replaceWord.value) {
+      showReplace.value = true
+    }
+    isRegex.value = isGlobalRegex.value
+    isCaseSensitive.value = isGlobalCaseSensitive.value
+    showSearchTab.value = true
+  }
+  else {
+    showSearchTab.value = false
+  }
+})
+
 watch(showSearchTab, async () => {
   if (!showSearchTab.value) {
     searchWord.value = ''
@@ -60,6 +80,7 @@ watch(showSearchTab, async () => {
     showReplace.value = false
     isRegex.value = false
     isCaseSensitive.value = false
+    openedFromGlobalSearch.value = false
 
     clearAllMarks()
   }
@@ -247,17 +268,6 @@ defineExpose({
             <Button
               variant="ghost"
               size="xs"
-              title="区分大小写"
-              aria-label="区分大小写"
-              class="h-5 w-5 p-0"
-              :class="{ 'bg-foreground text-background hover:bg-foreground hover:text-background': isCaseSensitive }"
-              @click="toggleCaseSensitive"
-            >
-              <CaseSensitive class="h-3 w-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="xs"
               title="正则表达式"
               aria-label="正则表达式"
               class="h-5 w-5 p-0"
@@ -265,6 +275,17 @@ defineExpose({
               @click="toggleRegex"
             >
               <Regex class="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
+              title="区分大小写"
+              aria-label="区分大小写"
+              class="h-5 w-5 p-0"
+              :class="{ 'bg-foreground text-background hover:bg-foreground hover:text-background': isCaseSensitive }"
+              @click="toggleCaseSensitive"
+            >
+              <CaseSensitive class="h-3 w-3" />
             </Button>
           </div>
         </div>
