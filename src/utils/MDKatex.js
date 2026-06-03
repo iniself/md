@@ -26,14 +26,15 @@ function createRenderer(display, inlineStyle, blockStyle) {
     svg.style.width = width
 
     const mathID = `math-svg-${genMathId()}`
-    mathDSLStore.set(mathID, token.text)
     svg.id = mathID
 
     if (!display) {
+      mathDSLStore.set(mathID, token.text, 'inline')
       svg.classList.add('math-span')
       return `<span ${inlineStyle}>${svg.outerHTML}</span>`
     }
 
+    mathDSLStore.set(mathID, token.text, 'block')
     svg.classList.add('math-section')
     return `<section ${blockStyle}>${svg.outerHTML}</section>`
   }

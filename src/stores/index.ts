@@ -500,7 +500,7 @@ export const useStore = defineStore(`store`, () => {
   const editorRefresh = () => {
     infographicDSLStore.clear()
     mermaidDSLStore.clear()
-    mathDSLStore.clear()
+    mathDSLStore.clearAll()
 
     codeThemeChange()
     renderer.reset({

@@ -795,65 +795,78 @@ export const infographicDSLStore = {
   },
 }
 
-const mathDSLCache = new Map<string, string>()
-const mathOrder: string[] = []
+const mathInlineOrder: string[] = []
+const mathInlineDSLCache = new Map<string, string>()
+
+const mathBlockOrder: string[] = []
+const mathBlockDSLCache = new Map<string, string>()
 
 export const mathDSLStore = {
-  set: (id: string, text: string) => {
-    mathOrder.push(id)
-    mathDSLCache.set(id, text)
-  },
-  getById: (id: string): [number, string] => {
-    return [
-      mathOrder.indexOf(id),
-      mathDSLCache.get(id) ?? '',
-    ]
-  },
-  getByDSL: (dsl: string): { id: string, text: string, index: number }[] => {
-    return mathOrder.flatMap((id, index) => {
-      const text = mathDSLCache.get(id)
-
-      if (text !== dsl) {
-        return []
-      }
-
-      return [{
-        id,
-        text,
-        index,
-      }]
-    })
-  },
-  getIncludeDSL: (dsl: string): { id: string, text: string, index: number }[] => {
-    return mathOrder.flatMap((id, index) => {
-      const text = mathDSLCache.get(id)
-
-      if (!text || !text.includes(dsl)) {
-        return []
-      }
-
-      return [{
-        id,
-        text,
-        index,
-      }]
-    })
-  },
-  deleteById: (id: string) => {
-    mathDSLCache.delete(id)
-    const index = mathOrder.indexOf(id)
-    if (index !== -1) {
-      mathOrder.splice(index, 1)
+  set: (id: string, text: string, latexStyle: LatexStyle) => {
+    if (latexStyle === 'inline') {
+      mathInlineOrder.push(id)
+      mathInlineDSLCache.set(id, text)
+    }
+    else {
+      mathBlockOrder.push(id)
+      mathBlockDSLCache.set(id, text)
     }
   },
-  clear: () => {
-    mathDSLCache.clear()
-    mathOrder.length = 0
+  getById: (id: string, latexStyle: LatexStyle): [number, string] => {
+    if (latexStyle === 'inline') {
+      return [
+        mathInlineOrder.indexOf(id),
+        mathInlineDSLCache.get(id) ?? '',
+      ]
+    }
+    return [
+      mathBlockOrder.indexOf(id),
+      mathBlockDSLCache.get(id) ?? '',
+    ]
   },
-  getAll: () => {
-    return mathOrder.map((id, index) => ({
+  deleteById: (id: string, latexStyle: LatexStyle) => {
+    if (latexStyle === 'inline') {
+      mathInlineDSLCache.delete(id)
+      const index = mathInlineOrder.indexOf(id)
+      if (index !== -1) {
+        mathInlineOrder.splice(index, 1)
+      }
+    }
+    else {
+      mathBlockDSLCache.delete(id)
+      const index = mathBlockOrder.indexOf(id)
+      if (index !== -1) {
+        mathBlockOrder.splice(index, 1)
+      }
+    }
+  },
+  clear: (latexStyle: LatexStyle) => {
+    if (latexStyle === 'inline') {
+      mathInlineDSLCache.clear()
+      mathInlineOrder.length = 0
+    }
+    else {
+      mathBlockDSLCache.clear()
+      mathBlockOrder.length = 0
+    }
+  },
+  clearAll: () => {
+    mathInlineDSLCache.clear()
+    mathInlineOrder.length = 0
+    mathBlockDSLCache.clear()
+    mathBlockOrder.length = 0
+  },
+  getAll: (latexStyle: LatexStyle) => {
+    if (latexStyle === 'inline') {
+      return mathInlineOrder.map((id, index) => ({
+        id,
+        text: mathInlineDSLCache.get(id),
+        index,
+      }))
+    }
+    return mathBlockOrder.map((id, index) => ({
       id,
-      text: mathDSLCache.get(id),
+      text: mathBlockDSLCache.get(id),
       index,
     }))
   },

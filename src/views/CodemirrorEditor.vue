@@ -207,17 +207,18 @@ async function onPreviewSVGMigrateIMGMenu(svgEl: SVGSVGElement, type: MigrateTyp
 }
 
 const showMathDialog = ref(false)
-const mathLatex = ref<LatexContent>({ initialDSL: '', modifyDSL: '', type: 'block', id: '', index: -1 })
+const mathLatex = ref<LatexContent>({ initialDSL: '', modifyDSL: '', latexStyle: 'block', id: '', index: -1 })
 
 async function onPreviewMathModifyMenu(mathEl: SVGSVGElement, type: string) {
   if (type !== 'math')
     return
 
-  const [index, latex] = mathDSLStore.getById(mathEl.id)
+  const latexStyle: LatexStyle = mathEl.classList.contains('math-span') ? 'inline' : 'block'
+  const [index, latex] = mathDSLStore.getById(mathEl.id, latexStyle)
   mathLatex.value = {
     initialDSL: latex ?? '',
     modifyDSL: '',
-    type: mathEl.classList.contains('math-span') ? 'inline' : 'block',
+    latexStyle,
     id: mathEl.id,
     index,
   }
@@ -767,8 +768,10 @@ function tableToMarkdown(text: string): string {
 async function modifyMath(type: MigrateType) {
   const cleanNewDSL = mathLatex.value.modifyDSL.trim()
   const cleanOldDSL = mathLatex.value.initialDSL.trim()
+  const order = mathLatex.value.index
+  const cm = editor.value!
 
-  if (!cleanOldDSL || (type !== 'math') || mathLatex.value.index === -1) {
+  if (!cleanOldDSL || (type !== 'math') || (mathLatex.value.index === -1) || !cm) {
     toast.error('公式修改出现问题')
     return
   }
@@ -778,28 +781,29 @@ async function modifyMath(type: MigrateType) {
     return
   }
 
-  const oldContent = editor.value!.getValue()
+  const oldContent = cm.getValue()
 
-  const theMathDSLS = mathDSLStore.getIncludeDSL(cleanOldDSL)
-  const indexOfmathDSLStore = theMathDSLS.findIndex(item => item.id === mathLatex.value.id)
+  const inlineLatexRegex = /(\${1,2})(?!\$)((?:\\.|[^\\\r\n])*?(?:\\.|[^\\\r\n$]))\1(?=[\s?!.,:？！。，：]|$)/g
 
-  let index = -1
+  const blockLatexRegex = /^\s{0,3}(\${1,2})[ \t]*\r?\n([\s\S]+?)\r?\n\s{0,3}\1[ \t]*(?:\r?\n|$)/gm
 
-  let count = 0
+  const matches = [...oldContent.matchAll(mathLatex.value.latexStyle === 'inline' ? inlineLatexRegex : blockLatexRegex)]
 
-  while (count < indexOfmathDSLStore + 1) {
-    index = oldContent.indexOf(cleanOldDSL, index + 1)
-    if (index === -1)
-      return oldContent
-    count++
+  const match = matches[order]
+
+  const fullBlock = match[0]
+  const code = match[2].trim()
+
+  if (code.trim() === cleanOldDSL) {
+    const contentStartInBlock = fullBlock.indexOf(code)
+
+    const start = match.index!
+    const from = cm.posFromIndex(start + contentStartInBlock)
+    const to = cm.posFromIndex(start + contentStartInBlock + code.length)
+
+    cm.replaceRange(cleanNewDSL, from, to)
+    toast.success(`公式修改成功`)
   }
-
-  const cm = editor.value!
-  const from = cm.posFromIndex(index)
-  const to = cm.posFromIndex(index + cleanOldDSL.length)
-  cm.replaceRange(cleanNewDSL, from, to)
-
-  toast.success(`公式修改成功`)
 }
 
 async function insertMath() {

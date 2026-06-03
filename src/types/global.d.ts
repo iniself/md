@@ -65,10 +65,12 @@ interface InfographicOptions {
   isSvgBackgroundless?: Ref<boolean>
 }
 
+type LatexStyle = 'inline' | 'block'
+
 interface LatexContent {
   initialDSL: string
   modifyDSL: string
-  type: 'block' | 'inline'
+  latexStyle: LatexStyle
   id: string
   index: number
 }
