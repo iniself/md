@@ -651,14 +651,34 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
     <!-- 右侧操作区：移动端保留核心按钮 -->
     <div class="space-x-2 flex flex-wrap">
       <!-- 展开/收起左侧内容栏 -->
-      <Button
-        variant="outline"
-        size="icon"
-        @click="isOpenLeftSlider = !isOpenLeftSlider"
-      >
-        <PanelLeftOpen v-show="!isOpenLeftSlider" class="size-4" />
-        <PanelLeftClose v-show="isOpenLeftSlider" class="size-4" />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger as-child>
+            <Button
+              variant="outline"
+              size="icon"
+              @click="isOpenLeftSlider = !isOpenLeftSlider"
+            >
+              <PanelLeftOpen v-show="!isOpenLeftSlider" class="size-4" />
+              <PanelLeftClose v-show="isOpenLeftSlider" class="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <div class="w-full flex flex-col items-center justify-center gap-3 rounded-lg px-1 py-1 text-xs">
+              <span>展开/收起左侧栏</span>
+              <div class="flex items-center gap-1 text-xs text-gray-500">
+                <kbd
+                  v-for="key in [ctrlSign, shiftSign, `←`]"
+                  :key="key"
+                  class="border rounded bg-gray-50 px-1.5 py-0.5 text-[10px] font-mono shadow-sm"
+                >
+                  {{ key }}
+                </kbd>
+              </div>
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <!-- 暗色切换 -->
       <Button variant="outline" size="icon" @click="toggleDark()">

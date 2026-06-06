@@ -22,6 +22,14 @@ function handleKeydown(e: KeyboardEvent) {
     e.preventDefault()
     store.exportPdfDialogVisible = !store.exportPdfDialogVisible
   }
+
+  if (
+    (e.key === 'ArrowLeft' && e.ctrlKey && e.shiftKey)
+    || (e.key === 'ArrowLeft' && e.metaKey && e.shiftKey)
+  ) {
+    e.preventDefault()
+    store.isOpenLeftSlider = !store.isOpenLeftSlider
+  }
 }
 
 onMounted(() => {
