@@ -200,7 +200,7 @@ const shortCutsTips = [
         ref="mf"
         :value="mathLatex?.initialDSL"
         math-virtual-keyboard-policy="auto"
-        smart-fence
+        :smart-fence="true"
         style="border: 1px solid #ccc; border-radius: 4px; padding: 2px 4px;"
         @keydown="onPressDown"
       />
