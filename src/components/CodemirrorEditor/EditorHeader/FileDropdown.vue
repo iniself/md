@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Download, FileCode, FileCog, FileText, FolderOpen, Save, Upload } from 'lucide-vue-next'
 import { ref } from 'vue'
-import { ctrlSign } from '@/config/'
+import { ctrlSign, shiftSign } from '@/config/'
 import { useStore } from '@/stores'
 import { useFolderSourceStore } from '@/stores/folderSource'
 
@@ -42,6 +42,7 @@ const importMarkdownContent = useImportMarkdownContent()
         本地文件夹
         <MenubarShortcut>
           <kbd class="mx-1">{{ ctrlSign }}</kbd>
+          <kbd class="mx-1">{{ shiftSign }}</kbd>
           <kbd class="mx-1">O</kbd>
         </MenubarShortcut>
       </MenubarItem>

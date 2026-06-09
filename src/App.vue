@@ -13,7 +13,10 @@ function handleKeydown(e: KeyboardEvent) {
     folderSourceStore.startSavePostToFile = true
   }
 
-  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === `o`) {
+  if (
+    (e.key.toLowerCase() === 'o' && e.ctrlKey && e.shiftKey)
+    || (e.key.toLowerCase() === 'o' && e.metaKey && e.shiftKey)
+  ) {
     e.preventDefault()
     store.isOpenFolderPanel = !store.isOpenFolderPanel
   }
@@ -24,8 +27,8 @@ function handleKeydown(e: KeyboardEvent) {
   }
 
   if (
-    (e.key === 'ArrowLeft' && e.ctrlKey && e.shiftKey)
-    || (e.key === 'ArrowLeft' && e.metaKey && e.shiftKey)
+    (e.key.toLowerCase() === 'b' && e.ctrlKey && e.shiftKey)
+    || (e.key.toLowerCase() === 'b' && e.metaKey && e.shiftKey)
   ) {
     e.preventDefault()
     store.isOpenLeftSlider = !store.isOpenLeftSlider

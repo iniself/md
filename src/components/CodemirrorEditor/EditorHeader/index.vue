@@ -668,7 +668,7 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
               <span>展开/收起左侧栏</span>
               <div class="flex items-center gap-1 text-xs text-gray-500">
                 <kbd
-                  v-for="key in [ctrlSign, shiftSign, `←`]"
+                  v-for="key in [ctrlSign, shiftSign, 'B']"
                   :key="key"
                   class="border rounded bg-gray-50 px-1.5 py-0.5 text-[10px] font-mono shadow-sm"
                 >
