@@ -198,6 +198,7 @@ function changeTab(tab: 'recent' | 'commands') {
               :key="post.id"
               :value="post.title"
               class="cursor-pointer px-3 py-3"
+              :disabled="!(store.getPostById(post.id))"
               @select="openPost(post)"
             >
               <FileText class="mr-2 size-4 shrink-0 opacity-70" />
