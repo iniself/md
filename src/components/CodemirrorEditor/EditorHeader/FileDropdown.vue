@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download, FileCode, FileCog, FileText, FolderOpen, Save, Upload } from 'lucide-vue-next'
+import { Download, FileCode, FileCog, FileText, FolderOpen, Image, Save, Upload } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { ctrlSign, shiftSign } from '@/config/'
 import { useStore } from '@/stores'
@@ -55,30 +55,44 @@ const importMarkdownContent = useImportMarkdownContent()
         </MenubarShortcut>
       </MenubarItem>
       <MenubarSeparator />
-      <MenubarItem @click="importMarkdownContent()">
-        <Upload class="mr-2 size-4" />
-        导入 .md
-      </MenubarItem>
-      <MenubarItem @click="exportEditorContent2MD()">
-        <Download class="mr-2 size-4" />
-        导出 .md
-      </MenubarItem>
-      <MenubarItem @click="exportHTMLDialogVisible = true">
-        <FileCode class="mr-2 size-4" />
-        导出 .html
-      </MenubarItem>
-      <MenubarItem @click="exportPdfDialogVisible = true">
-        <FileText class="mr-2 size-4" />
-        导出 .pdf
-        <MenubarShortcut>
-          <kbd class="mx-1">{{ ctrlSign }}</kbd>
-          <kbd class="mx-1">P</kbd>
-        </MenubarShortcut>
-      </MenubarItem>
-      <MenubarItem @click="downloadAsCardImage()">
-        <Download class="mr-2 size-4" />
-        导出 .png
-      </MenubarItem>
+      <MenubarSub>
+        <MenubarSubTrigger>
+          <Upload class="mr-2 size-4" />
+          导入
+        </MenubarSubTrigger>
+        <MenubarSubContent class="w-56">
+          <MenubarItem @click="importMarkdownContent()">
+            <FileText class="mr-2 size-4" />
+            导入 Markdown
+          </MenubarItem>
+        </MenubarSubContent>
+      </MenubarSub>
+      <MenubarSub>
+        <MenubarSubTrigger>
+          <Download class="mr-2 size-4" />
+          导出
+        </MenubarSubTrigger>
+        <MenubarSubContent class="w-56">
+          <MenubarItem @click="exportEditorContent2MD()">
+            <FileText class="mr-2 size-4" />
+            Markdown 文件
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem @click="exportHTMLDialogVisible = true">
+            <FileCode class="mr-2 size-4" />
+            HTML 文件
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem @click="exportPdfDialogVisible = true">
+            <FileText class="mr-2 size-4" />
+            PDF 文档
+          </MenubarItem>
+          <MenubarItem @click="downloadAsCardImage()">
+            <Image class="mr-2 size-4" />
+            PNG 图片
+          </MenubarItem>
+        </MenubarSubContent>
+      </MenubarSub>
       <MenubarSeparator />
       <MenubarItem @click="editorStateDialogVisible = true">
         <FileCog class="mr-2 size-4" />
