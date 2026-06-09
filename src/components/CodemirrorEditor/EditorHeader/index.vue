@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   ChevronDownIcon,
+  Command,
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
@@ -45,6 +46,10 @@ const {
   countStatusChanged,
   formatContent,
 } = store
+
+function toggleCommandPalette() {
+  store.openedCommandPalette = !store.openedCommandPalette
+}
 
 // 工具函数，添加格式
 function addFormat(cmd: string) {
@@ -650,6 +655,31 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
 
     <!-- 右侧操作区：移动端保留核心按钮 -->
     <div class="space-x-2 flex flex-wrap">
+      <!-- 打开命令面板 -->
+      <TooltipProvider>
+        <Tooltip v-if="!store.openedCommandPalette">
+          <TooltipTrigger as-child>
+            <Button variant="outline" size="icon" @click="toggleCommandPalette()">
+              <Command class="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <div class="w-full flex flex-col items-center justify-center gap-3 rounded-lg px-1 py-1 text-xs">
+              <span>打开命令面板</span>
+              <div class="flex items-center gap-1 text-xs text-gray-500">
+                <kbd
+                  v-for="key in [ctrlSign, `O`]"
+                  :key="key"
+                  class="border rounded bg-gray-50 px-1.5 py-0.5 text-[10px] font-mono shadow-sm"
+                >
+                  {{ key }}
+                </kbd>
+              </div>
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
       <!-- 展开/收起左侧内容栏 -->
       <TooltipProvider>
         <Tooltip>
@@ -688,7 +718,7 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
 
       <!-- 复制按钮组 -->
       <div
-        class="space-x-1 bg-background text-background-foreground mx-2 flex items-center border rounded-md"
+        class="bg-background space-x-1 text-background-foreground mx-2 flex items-center border rounded-md"
       >
         <Button variant="ghost" class="shadow-none" @click="copy">
           复制

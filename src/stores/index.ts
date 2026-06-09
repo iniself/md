@@ -57,6 +57,7 @@ export interface Post {
   id: string
   title: string
   content: string
+  path: string
   history: {
     datetime: string
     content: string
@@ -187,6 +188,7 @@ export const useStore = defineStore(`store`, () => {
       id: uuid(),
       title: `Markdown语法`,
       content: DEFAULT_CONTENT,
+      path: 'Markdown语法',
       history: [
         { datetime: new Date().toLocaleString(`zh-cn`), content: DEFAULT_CONTENT },
       ],
@@ -219,6 +221,29 @@ export const useStore = defineStore(`store`, () => {
     window.removeEventListener(`resize`, handleResize)
   })
 
+  /** 获取 Post */
+  const getPostById = (id: string) => posts.value.find(p => p.id === id)
+
+  /** 获取 Post Path */
+  const getPostPath = (title: string, parentId: string | null = null) => {
+    const paths: string[] = [title]
+
+    let currentParentId = parentId
+
+    while (currentParentId) {
+      const parent = getPostById(currentParentId)
+
+      if (!parent) {
+        break
+      }
+
+      paths.unshift(parent.title)
+      currentParentId = parent.parentId ?? null
+    }
+
+    return paths.join('/')
+  }
+
   // 在补齐 id 后，若 currentPostId 无效 ➜ 自动指向第一篇
   onBeforeMount(() => {
     posts.value = posts.value.map((post, index) => {
@@ -226,6 +251,7 @@ export const useStore = defineStore(`store`, () => {
       return {
         ...post,
         id: post.id ?? uuid(),
+        path: post.path ?? getPostPath(post.title, post.parentId),
         createDatetime: post.createDatetime ?? new Date(now + index),
         updateDatetime: post.updateDatetime ?? new Date(now + index),
       }
@@ -249,9 +275,6 @@ export const useStore = defineStore(`store`, () => {
     },
   })
 
-  /** 获取 Post */
-  const getPostById = (id: string) => posts.value.find(p => p.id === id)
-
   /********************************
    * CRUD
    ********************************/
@@ -260,6 +283,7 @@ export const useStore = defineStore(`store`, () => {
       id: uuid(),
       title,
       content: `# ${title}`,
+      path: getPostPath(title, parentId),
       history: [
         { datetime: new Date().toLocaleString(`zh-cn`), content: `# ${title}` },
       ],
@@ -276,6 +300,7 @@ export const useStore = defineStore(`store`, () => {
       id: uuid(),
       title,
       content,
+      path: getPostPath(title, parentId),
       history: [
         { datetime: new Date().toLocaleString(`zh-cn`), content },
       ],
@@ -316,6 +341,7 @@ export const useStore = defineStore(`store`, () => {
     const post = getPostById(postId)
     if (post) {
       post.parentId = parentId
+      post.path = getPostPath(post.title, parentId)
       post.updateDatetime = new Date()
     }
   }
@@ -354,26 +380,50 @@ export const useStore = defineStore(`store`, () => {
    ********************************/
   const historyMap = new Map()
 
+  const openedCommandPalette = ref(false)
+  const recentPosts = useStorage<RecentItem[]>('recentPosts', [])
+  const MAX_RECENT = 10
+
   watch(currentPostId, (newId, oldId) => {
-    const oldPost = getPostById(oldId)
+    const oldPost = oldId ? getPostById(oldId) : undefined
     const newPost = getPostById(newId)
 
-    if (editor.value && newPost) {
-      if (oldPost) {
-        historyMap.set(oldId, editor.value.getHistory())
-      }
+    if (!newPost)
+      return
 
-      toRaw(editor.value).setValue(newPost.content)
-
-      const history = historyMap.get(newId)
-      if (history) {
-        editor.value.setHistory(history)
-      }
-      else {
-        editor.value.clearHistory()
-      }
+    // ===== recent posts =====
+    const item: RecentItem = {
+      id: newPost.id,
+      title: newPost.title,
+      path: newPost.path,
+      lastOpenedAt: Date.now(),
     }
-  })
+
+    recentPosts.value = recentPosts.value.filter(p => p.id !== item.id)
+    recentPosts.value.unshift(item)
+
+    if (recentPosts.value.length > MAX_RECENT) {
+      recentPosts.value.pop()
+    }
+
+    // ===== save history =====
+    if (!editor.value)
+      return
+
+    if (oldPost) {
+      historyMap.set(oldId, editor.value.getHistory())
+    }
+
+    toRaw(editor.value).setValue(newPost.content)
+
+    const history = historyMap.get(newId)
+    if (history) {
+      editor.value.setHistory(history)
+    }
+    else {
+      editor.value.clearHistory()
+    }
+  }, { immediate: true })
 
   onMounted(() => {
     // 迁移阶段，兼容之前的方案
@@ -1037,6 +1087,8 @@ export const useStore = defineStore(`store`, () => {
     tabChanged,
     renameTab,
     posts,
+    recentPosts,
+    openedCommandPalette,
     currentPostId,
     currentPostIndex,
     getPostById,

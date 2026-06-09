@@ -83,3 +83,10 @@ interface MigrateContent {
   order?: number
   type: MigrateType
 }
+
+interface RecentItem {
+  id: string
+  title: string
+  path: string
+  lastOpenedAt: number
+}

@@ -414,12 +414,14 @@ const isOpenDetailDialog = ref(false)
 const detailAboutPostID = ref(``)
 const detailAboutPostType = ref(`文件`)
 const detailAboutPostLocalNodePath = ref(``)
+const detailAboutPostPath = ref(``)
 function openDetailDialog(post: Post) {
   currentPostId.value = post.id
   isOpenDetailDialog.value = true
 
   detailAboutPostID.value = post.id
   detailAboutPostType.value = post.isFolder ? `文件夹` : `文件`
+  detailAboutPostPath.value = post.path
   detailAboutPostLocalNodePath.value = post.nodePath ? post.nodePath : `无本地文件`
 }
 
@@ -461,6 +463,13 @@ watch(onboardingByStart, async (newVal) => {
   immediate: true,
 })
 
+function keyHandler(e: KeyboardEvent) {
+  if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === 'o') {
+    e.preventDefault()
+    store.openedCommandPalette = true
+  }
+}
+
 onMounted(async () => {
   if (!store.skipOnboarding) {
     onboardingByStart.value = true
@@ -468,6 +477,7 @@ onMounted(async () => {
   else {
     onboardingByStart.value = false
   }
+  document.addEventListener('keydown', keyHandler)
 })
 
 // 监控 post 内容改变并触发同步操作
@@ -925,6 +935,12 @@ async function handleSelectPost(postId: string) {
               </div>
             </div>
             <div class="my-4">
+              <Label class="my-1 block text-sm font-medium">文件名：</Label>
+              <div class="text-muted-foreground text-xs">
+                {{ detailAboutPostPath }}
+              </div>
+            </div>
+            <div class="my-4">
               <Label class="my-1 block text-sm font-medium">本地文件：</Label>
               <div class="text-muted-foreground text-xs">
                 {{ detailAboutPostLocalNodePath }}
@@ -963,4 +979,5 @@ async function handleSelectPost(postId: string) {
   </Dialog>
   <OnboardingDialog v-model:onboarding-by-start="onboardingByStart" v-model:skip-onboarding="store.skipOnboarding" />
   <component :is="dialog" />
+  <RencentFile v-model:opened-command-palette="store.openedCommandPalette" @search-result-opened="handleSelectPost" />
 </template>
