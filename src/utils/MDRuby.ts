@@ -37,6 +37,7 @@ export default function markedRuby(): MarkedExtension {
               ruby: match[2].trim(),
               format: `basic`,
               tokens: this.lexer.inlineTokens(match[1].trim()),
+              rubyTokens: this.lexer.inlineTokens(match[2].trim()),
             }
           }
 
@@ -51,17 +52,19 @@ export default function markedRuby(): MarkedExtension {
               ruby: match[2].trim(),
               format: `basic-hat`,
               tokens: this.lexer.inlineTokens(match[1].trim()),
+              rubyTokens: this.lexer.inlineTokens(match[2].trim()),
             }
           }
 
           return undefined
         },
         renderer(token: any) {
-          const { text, ruby, format, tokens } = token
+          const { text, ruby, format, tokens, rubyTokens } = token
 
           const isPlainText = tokens.length === 1 && tokens[0].type === 'text' && !tokens[0].tokens
 
           const inner = this.parser.parseInline(tokens)
+          const upper = this.parser.parseInline(rubyTokens)
 
           // 检查是否有分隔符
           const separatorRegex = /[・．。-]/g
@@ -122,7 +125,7 @@ export default function markedRuby(): MarkedExtension {
 
             return result.join(``)
           }
-          return `<ruby data-text="${text}" data-ruby="${ruby}" data-format="${format}">${inner}<rp>(</rp><rt>${ruby}</rt><rp>)</rp></ruby>`
+          return `<ruby data-text="${text}" data-ruby="${ruby}" data-format="${format}">${inner}<rp>(</rp><rt>${upper}</rt><rp>)</rp></ruby>`
         },
       },
     ],
