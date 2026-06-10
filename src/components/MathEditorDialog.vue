@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import type { MathfieldElement } from 'mathlive'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { Checkbox } from '@/components/ui/checkbox'
 import { altSign, ctrlSign } from '@/config'
+import { useStore } from '@/stores'
 
 import 'mathlive'
 import 'mathlive/static.css'
@@ -10,11 +12,12 @@ const emit = defineEmits<{
   (e: 'confirm'): void
 }>()
 
+const store = useStore()
 const open = defineModel<boolean>('open')
 
 const mathLatex = defineModel<LatexContent>('mathLatex')
 
-const mf = ref()
+const mf = ref<MathfieldElement | null>(null)
 
 const useTextExtension = ref(false)
 const useBlockLatex = ref(false)
@@ -44,6 +47,9 @@ function save() {
     toast.error('修改公式失败')
     return
   }
+
+  if (!mf.value)
+    return
 
   const standardLatex = mf.value.getValue('latex-expanded')
   mathLatex.value.modifyDSL = handleDSL(standardLatex)
@@ -108,6 +114,37 @@ watch(useBlockLatex, (val) => {
   }
 })
 
+function applyMathLiveTheme(mf: MathfieldElement | null) {
+  if (!mf)
+    return
+
+  const isDark = store.isDark
+  mf.style.setProperty('--_hue', 'var(--hue, 212)', 'important')
+
+  if (isDark) {
+    mf.style.setProperty('--neutral-200', '#424242', 'important')
+    mf.style.setProperty('-neutral-400', '#757575', 'important')
+    mf.style.setProperty('--neutral-900', '#f5f5f5', 'important')
+
+    mf.style.setProperty('--text-highlight-background-color', 'hsla(var(--_hue), 40%, 50%, 0.6)', 'important')
+    mf.style.setProperty('--contains-highlight-background-color', 'hsl(var(--_hue), 5%, 34%)', 'important')
+
+    mf.style.setProperty('--smart-fence-color', '#fff', 'important')
+    mf.style.setProperty('--smart-fence-opacity', '1', 'important')
+  }
+  else {
+    mf.style.setProperty('--neutral-200', '#eeeeee', 'important')
+    mf.style.setProperty('--neutral-400', '#bdbdbd', 'important')
+    mf.style.setProperty('--neutral-900', '#212121', 'important')
+
+    mf.style.setProperty('--text-highlight-background-color', 'hsla(var(--_hue), 40%, 50%, 0.1)', 'important')
+    mf.style.setProperty('--contains-highlight-background-color', 'hsl(var(--_hue), 40%, 95%)', 'important')
+
+    mf.style.setProperty('--smart-fence-color', 'currentColor', 'important')
+    mf.style.setProperty('--smart-fence-opacity', '1', 'important')
+  }
+}
+
 watch(open, async (v) => {
   if (v) {
     useBlockLatex.value = mathLatex.value?.latexStyle === 'block'
@@ -119,6 +156,7 @@ watch(open, async (v) => {
       catch (err) {
         console.error(err)
       }
+      applyMathLiveTheme(mf.value)
     })
   }
 })
@@ -201,7 +239,7 @@ const shortCutsTips = [
         :value="mathLatex?.initialDSL"
         math-virtual-keyboard-policy="auto"
         :smart-fence="true"
-        style="border: 1px solid #ccc; border-radius: 4px; padding: 2px 4px;"
+        class="bg-background border-input text-foreground focus-visible:ring-ring w-full border rounded-lg p-2 focus-visible:outline-none focus-visible:ring-2"
         @keydown="onPressDown"
       />
       <DialogFooter class="items-center !flex !flex-row">
