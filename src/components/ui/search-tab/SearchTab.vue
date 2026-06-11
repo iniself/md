@@ -115,8 +115,21 @@ function findAllMatches() {
     return
 
   // 获取所有匹配项
-  const reg = new RegExp(searchWord.value, `gm${isCaseSensitive.value ? '' : 'i'}`)
-  const cursor = isRegex.value ? editor.getSearchCursor(reg) : editor.getSearchCursor(searchWord.value, undefined, !isCaseSensitive.value)
+  let cursor
+
+  if (isRegex.value) {
+    try {
+      const query = new RegExp(searchWord.value, isCaseSensitive.value ? 'gm' : 'gmi')
+      cursor = editor.getSearchCursor(query)
+    }
+    catch {
+    }
+  }
+  else {
+    cursor = editor.getSearchCursor(searchWord.value, undefined, !isCaseSensitive.value,
+    )
+  }
+
   let matchCount = 0
   const _matchPositions: CodeMirror.Position[][] = []
   while (cursor.findNext()) {
@@ -181,7 +194,15 @@ function handleReplaceAll() {
   const editor = props.editor
   if (!currentMatchPosition.value)
     return
-  matchPositions.value.forEach((pos) => {
+
+  const sortedPositions = [...matchPositions.value].sort((a, b) => {
+    if (a[0].line !== b[0].line) {
+      return b[0].line - a[0].line
+    }
+    return b[0].ch - a[0].ch
+  })
+
+  sortedPositions.forEach((pos) => {
     editor.setSelection(pos[0], pos[1])
     editor.replaceSelection(replaceWord.value)
   })
