@@ -77,6 +77,8 @@ interface LatexContent {
 
 type MigrateType = 'image' | 'infographic' | 'mermaid' | 'math'
 
+type ThemeMode = 'dark' | 'light' | 'auto'
+
 interface MigrateContent {
   file: File | null
   oldUrl: string

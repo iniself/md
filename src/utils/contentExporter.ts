@@ -185,6 +185,7 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
   const store = useStore()
   const {
     isDark,
+    themeMode,
     isCiteStatus,
     output,
     primaryColor,
@@ -200,7 +201,7 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
   } = storeToRefs(store)
 
   const {
-    toggleDark,
+    setThemeMode,
     editorRefresh,
     citeStatusChanged,
   } = store
@@ -216,8 +217,9 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
   return new Promise((resolve) => {
     // 如果是深色模式，复制之前需要先切换到白天模式
     const isBeforeDark = isDark.value
+    const beforeThemeMode = themeMode.value
     if (!isDarkToggle && isBeforeDark) {
-      toggleDark()
+      setThemeMode('light')
       isDarkToggle = true
     }
     const isBackgroundless = isSvgCompatibility.value ? isSvgBackgroundless.value : false
@@ -553,7 +555,7 @@ ${styles}
         if (isDarkToggle) {
           if (!isDark.value) {
             nextTick(() => {
-              toggleDark()
+              setThemeMode(beforeThemeMode)
               isDarkToggle = false
             })
           }

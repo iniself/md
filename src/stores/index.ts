@@ -75,7 +75,40 @@ export interface Post {
 
 export const useStore = defineStore(`store`, () => {
   // 是否开启深色模式
-  const isDark = useDark()
+  const systemDark = usePreferredDark()
+  const themeMode = useStorage<ThemeMode>(
+    'themeMode',
+    'auto',
+  )
+
+  const isDark = computed(() => {
+    if (themeMode.value === 'auto') {
+      return systemDark.value
+    }
+    return themeMode.value === 'dark'
+  })
+
+  watch(
+    isDark,
+    (val) => {
+      document.documentElement.classList.toggle('dark', val)
+      document.documentElement.setAttribute('data-theme', `${val ? 'dark' : 'light'}`)
+    },
+    { immediate: true },
+  )
+
+  const toggleTheme = () => {
+    const order = ['auto', 'light', 'dark'] as const
+
+    const currentIndex = order.indexOf(themeMode.value)
+    const nextIndex = (currentIndex + 1) % order.length
+
+    themeMode.value = order[nextIndex]
+  }
+
+  const setThemeMode = (mode: ThemeMode) => {
+    themeMode.value = mode
+  }
 
   // 是否开启 Mac 代码块
   const isMacCodeBlock = useStorage(`isMacCodeBlock`, defaultStyleConfig.isMacCodeBlock)
@@ -722,10 +755,6 @@ export const useStore = defineStore(`store`, () => {
     theme.value = newTheme
   })
 
-  const toggleDark = withAfterRefresh(() => {
-    isDark.value = !isDark.value
-  })
-
   const fontChanged = withAfterRefresh((fonts) => {
     renderer.setOptions({
       fonts,
@@ -990,7 +1019,9 @@ export const useStore = defineStore(`store`, () => {
 
   return {
     isDark,
-    toggleDark,
+    setThemeMode,
+    toggleTheme,
+    themeMode,
 
     isEditOnLeft,
     toggleEditOnLeft,

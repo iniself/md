@@ -76,7 +76,7 @@
       </div>
     </div>
     <script>
-      const theme = localStorage.getItem('vueuse-color-scheme')
+      const theme = localStorage.getItem('themeMode')
       if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.querySelector('.loading').classList.add('dark')
       }

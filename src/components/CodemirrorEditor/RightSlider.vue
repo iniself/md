@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Moon, Sun } from 'lucide-vue-next'
+import { Moon, Sun, SunMoon } from 'lucide-vue-next'
 import PickColors, { type Format } from 'vue-pick-colors'
 import {
   codeBlockThemeOptions,
@@ -15,7 +15,7 @@ import { useDisplayStore, useStore } from '@/stores'
 const store = useStore()
 const displayStore = useDisplayStore()
 
-const { isDark, primaryColor } = storeToRefs(store)
+const { primaryColor } = storeToRefs(store)
 
 function customStyle() {
   displayStore.toggleShowCssEditor()
@@ -548,15 +548,22 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button
             class="w-full" variant="outline" :class="{
-              'border-black dark:border-white border-2': !isDark,
-            }" @click="store.toggleDark(false)"
+              'border-black dark:border-white border-2': store.themeMode === 'auto',
+            }" @click="store.setThemeMode('auto')"
+          >
+            <SunMoon class="h-4 w-4" />
+          </Button>
+          <Button
+            class="w-full" variant="outline" :class="{
+              'border-black dark:border-white border-2': store.themeMode === 'light',
+            }" @click="store.setThemeMode('light')"
           >
             <Sun class="h-4 w-4" />
           </Button>
           <Button
             class="w-full" variant="outline" :class="{
-              'border-black dark:border-white border-2': isDark,
-            }" @click="store.toggleDark(true)"
+              'border-black dark:border-white border-2': store.themeMode === 'dark',
+            }" @click="store.setThemeMode('dark')"
           >
             <Moon class="h-4 w-4" />
           </Button>

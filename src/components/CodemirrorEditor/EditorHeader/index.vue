@@ -7,6 +7,7 @@ import {
   PanelLeftOpen,
   Settings,
   Sun,
+  SunMoon,
 } from 'lucide-vue-next'
 import { altKey, altSign, ctrlKey, ctrlSign, shiftSign } from '@/config'
 import { replaceGradientsWithSolidColors } from '@/lib/utils'
@@ -29,6 +30,7 @@ const store = useStore()
 
 const {
   isDark,
+  themeMode,
   isCiteStatus,
   isCountStatus,
   output,
@@ -40,7 +42,8 @@ const {
 } = storeToRefs(store)
 
 const {
-  toggleDark,
+  setThemeMode,
+  toggleTheme,
   editorRefresh,
   citeStatusChanged,
   countStatusChanged,
@@ -324,8 +327,9 @@ async function copy() {
 
   // 如果是深色模式，复制之前需要先切换到白天模式
   const isBeforeDark = isDark.value
+  const beforeThemeMode = themeMode.value
   if (!isDarkToggle && isBeforeDark) {
-    toggleDark()
+    setThemeMode('light')
     isDarkToggle = true
   }
   const isBackgroundless = isSvgCompatibility.value ? isSvgBackgroundless.value : false
@@ -522,7 +526,7 @@ async function copy() {
       if (isDarkToggle) {
         if (!isDark.value) {
           nextTick(() => {
-            toggleDark()
+            setThemeMode(beforeThemeMode)
             isDarkToggle = false
           })
         }
@@ -711,14 +715,15 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
       </TooltipProvider>
 
       <!-- 暗色切换 -->
-      <Button variant="outline" size="icon" @click="toggleDark()">
-        <Moon v-show="isDark" class="size-4" />
-        <Sun v-show="!isDark" class="size-4" />
+      <Button variant="outline" size="icon" @click="toggleTheme()">
+        <SunMoon v-show="store.themeMode === 'auto'" class="size-4" />
+        <Moon v-show="store.themeMode === 'dark'" class="size-4" />
+        <Sun v-show="store.themeMode === 'light'" class="size-4" />
       </Button>
 
       <!-- 复制按钮组 -->
       <div
-        class="bg-background space-x-1 text-background-foreground mx-2 flex items-center border rounded-md"
+        class="space-x-1 bg-background text-background-foreground mx-2 flex items-center border rounded-md"
       >
         <Button variant="ghost" class="shadow-none" @click="copy">
           复制
