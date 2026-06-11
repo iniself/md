@@ -714,12 +714,23 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
         </Tooltip>
       </TooltipProvider>
 
-      <!-- 暗色切换 -->
-      <Button variant="outline" size="icon" @click="toggleTheme()">
-        <SunMoon v-show="store.themeMode === 'auto'" class="size-4" />
-        <Moon v-show="store.themeMode === 'dark'" class="size-4" />
-        <Sun v-show="store.themeMode === 'light'" class="size-4" />
-      </Button>
+      <!-- 模式切换 -->
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger as-child>
+            <Button variant="outline" size="icon" @click="toggleTheme()">
+              <SunMoon v-show="store.themeMode === 'auto'" class="size-4" />
+              <Moon v-show="store.themeMode === 'dark'" class="size-4" />
+              <Sun v-show="store.themeMode === 'light'" class="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <div class="w-full flex flex-col items-center justify-center gap-3 rounded-lg px-1 py-1 text-xs">
+              <span>{{ store.themeMode === 'auto' ? '自动模式' : (store.themeMode === 'light' ? '浅色模式' : '深色模式') }}</span>
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <!-- 复制按钮组 -->
       <div
