@@ -156,7 +156,9 @@ watch(open, async (v) => {
       catch (err) {
         console.error(err)
       }
-      applyMathLiveTheme(mf.value)
+      if (store.themeMode !== 'auto') {
+        applyMathLiveTheme(mf.value)
+      }
     })
   }
 })
