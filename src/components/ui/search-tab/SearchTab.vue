@@ -123,6 +123,7 @@ function findAllMatches() {
       cursor = editor.getSearchCursor(query)
     }
     catch {
+      return
     }
   }
   else {
