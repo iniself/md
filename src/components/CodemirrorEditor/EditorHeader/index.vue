@@ -313,6 +313,7 @@ function cleanSection(container: Document) {
 // 复制到微信公众号
 let isDarkToggle = false
 let changeCiteStatusWhenCopy = false
+let beforeThemeMode: ThemeMode
 async function copy() {
   // 如果是 Markdown 源码，直接复制并返回
   if (copyMode.value === `md`) {
@@ -327,7 +328,7 @@ async function copy() {
 
   // 如果是深色模式，复制之前需要先切换到白天模式
   const isBeforeDark = isDark.value
-  const beforeThemeMode = themeMode.value
+  beforeThemeMode = isDarkToggle ? beforeThemeMode : themeMode.value
   if (!isDarkToggle && isBeforeDark) {
     setThemeMode('light')
     isDarkToggle = true
