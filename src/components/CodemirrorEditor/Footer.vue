@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Clock, Columns2, Eye, Monitor, PenLine, Pilcrow, Smartphone, Type } from 'lucide-vue-next'
+import { ctrlSign, shiftSign } from '@/config'
 import { useStore } from '@/stores'
 
 const store = useStore()
@@ -20,6 +21,28 @@ const allViewModes = [
 const viewModes = computed(() =>
   isMobile.value ? allViewModes.filter(m => m.key !== `split`) : allViewModes,
 )
+
+function nextViewMode(viewMode: ViewMode) {
+  const idx = viewModes.value.findIndex(i => i.key === viewMode)
+
+  const safeIdx = idx === -1 ? 0 : idx
+  const next = (safeIdx + 1) % viewModes.value.length
+  store.setViewMode(viewModes.value[next].key)
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  if (
+    (e.key.toLowerCase() === 'v' && e.ctrlKey && e.shiftKey)
+    || (e.key.toLowerCase() === 'v' && e.metaKey && e.shiftKey)
+  ) {
+    e.preventDefault()
+    nextViewMode(viewMode.value)
+  }
+}
+
+onMounted(() => {
+  document.addEventListener(`keydown`, handleKeydown)
+})
 
 // 是否显示设备切换（双屏/预览模式 + 非真实移动端）
 const showDeviceToggle = computed(() => viewMode.value !== `edit` && !isMobile.value)
@@ -48,7 +71,18 @@ const showDeviceToggle = computed(() => viewMode.value !== `edit` && !isMobile.v
               </button>
             </TooltipTrigger>
             <TooltipContent side="top" :side-offset="6" class="text-muted-foreground text-xs">
-              <p>{{ mode.label }}</p>
+              <div class="mx-auto mb-3 w-full text-center">
+                {{ mode.label }}模式
+              </div>
+              <div class="flex items-center gap-1 text-xs text-gray-500">
+                <kbd
+                  v-for="key in [ctrlSign, shiftSign, 'V']"
+                  :key="key"
+                  class="border rounded bg-gray-50 px-1.5 py-0.5 text-[10px] font-mono shadow-sm"
+                >
+                  {{ key }}
+                </kbd>
+              </div>
             </TooltipContent>
           </Tooltip>
         </div>
