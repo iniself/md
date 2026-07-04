@@ -92,3 +92,5 @@ interface RecentItem {
   path: string
   lastOpenedAt: number
 }
+
+type ViewMode = 'edit' | 'split' | 'preview'

@@ -535,11 +535,11 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         <h2>预览模式</h2>
         <div class="grid grid-cols-5 justify-items-center gap-2">
           <Button
-            v-for="{ label, value } in widthOptions" :key="value" class="w-full" variant="outline" :class="{
+            v-for="{ label, desc, value } in widthOptions" :key="value" class="w-full" variant="outline" :class="{
               'border-black dark:border-white border-2': store.previewWidth === value,
-            }" @click="store.previewWidthChanged(value)"
+            }" @click="store.previewWidthChanged(label, value)"
           >
-            {{ label }}
+            {{ desc }}
           </Button>
         </div>
       </div>
@@ -570,9 +570,8 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         </div>
       </div>
       <div class="space-y-2">
-        <h2>样式配置</h2>
         <Button variant="destructive" @click="store.resetStyleConfirm">
-          重置
+          重置样式
         </Button>
       </div>
     </div>

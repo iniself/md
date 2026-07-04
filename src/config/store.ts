@@ -29,6 +29,7 @@ export const storeLabels: Record<string, string> = {
   cssContentConfig: `自定义 CSS`,
   titleList: `文章标题列表`,
   readingTime: `阅读时间`,
+  viewMode: `视图模式`,
 
   // Display store states
   isShowCssEditor: `显示 CSS 编辑器`,

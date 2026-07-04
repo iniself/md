@@ -33,7 +33,7 @@ const store = useStore()
 const folderSourceStore = useFolderSourceStore()
 const displayStore = useDisplayStore()
 
-const { isDark, output, editor } = storeToRefs(store)
+const { isDark, output, editor, viewMode } = storeToRefs(store)
 const { editorRefresh } = store
 
 const { toggleShowUploadImgDialog, toggleShowUploadImgToAnotherHostDialog } = displayStore
@@ -1205,6 +1205,17 @@ watch(isDark, () => {
   toRaw(editor.value)?.setOption?.(`theme`, theme)
 })
 
+// 监控显示模式的改变
+watch(viewMode, async (val) => {
+  if (val === 'preview')
+    return
+
+  await nextTick()
+
+  editor.value?.refresh()
+  editor.value?.focus()
+})
+
 // 历史记录的定时器
 const historyTimer = ref<NodeJS.Timeout>()
 onMounted(() => {
@@ -1293,7 +1304,7 @@ onUnmounted(() => {
           <ResizableHandle v-if="store.isOpenFolderPanel" class="hidden md:block" />
           <ResizablePanel class="flex">
             <div
-              v-show="!store.isMobile || (store.isMobile && showEditor)"
+              v-show="(!store.isMobile || (store.isMobile && showEditor)) && (viewMode !== 'preview')"
               ref="codeMirrorWrapper"
               class="codeMirror-wrapper relative flex-1"
               :class="{
@@ -1317,7 +1328,7 @@ onUnmounted(() => {
               </EditorContextMenu>
             </div>
             <div
-              v-show="!store.isMobile || (store.isMobile && !showEditor)"
+              v-show="(!store.isMobile || (store.isMobile && !showEditor)) && (viewMode !== 'edit')"
               class="relative flex-1 overflow-x-hidden transition-width"
               :class="[store.isOpenRightSlider ? 'w-0' : 'w-100']"
             >
@@ -1335,7 +1346,7 @@ onUnmounted(() => {
                     class="preview border-x-1 shadow-xl"
                     :class="[store.previewWidth]"
                   >
-                    <section id="output" class="w-full" v-html="output" />
+                    <section id="output" :class="viewMode !== 'preview' ? 'w-full' : 'mx-auto w-full md:max-w-[80ch]'" v-html="output" />
                     <div v-if="isCoping" class="loading-mask">
                       <div class="loading-mask-box">
                         <div class="loading__img" />

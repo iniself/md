@@ -196,6 +196,7 @@ export const useStore = defineStore(`store`, () => {
 
   // 预览宽度
   const previewWidth = useStorage(`previewWidth`, widthOptions[1].value)
+  const previewDevice = useStorage(`previewDevice`, widthOptions[1].label)
 
   const fontSizeNumber = computed(() => Number(fontSize.value.replace(`px`, ``)))
 
@@ -235,6 +236,13 @@ export const useStore = defineStore(`store`, () => {
 
   // 是否为移动端
   const isMobile = useStorage(`isMobile`, false)
+
+  // 视图模式：edit（纯编辑）| split（双屏）| preview（纯预览）
+  const viewMode = useStorage<ViewMode>('viewMode', 'split')
+
+  function setViewMode(mode: ViewMode) {
+    viewMode.value = mode
+  }
 
   // 是否 Electron 环境
   const isElectron = useStorage(`isElectron`, typeof navigator === `object` && typeof navigator.userAgent === `string` && navigator.userAgent.toLowerCase().includes(`electron`))
@@ -786,9 +794,15 @@ export const useStore = defineStore(`store`, () => {
     codeBlockTheme.value = newTheme
   })
 
-  const previewWidthChanged = withAfterRefresh((newWidth: string) => {
+  const previewWidthChanged = withAfterRefresh((label: string, newWidth: string) => {
+    previewDevice.value = label
     previewWidth.value = newWidth
   })
+
+  function togglePreviewDevice() {
+    previewDevice.value = previewDevice.value === `desktop` ? `mobile` : `desktop`
+    previewWidth.value = widthOptions.find(item => item.label === previewDevice.value)?.value
+  }
 
   const legendChanged = withAfterRefresh((newVal) => {
     legend.value = newVal
@@ -1078,7 +1092,9 @@ export const useStore = defineStore(`store`, () => {
     legend,
     readingTime,
     previewWidth,
+    previewDevice,
     previewWidthChanged,
+    togglePreviewDevice,
 
     editorRefresh,
 
@@ -1137,6 +1153,8 @@ export const useStore = defineStore(`store`, () => {
 
     titleList,
     isMobile,
+    viewMode,
+    setViewMode,
     isElectron,
     isTauri,
     updatePostParentId,
@@ -1252,6 +1270,7 @@ export function getAllStoreStates() {
     cssContentConfig: store.cssContentConfig,
     titleList: store.titleList,
     readingTime: store.readingTime,
+    viewMode: store.viewMode,
 
     // displayStore 的状态
     isShowCssEditor: displayStore.isShowCssEditor,
