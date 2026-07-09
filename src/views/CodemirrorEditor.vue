@@ -224,6 +224,9 @@ async function onPreviewMathModifyMenu(mathEl: SVGSVGElement, type: string) {
   }
   showMathDialog.value = true
 }
+const showContent = ref(false)
+const showContentType = ref<'image' | 'svg'>('image')
+const contentOrUrl = ref('')
 
 async function onPreviewContextMenu(e: MouseEvent) {
   const svgElement = (e.target as HTMLElement).closest(`svg`)
@@ -231,6 +234,23 @@ async function onPreviewContextMenu(e: MouseEvent) {
 
   if (!svgElement && !imgEl)
     return
+
+  if (e.metaKey || e.ctrlKey) {
+    if (svgElement) {
+      e.preventDefault()
+      showContent.value = true
+      showContentType.value = 'svg'
+      contentOrUrl.value = svgElement.outerHTML
+    }
+
+    if (imgEl) {
+      e.preventDefault()
+      showContentType.value = 'image'
+      showContent.value = true
+      contentOrUrl.value = imgEl.src
+    }
+    return
+  }
 
   if (svgElement) {
     const id = svgElement.id
@@ -1337,6 +1357,10 @@ onUnmounted(() => {
                 ref="previewRef"
                 class="preview-wrapper w-full p-5"
               >
+                <ContentViewer v-model:open="showContent">
+                  <img v-if="showContentType === 'image'" :src="contentOrUrl" class="object-contain">
+                  <div v-else-if="showContentType === 'svg'" v-html="contentOrUrl" />
+                </ContentViewer>
                 <div
                   id="output-wrapper"
                   class="w-full"
