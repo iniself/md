@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Clock, Columns2, Eye, Monitor, PenLine, Pilcrow, Smartphone, Type } from 'lucide-vue-next'
+import { BookOpenText, Clock, Columns2, Eye, Monitor, PenLine, Pilcrow, Smartphone, Type } from 'lucide-vue-next'
 import { ctrlSign, shiftSign } from '@/config'
 import { useStore } from '@/stores'
 
@@ -53,6 +53,16 @@ const showDeviceToggle = computed(() => viewMode.value !== `edit` && !isMobile.v
     class="text-muted-foreground flex select-none items-center overflow-hidden px-3 py-1 text-xs"
   >
     <TooltipProvider :delay-duration="300">
+      <!-- 左侧 -->
+      <div class="max-w-[50%] flex shrink-0 items-center gap-2 overflow-hidden sm:gap-3">
+        <div class="tabular-nums flex items-center gap-1">
+          <BookOpenText class="size-3 opacity-60" />
+          <span class="truncate">
+            {{ store.getPostById(store.currentPostId)?.title }}
+          </span>
+        </div>
+      </div>
+
       <!-- 右侧：统计信息 -->
       <div class="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
         <!-- 视图模式切换 -->
