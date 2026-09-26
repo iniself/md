@@ -100,7 +100,7 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
       )
     }
 
-    tmpl += meta.title
+    tmpl += `<span>${meta.title}</span>`
     tmpl += `</p>\n`
     tmpl += text
     tmpl += `</section>\n`
@@ -139,7 +139,7 @@ export default function markedAlert(options: AlertOptions = {}): MarkedExtension
       }
     }
 
-    tmpl += meta.title
+    tmpl += `<span>${meta.title}</span>`
     tmpl += `</p>\n`
     tmpl += text
     tmpl += `</section>\n`
