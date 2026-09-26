@@ -360,7 +360,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
       const container = document.createElement(`div`)
       container.innerHTML = this.parser.parse(tokens)
       processBlockquoteChildren(container)
-      return styledContent(`blockquote`, container.innerHTML)
+      return `<section ${styles('blockquote')}>${container.innerHTML}</section>`
     },
 
     code({ text, lang = `` }: Tokens.Code): string {
