@@ -653,7 +653,6 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
           </MenubarContent>
         </MenubarMenu>
         <EditDropdown />
-        <StyleDropdown />
         <HelpDropdown />
       </Menubar>
     </div>
