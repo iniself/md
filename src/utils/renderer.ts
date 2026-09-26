@@ -353,7 +353,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
       if (isFigureImage || isEmpty) {
         return text
       }
-      return styledContent(`p`, text)
+      return styledContent(`p`, `<span>${text}</span>`)
     },
 
     blockquote({ tokens }: Tokens.Blockquote): string {
