@@ -33,9 +33,13 @@ export function addPrefix(str: string) {
 export function customizeTheme(theme: Theme, options: {
   fontSize?: number
   color?: string
+  /** Body line height, unitless. */
+  lineHeight?: string
+  /** Multiplier for the vertical block margins defined by the theme. */
+  blockSpacing?: string | number
 }) {
   const newTheme = JSON.parse(JSON.stringify(theme))
-  const { fontSize, color } = options
+  const { fontSize, color, lineHeight, blockSpacing } = options
   if (fontSize) {
     for (let i = 1; i <= 6; i++) {
       const v = newTheme.block[`h${i}`][`font-size`]
@@ -45,7 +49,81 @@ export function customizeTheme(theme: Theme, options: {
   if (color) {
     newTheme.base[`--md-primary-color`] = color
   }
+  if (lineHeight) {
+    newTheme.base[`line-height`] = lineHeight
+  }
+  if (blockSpacing !== undefined && blockSpacing !== `` && blockSpacing !== null) {
+    const factor = Number(blockSpacing)
+    if (Number.isFinite(factor)) {
+      scaleThemeBlockSpacing(newTheme, factor)
+    }
+  }
   return newTheme as Theme
+}
+
+/**
+ * Scale only the vertical part of margins by a unitless multiplier, keeping
+ * each theme's own rhythm (an h2 stays further from the text than a paragraph).
+ * Horizontal components (e.g. `auto`, `8px`) are left untouched so the result
+ * stays a literal value that survives the WeChat paste without var()/calc().
+ */
+function scaleLengthToken(token: string, factor: number): string {
+  if (factor === 1 || token === `` || token === `auto` || token === `0`) {
+    return token
+  }
+  const match = /^(-?(?:\d+(?:\.\d+)?|\.\d+))([a-z%]+)?$/i.exec(token)
+  if (!match) {
+    return token
+  }
+  const [, num, unit] = match
+  const scaled = Number.parseFloat(num) * factor
+  if (!Number.isFinite(scaled)) {
+    return token
+  }
+  const rounded = Math.round(scaled * 1000) / 1000
+  return `${rounded}${unit ?? ``}`
+}
+
+function scaleMarginValue(value: unknown, factor: number): unknown {
+  if (factor === 1 || typeof value !== `string`) {
+    return value
+  }
+  const parts = value.split(/\s+/).filter(Boolean)
+  if (parts.length === 0) {
+    return value
+  }
+  // CSS margin shorthand: 1 value = all sides, 2 = vertical|horizontal,
+  // 3 = top|horizontal|bottom, 4 = top|right|bottom|left.
+  // Only the vertical indexes are scaled; horizontal ones stay untouched.
+  let verticalIndexes = [0, 2]
+  if (parts.length <= 2) {
+    verticalIndexes = [0]
+  }
+  const scaled = parts.map((part, index) =>
+    verticalIndexes.includes(index) ? scaleLengthToken(part, factor) : part,
+  )
+  return scaled.join(` `)
+}
+
+function scaleThemeBlockSpacing(theme: Theme, factor: number) {
+  if (factor === 1) {
+    return
+  }
+  const styles: ExtendedProperties[] = [...Object.values(theme.block), ...Object.values(theme.inline)]
+  for (const style of styles) {
+    if (!style) {
+      continue
+    }
+    if (`margin` in style) {
+      style.margin = scaleMarginValue(style.margin, factor) as typeof style.margin
+    }
+    if (`margin-top` in style) {
+      style[`margin-top`] = scaleLengthToken(String(style[`margin-top`]), factor) as typeof style[`margin-top`]
+    }
+    if (`margin-bottom` in style) {
+      style[`margin-bottom`] = scaleLengthToken(String(style[`margin-bottom`]), factor) as typeof style[`margin-bottom`]
+    }
+  }
 }
 
 export function customCssWithTemplate(jsonString: Partial<Record<Block | Inline, PropertiesHyphen>>, color: string, theme: Theme) {

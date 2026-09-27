@@ -14,6 +14,8 @@ function setStyle(title: string, value: string) {
       return { fontFamily: value }
     case `字号`:
       return { fontSize: value }
+    case `行高`:
+      return { lineHeight: value }
     case `主题色`:
       return { color: value }
     default:

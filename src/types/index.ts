@@ -26,6 +26,10 @@ export interface IOpts {
   theme: Theme
   fonts: string
   size: string
+  /** Body line height, unitless. Mirrors theme.base line-height. */
+  lineHeight?: string
+  /** Multiplier for the vertical block margins defined by the theme. */
+  blockSpacing?: string
   isUseIndent: boolean
   isJustify: boolean
   legend?: string

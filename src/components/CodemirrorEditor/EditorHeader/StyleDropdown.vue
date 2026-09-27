@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import PickColors, { type Format } from 'vue-pick-colors'
 import {
+  blockSpacingOptions,
   codeBlockThemeOptions,
   colorOptions,
   fontFamilyOptions,
   fontSizeOptions,
   legendOptions,
+  lineHeightOptions,
   themeOptions,
 } from '@/config'
 import { useDisplayStore, useStore } from '@/stores'
@@ -17,6 +19,8 @@ const {
   theme,
   fontFamily,
   fontSize,
+  lineHeight,
+  blockSpacing,
   primaryColor,
   codeBlockTheme,
   legend,
@@ -29,6 +33,8 @@ const {
   themeChanged,
   fontChanged,
   sizeChanged,
+  lineHeightChanged,
+  blockSpacingChanged,
   colorChanged,
   codeBlockThemeChanged,
   legendChanged,
@@ -76,6 +82,18 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
         :options="fontSizeOptions"
         :current="fontSize"
         :change="sizeChanged"
+      />
+      <StyleOptionMenu
+        title="行高"
+        :options="lineHeightOptions"
+        :current="lineHeight"
+        :change="lineHeightChanged"
+      />
+      <StyleOptionMenu
+        title="段间距"
+        :options="blockSpacingOptions"
+        :current="blockSpacing"
+        :change="blockSpacingChanged"
       />
       <StyleOptionMenu
         title="主题色"

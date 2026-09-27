@@ -187,6 +187,10 @@ export const useStore = defineStore(`store`, () => {
   const fontFamily = useStorage(`fonts`, defaultStyleConfig.fontFamily)
   // 文本大小
   const fontSize = useStorage(`size`, defaultStyleConfig.fontSize)
+  // 行高（无单位）
+  const lineHeight = useStorage(`lineHeight`, defaultStyleConfig.lineHeight)
+  // 段间距（主题垂直边距的无单位倍率）
+  const blockSpacing = useStorage(`blockSpacing`, defaultStyleConfig.blockSpacing)
   // 主色
   const primaryColor = useStorage(`color`, defaultStyleConfig.primaryColor)
   // 代码块主题
@@ -572,10 +576,14 @@ export const useStore = defineStore(`store`, () => {
       customizeTheme(themeMap[theme.value], {
         fontSize: fontSizeNumber.value,
         color: primaryColor.value,
+        lineHeight: lineHeight.value,
+        blockSpacing: blockSpacing.value,
       }),
     ),
     fonts: fontFamily.value,
     size: fontSize.value,
+    lineHeight: lineHeight.value,
+    blockSpacing: blockSpacing.value,
     isUseIndent: isUseIndent.value,
     isJustify: isJustify.value,
     isMacCodeBlock: isMacCodeBlock.value,
@@ -645,10 +653,14 @@ export const useStore = defineStore(`store`, () => {
       customizeTheme(themeMap[theme.value], {
         fontSize: fontSizeNumber.value,
         color: primaryColor.value,
+        lineHeight: lineHeight.value,
+        blockSpacing: blockSpacing.value,
       }),
     )
     renderer.setOptions({
       theme: newTheme,
+      lineHeight: lineHeight.value,
+      blockSpacing: blockSpacing.value,
     })
 
     editorRefresh()
@@ -710,6 +722,8 @@ export const useStore = defineStore(`store`, () => {
     theme.value = defaultStyleConfig.theme
     fontFamily.value = defaultStyleConfig.fontFamily
     fontSize.value = defaultStyleConfig.fontSize
+    lineHeight.value = defaultStyleConfig.lineHeight
+    blockSpacing.value = defaultStyleConfig.blockSpacing
     primaryColor.value = defaultStyleConfig.primaryColor
     codeBlockTheme.value = defaultStyleConfig.codeBlockTheme
     legend.value = defaultStyleConfig.legend
@@ -748,7 +762,12 @@ export const useStore = defineStore(`store`, () => {
     return customCssWithTemplate(
       css2json(getCurrentTab().content),
       color,
-      customizeTheme(newTheme, { fontSize, color }),
+      customizeTheme(newTheme, {
+        fontSize,
+        color,
+        lineHeight: lineHeight.value,
+        blockSpacing: blockSpacing.value,
+      }),
     )
   }
 
@@ -757,7 +776,11 @@ export const useStore = defineStore(`store`, () => {
       theme: customCssWithTemplate(
         css2json(getCurrentTab().content),
         primaryColor.value,
-        customizeTheme(themeMap[newTheme], { fontSize: fontSizeNumber.value }),
+        customizeTheme(themeMap[newTheme], {
+          fontSize: fontSizeNumber.value,
+          lineHeight: lineHeight.value,
+          blockSpacing: blockSpacing.value,
+        }),
       ),
     })
     theme.value = newTheme
@@ -788,6 +811,44 @@ export const useStore = defineStore(`store`, () => {
     })
 
     primaryColor.value = newColor
+  })
+
+  const lineHeightChanged = withAfterRefresh((value: string) => {
+    const newTheme = themeMap[theme.value]
+    renderer.setOptions({
+      theme: customCssWithTemplate(
+        css2json(getCurrentTab().content),
+        primaryColor.value,
+        customizeTheme(newTheme, {
+          fontSize: fontSizeNumber.value,
+          color: primaryColor.value,
+          lineHeight: value,
+          blockSpacing: blockSpacing.value,
+        }),
+      ),
+      lineHeight: value,
+    })
+
+    lineHeight.value = value
+  })
+
+  const blockSpacingChanged = withAfterRefresh((value: string) => {
+    const newTheme = themeMap[theme.value]
+    renderer.setOptions({
+      theme: customCssWithTemplate(
+        css2json(getCurrentTab().content),
+        primaryColor.value,
+        customizeTheme(newTheme, {
+          fontSize: fontSizeNumber.value,
+          color: primaryColor.value,
+          lineHeight: lineHeight.value,
+          blockSpacing: value,
+        }),
+      ),
+      blockSpacing: value,
+    })
+
+    blockSpacing.value = value
   })
 
   const codeBlockThemeChanged = withAfterRefresh((newTheme) => {
@@ -1087,6 +1148,8 @@ export const useStore = defineStore(`store`, () => {
     theme,
     fontFamily,
     fontSize,
+    lineHeight,
+    blockSpacing,
     primaryColor,
     codeBlockTheme,
     legend,
@@ -1101,6 +1164,8 @@ export const useStore = defineStore(`store`, () => {
     themeChanged,
     fontChanged,
     sizeChanged,
+    lineHeightChanged,
+    blockSpacingChanged,
     colorChanged,
     codeBlockThemeChanged,
     legendChanged,
@@ -1260,6 +1325,8 @@ export function getAllStoreStates() {
     theme: store.theme,
     fontFamily: store.fontFamily,
     fontSize: store.fontSize,
+    lineHeight: store.lineHeight,
+    blockSpacing: store.blockSpacing,
     primaryColor: store.primaryColor,
     codeBlockTheme: store.codeBlockTheme,
     legend: store.legend,

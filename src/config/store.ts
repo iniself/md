@@ -19,6 +19,8 @@ export const storeLabels: Record<string, string> = {
   theme: `主题`,
   fontFamily: `字体`,
   fontSize: `字体大小`,
+  lineHeight: `行高`,
+  blockSpacing: `段间距`,
   primaryColor: `自定义主题色`,
   codeBlockTheme: `代码块主题`,
   legend: `图注格式`,

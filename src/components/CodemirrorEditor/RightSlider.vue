@@ -2,11 +2,13 @@
 import { Moon, Sun, SunMoon } from 'lucide-vue-next'
 import PickColors, { type Format } from 'vue-pick-colors'
 import {
+  blockSpacingOptions,
   codeBlockThemeOptions,
   colorOptions,
   fontFamilyOptions,
   fontSizeOptions,
   legendOptions,
+  lineHeightOptions,
   themeOptions,
   widthOptions,
 } from '@/config'
@@ -82,6 +84,30 @@ const formatOptions = ref<Format[]>([`rgb`, `hex`, `hsl`, `hsv`])
             }" @click="store.sizeChanged(value)"
           >
             {{ desc }}
+          </Button>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <h2>行高</h2>
+        <div class="grid grid-cols-5 justify-items-center gap-2">
+          <Button
+            v-for="{ label, value, desc } in lineHeightOptions" :key="value" variant="outline" class="w-full" :title="desc" :class="{
+              'border-black dark:border-white border-2': store.lineHeight === value,
+            }" @click="store.lineHeightChanged(value)"
+          >
+            {{ label }}
+          </Button>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <h2>段间距</h2>
+        <div class="grid grid-cols-5 justify-items-center gap-2">
+          <Button
+            v-for="{ label, value, desc } in blockSpacingOptions" :key="value" variant="outline" class="w-full" :title="desc" :class="{
+              'border-black dark:border-white border-2': store.blockSpacing === value,
+            }" @click="store.blockSpacingChanged(value)"
+          >
+            {{ label }}
           </Button>
         </div>
       </div>
