@@ -21,6 +21,7 @@ import admonition_css from './admonition/index.css?inline'
 import chatMessage_css from './chatMessage/index.css?inline'
 
 import markedAlert from './MDAlert'
+import markedEmoji from './MDEmoji'
 
 import { MDKatex } from './MDKatex'
 import { createPDFBody, createPDFScript, tailDoc } from './print/html'
@@ -381,6 +382,7 @@ export async function exportPureHTML(raw: string, title: string = `untitled`) {
 
   const marked = new Marked()
   marked.use(markedAlert({ withoutStyle: true }))
+  marked.use(markedEmoji())
   marked.use(
     MDKatex({ nonStandard: true }, ``, ``),
   )
@@ -986,7 +988,13 @@ export function renderMarkdown(raw: string, renderer: RendererAPI) {
   })
 
   // XSS 处理
-  html = DOMPurify.sanitize(html, { ADD_TAGS: [`mp-common-profile`], ADD_ATTR: [`target`, `rel`] })
+  // Local sticker images use blob:/data: URLs, which the default URI
+  // allowlist would strip. Extend it without weakening other schemes.
+  html = DOMPurify.sanitize(html, {
+    ADD_TAGS: [`mp-common-profile`],
+    ADD_ATTR: [`target`, `rel`, `data-emoji-id`, `data-asset-id`, `class`, `style`],
+    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|blob|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+  })
 
   return { html, readingTime }
 }

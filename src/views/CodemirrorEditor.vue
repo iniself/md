@@ -3,13 +3,14 @@ import type { Editor } from 'codemirror'
 import type { Component, ComponentPublicInstance } from 'vue'
 import imageCompression from 'browser-image-compression'
 import { fromTextArea } from 'codemirror'
-import { ChartCandlestick, Code, Eye, MessagesSquare, Pen, Sigma, Table, TriangleAlert, Workflow } from 'lucide-vue-next'
+import { ChartCandlestick, Code, Eye, MessagesSquare, Pen, Sigma, Smile, Table, TriangleAlert, Workflow } from 'lucide-vue-next'
 import { onMounted, onUnmounted, watch } from 'vue'
 import {
   AIPolishButton,
   AIPolishPopover,
   useAIPolish,
 } from '@/components/AIPolish'
+import EmojiPicker from '@/components/CodemirrorEditor/EmojiPicker.vue'
 import FolderSourcePanel from '@/components/CodemirrorEditor/FolderSourcePanel.vue'
 import SaveAsFile from '@/components/CodemirrorEditor/SaveAsFile.vue'
 import MathEditorDialog from '@/components/MathEditorDialog.vue'
@@ -22,9 +23,11 @@ import { SearchTab } from '@/components/ui/search-tab'
 import getImgHostOptions from '@/composables/imageHostOptions'
 import { altKey, altSign, ctrlKey, ctrlSign } from '@/config'
 import { infographicDSLStore, mathDSLStore, mermaidDSLStore } from '@/lib/utils'
+import { useEmojiStore } from '@/stores/emoji'
 import { useFolderSourceStore } from '@/stores/folderSource'
 import { checkImage, formatFileSize, toBase64 } from '@/utils'
 import { createExtraKeys, insertSnippet } from '@/utils/editor'
+import { ensureFluentLoaded } from '@/utils/emojiRegistry'
 import fetch from '@/utils/fetch'
 import { fileMigrate, fileUpload } from '@/utils/file'
 import { svgToTransparentPng } from '@/utils/svg2png'
@@ -967,6 +970,13 @@ data
   },
 
   {
+    label: `表情`,
+    icon: Smile,
+    action: () => {
+      displayStore.toggleShowEmojiPicker()
+    },
+  },
+  {
     label: `Chat`,
     icon: MessagesSquare,
     kbd: [ctrlSign, altSign, `C`],
@@ -1210,6 +1220,19 @@ onMounted(() => {
 
   editorDom.value = store.posts[store.currentPostIndex].content
 
+  // 预热本地表情图片地址。刷新后首次渲染可能跑在预热完成之前，
+  // 这里完成后补一次重绘，保证自定义表情和 Fluent 首屏即显示。
+  Promise.all([
+    useEmojiStore().ensureLoaded(),
+    ensureFluentLoaded(),
+  ]).then(() => {
+    if (store.editor) {
+      store.editorRefresh()
+    }
+  }).catch((error) => {
+    console.error(`Failed to preload emoji:`, error)
+  })
+
   nextTick(() => {
     editor.value = createFormTextArea(editorDom)
 
@@ -1388,6 +1411,13 @@ onUnmounted(() => {
             </div>
             <CssEditor class="order-2 flex-1" />
             <RightSlider class="order-2" />
+            <div
+              v-if="displayStore.isShowEmojiPicker"
+              class="bg-background order-3 shrink-0 overflow-hidden border-l"
+              :class="store.isMobile ? 'fixed inset-0 z-50' : 'w-[360px]'"
+            >
+              <EmojiPicker />
+            </div>
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

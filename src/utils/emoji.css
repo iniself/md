@@ -1,0 +1,16 @@
+/* Fallback styles for sticker images. The renderer also sets inline
+ * styles so sizing survives the WeChat paste (external classes are
+ * not inlined into the copied HTML). */
+
+.md-emoji {
+  width: 1.4em;
+  height: auto;
+  vertical-align: -0.25em;
+  display: inline-block;
+}
+
+.md-asset-img {
+  display: inline-block;
+  vertical-align: -0.25em;
+  max-width: 100%;
+}

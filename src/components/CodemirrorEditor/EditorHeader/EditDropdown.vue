@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ClipboardPasteIcon, Contact2Icon, CopyIcon, Redo2Icon, TableIcon, Undo2Icon, UploadCloudIcon } from 'lucide-vue-next'
+import { ClipboardPasteIcon, Contact2Icon, CopyIcon, Redo2Icon, SmileIcon, TableIcon, Undo2Icon, UploadCloudIcon } from 'lucide-vue-next'
 
-const { toggleShowInsertFormDialog, toggleShowUploadImgDialog, toggleShowInsertMpCardDialog } = useDisplayStore()
+const { toggleShowInsertFormDialog, toggleShowUploadImgDialog, toggleShowInsertMpCardDialog, toggleShowEmojiPicker } = useDisplayStore()
 
 const { copyToClipboard, pasteFromClipboard, undo, redo } = useStore()
 </script>
@@ -32,6 +32,10 @@ const { copyToClipboard, pasteFromClipboard, undo, redo } = useStore()
       <MenubarItem @click="toggleShowInsertMpCardDialog()">
         <Contact2Icon class="mr-2 h-4 w-4" />
         插入公众号名片
+      </MenubarItem>
+      <MenubarItem @click="toggleShowEmojiPicker()">
+        <SmileIcon class="mr-2 h-4 w-4" />
+        插入表情
       </MenubarItem>
       <MenubarSeparator />
       <MenubarItem @click="copyToClipboard()">

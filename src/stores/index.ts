@@ -1260,6 +1260,10 @@ export const useDisplayStore = defineStore(`display`, () => {
   const isShowInsertMpCardDialog = ref(false)
   const toggleShowInsertMpCardDialog = useToggle(isShowInsertMpCardDialog)
 
+  // 是否展示插入表情对话框
+  const isShowEmojiPicker = ref(false)
+  const toggleShowEmojiPicker = useToggle(isShowEmojiPicker)
+
   // 是否展示上传图片对话框
   const isShowUploadImgDialog = ref(false)
   const toggleShowUploadImgDialog = useToggle(isShowUploadImgDialog)
@@ -1283,6 +1287,8 @@ export const useDisplayStore = defineStore(`display`, () => {
     toggleShowInsertFormDialog,
     isShowInsertMpCardDialog,
     toggleShowInsertMpCardDialog,
+    isShowEmojiPicker,
+    toggleShowEmojiPicker,
     migrateType,
     migrateSize,
     isShowUploadImgDialog,

@@ -6,6 +6,7 @@ import markedAdmonitionExtension from './admonition/index.ts'
 import markedExtendedtables from './extendedtables/index.js'
 import markedAbbr from './MDAbbr'
 import markedAlert from './MDAlert'
+import markedEmoji from './MDEmoji'
 import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
 import markedInfographic from './MDinfographic.ts'
@@ -43,6 +44,7 @@ export function createMarked(options: {
     MDKatex({ nonStandard: true }, options.styles(`inline_katex`, `;vertical-align: middle; line-height: 1;`), options.styles(`block_katex`, `;text-align: center;`)),
     markedFootnotes(options.styledContent, options.styles),
     markedAbbr(),
+    markedEmoji(),
     markedZhihuLinkCard(options.styles(`wx_link`), options.styles(`link`)),
     markedExtendedtables(options.styles),
     markedSupSub(),

@@ -5,6 +5,7 @@ import {
 } from '@/constants/HTMLConfig'
 import OUT_HTML_CSS from '@/constants/OutHtmlCss'
 import { processClipboardContent, processClipboardToHtmlFile, solveWeChatImage } from '@/utils'
+import { inlineEmojiImages } from '@/utils/emojiExport'
 
 const { copy: copyContent } = useClipboard({
   legacy: true,
@@ -252,6 +253,8 @@ export default async function copy(mode: string, emit: EmitFn): Promise<void | s
           const cleanedHtml = doc.body.innerHTML
 
           const tempDoc = new DOMParser().parseFromString(cleanedHtml, `text/html`)
+          // Inline local sticker images so exported HTML keeps working.
+          await inlineEmojiImages(tempDoc)
           let cleanedHtmlFinal = ``
 
           if (mode === `txt` || mode === `html` || mode === `outhtml` || mode === `pdf`) {

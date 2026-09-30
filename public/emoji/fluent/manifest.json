@@ -1,0 +1,673 @@
+{
+ "pack": "fluent-3d",
+ "license": "MIT (Microsoft fluentui-emoji)",
+ "count": 111,
+ "items": [
+  {
+   "id": "grinning_face_3d",
+   "name": "Grinning face",
+   "zh": "咧嘴笑",
+   "file": "emoji/fluent/grinning_face_3d.png"
+  },
+  {
+   "id": "grinning_face_with_big_eyes_3d",
+   "name": "Grinning face with big eyes",
+   "zh": "大眼笑",
+   "file": "emoji/fluent/grinning_face_with_big_eyes_3d.png"
+  },
+  {
+   "id": "grinning_face_with_smiling_eyes_3d",
+   "name": "Grinning face with smiling eyes",
+   "zh": "开心笑",
+   "file": "emoji/fluent/grinning_face_with_smiling_eyes_3d.png"
+  },
+  {
+   "id": "beaming_face_with_smiling_eyes_3d",
+   "name": "Beaming face with smiling eyes",
+   "zh": "灿烂笑",
+   "file": "emoji/fluent/beaming_face_with_smiling_eyes_3d.png"
+  },
+  {
+   "id": "grinning_squinting_face_3d",
+   "name": "Grinning squinting face",
+   "zh": "眯眼笑",
+   "file": "emoji/fluent/grinning_squinting_face_3d.png"
+  },
+  {
+   "id": "grinning_face_with_sweat_3d",
+   "name": "Grinning face with sweat",
+   "zh": "苦笑",
+   "file": "emoji/fluent/grinning_face_with_sweat_3d.png"
+  },
+  {
+   "id": "winking_face_3d",
+   "name": "Winking face",
+   "zh": "眨眼",
+   "file": "emoji/fluent/winking_face_3d.png"
+  },
+  {
+   "id": "smiling_face_with_smiling_eyes_3d",
+   "name": "Smiling face with smiling eyes",
+   "zh": "微笑",
+   "file": "emoji/fluent/smiling_face_with_smiling_eyes_3d.png"
+  },
+  {
+   "id": "smiling_face_with_halo_3d",
+   "name": "Smiling face with halo",
+   "zh": "天使笑",
+   "file": "emoji/fluent/smiling_face_with_halo_3d.png"
+  },
+  {
+   "id": "smiling_face_with_hearts_3d",
+   "name": "Smiling face with hearts",
+   "zh": "爱心笑",
+   "file": "emoji/fluent/smiling_face_with_hearts_3d.png"
+  },
+  {
+   "id": "smiling_face_with_heart-eyes_3d",
+   "name": "Smiling face with heart-eyes",
+   "zh": "花痴",
+   "file": "emoji/fluent/smiling_face_with_heart-eyes_3d.png"
+  },
+  {
+   "id": "star-struck_3d",
+   "name": "Star-struck",
+   "zh": "星星眼",
+   "file": "emoji/fluent/star-struck_3d.png"
+  },
+  {
+   "id": "face_blowing_a_kiss_3d",
+   "name": "Face blowing a kiss",
+   "zh": "飞吻",
+   "file": "emoji/fluent/face_blowing_a_kiss_3d.png"
+  },
+  {
+   "id": "kissing_face_3d",
+   "name": "Kissing face",
+   "zh": "亲亲",
+   "file": "emoji/fluent/kissing_face_3d.png"
+  },
+  {
+   "id": "kissing_face_with_closed_eyes_3d",
+   "name": "Kissing face with closed eyes",
+   "zh": "闭眼亲",
+   "file": "emoji/fluent/kissing_face_with_closed_eyes_3d.png"
+  },
+  {
+   "id": "smiling_face_with_tear_3d",
+   "name": "Smiling face with tear",
+   "zh": "含泪笑",
+   "file": "emoji/fluent/smiling_face_with_tear_3d.png"
+  },
+  {
+   "id": "face_with_tears_of_joy_3d",
+   "name": "Face with tears of joy",
+   "zh": "笑哭",
+   "file": "emoji/fluent/face_with_tears_of_joy_3d.png"
+  },
+  {
+   "id": "rolling_on_the_floor_laughing_3d",
+   "name": "Rolling on the floor laughing",
+   "zh": "笑翻",
+   "file": "emoji/fluent/rolling_on_the_floor_laughing_3d.png"
+  },
+  {
+   "id": "loudly_crying_face_3d",
+   "name": "Loudly crying face",
+   "zh": "大哭",
+   "file": "emoji/fluent/loudly_crying_face_3d.png"
+  },
+  {
+   "id": "crying_face_3d",
+   "name": "Crying face",
+   "zh": "流泪",
+   "file": "emoji/fluent/crying_face_3d.png"
+  },
+  {
+   "id": "sleepy_face_3d",
+   "name": "Sleepy face",
+   "zh": "困",
+   "file": "emoji/fluent/sleepy_face_3d.png"
+  },
+  {
+   "id": "tired_face_3d",
+   "name": "Tired face",
+   "zh": "累",
+   "file": "emoji/fluent/tired_face_3d.png"
+  },
+  {
+   "id": "yawning_face_3d",
+   "name": "Yawning face",
+   "zh": "哈欠",
+   "file": "emoji/fluent/yawning_face_3d.png"
+  },
+  {
+   "id": "face_with_steam_from_nose_3d",
+   "name": "Face with steam from nose",
+   "zh": "气炸",
+   "file": "emoji/fluent/face_with_steam_from_nose_3d.png"
+  },
+  {
+   "id": "angry_face_3d",
+   "name": "Angry face",
+   "zh": "生气",
+   "file": "emoji/fluent/angry_face_3d.png"
+  },
+  {
+   "id": "pouting_face_3d",
+   "name": "Pouting face",
+   "zh": "撅嘴",
+   "file": "emoji/fluent/pouting_face_3d.png"
+  },
+  {
+   "id": "face_with_symbols_on_mouth_3d",
+   "name": "Face with symbols on mouth",
+   "zh": "骂人",
+   "file": "emoji/fluent/face_with_symbols_on_mouth_3d.png"
+  },
+  {
+   "id": "smiling_face_with_horns_3d",
+   "name": "Smiling face with horns",
+   "zh": "小恶魔",
+   "file": "emoji/fluent/smiling_face_with_horns_3d.png"
+  },
+  {
+   "id": "angry_face_with_horns_3d",
+   "name": "Angry face with horns",
+   "zh": "愤怒恶魔",
+   "file": "emoji/fluent/angry_face_with_horns_3d.png"
+  },
+  {
+   "id": "skull_3d",
+   "name": "Skull",
+   "zh": "骷髅",
+   "file": "emoji/fluent/skull_3d.png"
+  },
+  {
+   "id": "clown_face_3d",
+   "name": "Clown face",
+   "zh": "小丑",
+   "file": "emoji/fluent/clown_face_3d.png"
+  },
+  {
+   "id": "face_with_monocle_3d",
+   "name": "Face with monocle",
+   "zh": "单片眼镜",
+   "file": "emoji/fluent/face_with_monocle_3d.png"
+  },
+  {
+   "id": "nerd_face_3d",
+   "name": "Nerd face",
+   "zh": "书呆子",
+   "file": "emoji/fluent/nerd_face_3d.png"
+  },
+  {
+   "id": "sunglasses_3d",
+   "name": "Sunglasses",
+   "zh": "墨镜",
+   "file": "emoji/fluent/sunglasses_3d.png"
+  },
+  {
+   "id": "melting_face_3d",
+   "name": "Melting face",
+   "zh": "融化",
+   "file": "emoji/fluent/melting_face_3d.png"
+  },
+  {
+   "id": "saluting_face_3d",
+   "name": "Saluting face",
+   "zh": "敬礼",
+   "file": "emoji/fluent/saluting_face_3d.png"
+  },
+  {
+   "id": "shushing_face_3d",
+   "name": "Shushing face",
+   "zh": "嘘",
+   "file": "emoji/fluent/shushing_face_3d.png"
+  },
+  {
+   "id": "zipper-mouth_face_3d",
+   "name": "Zipper-mouth face",
+   "zh": "拉链嘴",
+   "file": "emoji/fluent/zipper-mouth_face_3d.png"
+  },
+  {
+   "id": "face_with_raised_eyebrow_3d",
+   "name": "Face with raised eyebrow",
+   "zh": "挑眉",
+   "file": "emoji/fluent/face_with_raised_eyebrow_3d.png"
+  },
+  {
+   "id": "neutral_face_3d",
+   "name": "Neutral face",
+   "zh": "面无表情",
+   "file": "emoji/fluent/neutral_face_3d.png"
+  },
+  {
+   "id": "expressionless_face_3d",
+   "name": "Expressionless face",
+   "zh": "无语",
+   "file": "emoji/fluent/expressionless_face_3d.png"
+  },
+  {
+   "id": "unamused_face_3d",
+   "name": "Unamused face",
+   "zh": "不爽",
+   "file": "emoji/fluent/unamused_face_3d.png"
+  },
+  {
+   "id": "face_with_rolling_eyes_3d",
+   "name": "Face with rolling eyes",
+   "zh": "翻白眼",
+   "file": "emoji/fluent/face_with_rolling_eyes_3d.png"
+  },
+  {
+   "id": "smirking_face_3d",
+   "name": "Smirking face",
+   "zh": "坏笑",
+   "file": "emoji/fluent/smirking_face_3d.png"
+  },
+  {
+   "id": "lying_face_3d",
+   "name": "Lying face",
+   "zh": "说谎",
+   "file": "emoji/fluent/lying_face_3d.png"
+  },
+  {
+   "id": "relieved_face_3d",
+   "name": "Relieved face",
+   "zh": "松口气",
+   "file": "emoji/fluent/relieved_face_3d.png"
+  },
+  {
+   "id": "pensive_face_3d",
+   "name": "Pensive face",
+   "zh": "沉思",
+   "file": "emoji/fluent/pensive_face_3d.png"
+  },
+  {
+   "id": "sleeping_face_3d",
+   "name": "Sleeping face",
+   "zh": "睡觉",
+   "file": "emoji/fluent/sleeping_face_3d.png"
+  },
+  {
+   "id": "drooling_face_3d",
+   "name": "Drooling face",
+   "zh": "流口水",
+   "file": "emoji/fluent/drooling_face_3d.png"
+  },
+  {
+   "id": "face_with_medical_mask_3d",
+   "name": "Face with medical mask",
+   "zh": "口罩",
+   "file": "emoji/fluent/face_with_medical_mask_3d.png"
+  },
+  {
+   "id": "face_with_thermometer_3d",
+   "name": "Face with thermometer",
+   "zh": "发烧",
+   "file": "emoji/fluent/face_with_thermometer_3d.png"
+  },
+  {
+   "id": "hot_face_3d",
+   "name": "Hot face",
+   "zh": "热",
+   "file": "emoji/fluent/hot_face_3d.png"
+  },
+  {
+   "id": "cold_face_3d",
+   "name": "Cold face",
+   "zh": "冷",
+   "file": "emoji/fluent/cold_face_3d.png"
+  },
+  {
+   "id": "woozy_face_3d",
+   "name": "Woozy face",
+   "zh": "晕",
+   "file": "emoji/fluent/woozy_face_3d.png"
+  },
+  {
+   "id": "dizzy_3d",
+   "name": "Dizzy",
+   "zh": "眩晕",
+   "file": "emoji/fluent/dizzy_3d.png"
+  },
+  {
+   "id": "astonished_face_3d",
+   "name": "Astonished face",
+   "zh": "震惊",
+   "file": "emoji/fluent/astonished_face_3d.png"
+  },
+  {
+   "id": "flushed_face_3d",
+   "name": "Flushed face",
+   "zh": "脸红",
+   "file": "emoji/fluent/flushed_face_3d.png"
+  },
+  {
+   "id": "pleading_face_3d",
+   "name": "Pleading face",
+   "zh": "可怜",
+   "file": "emoji/fluent/pleading_face_3d.png"
+  },
+  {
+   "id": "anxious_face_with_sweat_3d",
+   "name": "Anxious face with sweat",
+   "zh": "焦虑",
+   "file": "emoji/fluent/anxious_face_with_sweat_3d.png"
+  },
+  {
+   "id": "fearful_face_3d",
+   "name": "Fearful face",
+   "zh": "害怕",
+   "file": "emoji/fluent/fearful_face_3d.png"
+  },
+  {
+   "id": "weary_face_3d",
+   "name": "Weary face",
+   "zh": "疲惫",
+   "file": "emoji/fluent/weary_face_3d.png"
+  },
+  {
+   "id": "hugging_face_3d",
+   "name": "Hugging face",
+   "zh": "抱抱",
+   "file": "emoji/fluent/hugging_face_3d.png"
+  },
+  {
+   "id": "thinking_face_3d",
+   "name": "Thinking face",
+   "zh": "思考",
+   "file": "emoji/fluent/thinking_face_3d.png"
+  },
+  {
+   "id": "thumbs_up_3d_default",
+   "name": "Thumbs up",
+   "zh": "点赞",
+   "file": "emoji/fluent/thumbs_up_3d_default.png"
+  },
+  {
+   "id": "thumbs_down_3d_default",
+   "name": "Thumbs down",
+   "zh": "踩",
+   "file": "emoji/fluent/thumbs_down_3d_default.png"
+  },
+  {
+   "id": "ok_hand_3d_default",
+   "name": "Ok hand",
+   "zh": "OK",
+   "file": "emoji/fluent/ok_hand_3d_default.png"
+  },
+  {
+   "id": "victory_hand_3d_default",
+   "name": "Victory hand",
+   "zh": "胜利",
+   "file": "emoji/fluent/victory_hand_3d_default.png"
+  },
+  {
+   "id": "hand_with_index_finger_and_thumb_crossed_3d_default",
+   "name": "Hand with index finger and thumb crossed",
+   "zh": "比心手指",
+   "file": "emoji/fluent/hand_with_index_finger_and_thumb_crossed_3d_default.png"
+  },
+  {
+   "id": "sign_of_the_horns_3d_default",
+   "name": "Sign of the horns",
+   "zh": "摇滚",
+   "file": "emoji/fluent/sign_of_the_horns_3d_default.png"
+  },
+  {
+   "id": "love-you_gesture_3d_default",
+   "name": "Love-you gesture",
+   "zh": "爱你手势",
+   "file": "emoji/fluent/love-you_gesture_3d_default.png"
+  },
+  {
+   "id": "pinching_hand_3d_default",
+   "name": "Pinching hand",
+   "zh": "捏",
+   "file": "emoji/fluent/pinching_hand_3d_default.png"
+  },
+  {
+   "id": "raised_fist_3d_default",
+   "name": "Raised fist",
+   "zh": "拳头",
+   "file": "emoji/fluent/raised_fist_3d_default.png"
+  },
+  {
+   "id": "oncoming_fist_3d_default",
+   "name": "Oncoming fist",
+   "zh": "出拳",
+   "file": "emoji/fluent/oncoming_fist_3d_default.png"
+  },
+  {
+   "id": "left-facing_fist_3d_default",
+   "name": "Left-facing fist",
+   "zh": "左拳",
+   "file": "emoji/fluent/left-facing_fist_3d_default.png"
+  },
+  {
+   "id": "right-facing_fist_3d_default",
+   "name": "Right-facing fist",
+   "zh": "右拳",
+   "file": "emoji/fluent/right-facing_fist_3d_default.png"
+  },
+  {
+   "id": "clapping_hands_3d_default",
+   "name": "Clapping hands",
+   "zh": "鼓掌",
+   "file": "emoji/fluent/clapping_hands_3d_default.png"
+  },
+  {
+   "id": "raising_hands_3d_default",
+   "name": "Raising hands",
+   "zh": "举手",
+   "file": "emoji/fluent/raising_hands_3d_default.png"
+  },
+  {
+   "id": "open_hands_3d_default",
+   "name": "Open hands",
+   "zh": "张开手",
+   "file": "emoji/fluent/open_hands_3d_default.png"
+  },
+  {
+   "id": "palms_up_together_3d_default",
+   "name": "Palms up together",
+   "zh": "祈祷",
+   "file": "emoji/fluent/palms_up_together_3d_default.png"
+  },
+  {
+   "id": "folded_hands_3d_default",
+   "name": "Folded hands",
+   "zh": "合十",
+   "file": "emoji/fluent/folded_hands_3d_default.png"
+  },
+  {
+   "id": "flexed_biceps_3d_default",
+   "name": "Flexed biceps",
+   "zh": "肌肉",
+   "file": "emoji/fluent/flexed_biceps_3d_default.png"
+  },
+  {
+   "id": "writing_hand_3d_default",
+   "name": "Writing hand",
+   "zh": "写字",
+   "file": "emoji/fluent/writing_hand_3d_default.png"
+  },
+  {
+   "id": "nail_polish_3d_default",
+   "name": "Nail polish",
+   "zh": "美甲",
+   "file": "emoji/fluent/nail_polish_3d_default.png"
+  },
+  {
+   "id": "selfie_3d_default",
+   "name": "Selfie",
+   "zh": "自拍",
+   "file": "emoji/fluent/selfie_3d_default.png"
+  },
+  {
+   "id": "waving_hand_3d_default",
+   "name": "Waving hand",
+   "zh": "挥手",
+   "file": "emoji/fluent/waving_hand_3d_default.png"
+  },
+  {
+   "id": "handshake_3d",
+   "name": "Handshake",
+   "zh": "握手",
+   "file": "emoji/fluent/handshake_3d.png"
+  },
+  {
+   "id": "red_heart_3d",
+   "name": "Red heart",
+   "zh": "红心",
+   "file": "emoji/fluent/red_heart_3d.png"
+  },
+  {
+   "id": "broken_heart_3d",
+   "name": "Broken heart",
+   "zh": "心碎",
+   "file": "emoji/fluent/broken_heart_3d.png"
+  },
+  {
+   "id": "heart_on_fire_3d",
+   "name": "Heart on fire",
+   "zh": "火热的心",
+   "file": "emoji/fluent/heart_on_fire_3d.png"
+  },
+  {
+   "id": "heart_with_arrow_3d",
+   "name": "Heart with arrow",
+   "zh": "丘比特",
+   "file": "emoji/fluent/heart_with_arrow_3d.png"
+  },
+  {
+   "id": "sparkling_heart_3d",
+   "name": "Sparkling heart",
+   "zh": "闪心",
+   "file": "emoji/fluent/sparkling_heart_3d.png"
+  },
+  {
+   "id": "growing_heart_3d",
+   "name": "Growing heart",
+   "zh": "心动",
+   "file": "emoji/fluent/growing_heart_3d.png"
+  },
+  {
+   "id": "beating_heart_3d",
+   "name": "Beating heart",
+   "zh": "心跳",
+   "file": "emoji/fluent/beating_heart_3d.png"
+  },
+  {
+   "id": "two_hearts_3d",
+   "name": "Two hearts",
+   "zh": "两颗心",
+   "file": "emoji/fluent/two_hearts_3d.png"
+  },
+  {
+   "id": "fire_3d",
+   "name": "Fire",
+   "zh": "火",
+   "file": "emoji/fluent/fire_3d.png"
+  },
+  {
+   "id": "party_popper_3d",
+   "name": "Party popper",
+   "zh": "礼花",
+   "file": "emoji/fluent/party_popper_3d.png"
+  },
+  {
+   "id": "balloon_3d",
+   "name": "Balloon",
+   "zh": "气球",
+   "file": "emoji/fluent/balloon_3d.png"
+  },
+  {
+   "id": "wrapped_gift_3d",
+   "name": "Wrapped gift",
+   "zh": "礼物",
+   "file": "emoji/fluent/wrapped_gift_3d.png"
+  },
+  {
+   "id": "birthday_cake_3d",
+   "name": "Birthday cake",
+   "zh": "生日蛋糕",
+   "file": "emoji/fluent/birthday_cake_3d.png"
+  },
+  {
+   "id": "trophy_3d",
+   "name": "Trophy",
+   "zh": "奖杯",
+   "file": "emoji/fluent/trophy_3d.png"
+  },
+  {
+   "id": "1st_place_medal_3d",
+   "name": "1st place medal",
+   "zh": "金牌",
+   "file": "emoji/fluent/1st_place_medal_3d.png"
+  },
+  {
+   "id": "thought_balloon_3d",
+   "name": "Thought balloon",
+   "zh": "想",
+   "file": "emoji/fluent/thought_balloon_3d.png"
+  },
+  {
+   "id": "speech_balloon_3d",
+   "name": "Speech balloon",
+   "zh": "说",
+   "file": "emoji/fluent/speech_balloon_3d.png"
+  },
+  {
+   "id": "zzz_3d",
+   "name": "Zzz",
+   "zh": "睡",
+   "file": "emoji/fluent/zzz_3d.png"
+  },
+  {
+   "id": "hundred_points_3d",
+   "name": "Hundred points",
+   "zh": "满分",
+   "file": "emoji/fluent/hundred_points_3d.png"
+  },
+  {
+   "id": "check_mark_3d",
+   "name": "Check mark",
+   "zh": "对勾",
+   "file": "emoji/fluent/check_mark_3d.png"
+  },
+  {
+   "id": "red_exclamation_mark_3d",
+   "name": "Red exclamation mark",
+   "zh": "感叹号",
+   "file": "emoji/fluent/red_exclamation_mark_3d.png"
+  },
+  {
+   "id": "star_3d",
+   "name": "Star",
+   "zh": "星",
+   "file": "emoji/fluent/star_3d.png"
+  },
+  {
+   "id": "glowing_star_3d",
+   "name": "Glowing star",
+   "zh": "亮星",
+   "file": "emoji/fluent/glowing_star_3d.png"
+  },
+  {
+   "id": "sparkles_3d",
+   "name": "Sparkles",
+   "zh": "闪光",
+   "file": "emoji/fluent/sparkles_3d.png"
+  },
+  {
+   "id": "collision_3d",
+   "name": "Collision",
+   "zh": "撞击",
+   "file": "emoji/fluent/collision_3d.png"
+  }
+ ]
+}

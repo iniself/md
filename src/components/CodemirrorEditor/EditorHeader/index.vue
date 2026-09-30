@@ -13,6 +13,7 @@ import { altKey, altSign, ctrlKey, ctrlSign, shiftSign } from '@/config'
 import { replaceGradientsWithSolidColors } from '@/lib/utils'
 import { useStore } from '@/stores'
 import { addPrefix, processClipboardContent, solveWeChatImage } from '@/utils'
+import { inlineEmojiImages } from '@/utils/emojiExport'
 import TocMenu from '../TocMenu.vue'
 
 const emit = defineEmits([`startCopy`, `endCopy`])
@@ -354,6 +355,8 @@ async function copy() {
         const cleanedHtml = doc.body.innerHTML
 
         const tempDoc = new DOMParser().parseFromString(cleanedHtml, `text/html`)
+        // Inline local sticker images so pasted HTML keeps working in WeChat.
+        await inlineEmojiImages(tempDoc)
         let cleanedHtmlFinal = ``
 
         if (copyMode.value === `txt` || copyMode.value === `html`) {
@@ -734,7 +737,7 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
 
       <!-- 复制按钮组 -->
       <div
-        class="space-x-1 bg-background text-background-foreground mx-2 flex items-center border rounded-md"
+        class="bg-background space-x-1 text-background-foreground mx-2 flex items-center border rounded-md"
       >
         <Button variant="ghost" class="shadow-none" @click="copy">
           复制

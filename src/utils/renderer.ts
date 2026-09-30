@@ -22,6 +22,7 @@ import renderCsvTable from './extendedtables/csv2table.ts'
 import markedExtendedtables from './extendedtables/index.js'
 import markedAbbr from './MDAbbr'
 import markedAlert from './MDAlert'
+import markedEmoji from './MDEmoji'
 import markedFootnotes from './MDFootnotes'
 import markedImageSize from './MDImageSize'
 import markedInfographic from './MDinfographic.ts'
@@ -31,12 +32,14 @@ import markedRuby from './MDRuby.ts'
 import markedSlider from './MDSlider'
 import markedSupSub from './MDSupSub'
 import markedTextExtension from './MDTextExtension'
+
 import markedUnderlineExtension from './MDUnderlineExtension'
 
 import markedZhihuLinkCard from './MDZhihuLinkCard'
 
 import './admonition/index.css'
 import './chatMessage/index.css'
+import './emoji.css'
 
 mermaid.initialize({
   startOnLoad: false,
@@ -670,6 +673,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
   marked.use(markedExtendedtables(styles))
   marked.use(markedSupSub())
   marked.use(markedInfographic())
+  marked.use(markedEmoji())
 
   const { newMarked } = createMarked({
     styledContent,
