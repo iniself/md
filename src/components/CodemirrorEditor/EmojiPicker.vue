@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlignCenter, AlignLeft, AlignRight, Image, Minus, Plus, Search, Smile, Sticker, Trash2, Type, UserRound, X } from 'lucide-vue-next'
+import { AlignCenter, AlignLeft, AlignRight, Download, Image, Minus, Plus, Search, Smile, Sticker, Trash2, Type, Upload, UserRound, X } from 'lucide-vue-next'
 import { useDisplayStore, useStore } from '@/stores'
 import { useEmojiStore } from '@/stores/emoji'
 import { filterUnicodeEmojis } from '@/utils/emojiData'
@@ -34,6 +34,7 @@ const insertMode = ref<InsertMode>(`small`)
 const insertAlign = ref<EmojiAlign>(`left`)
 const widthPercent = ref(20)
 const fileInput = ref<HTMLInputElement | null>(null)
+const packInput = ref<HTMLInputElement | null>(null)
 
 onMounted(async () => {
   search.value = ``
@@ -212,6 +213,36 @@ async function repairBroken() {
   }
 }
 
+async function exportMine() {
+  try {
+    await emojiStore.exportPack()
+  }
+  catch (error) {
+    console.error(`Failed to export emoji pack:`, error)
+    toast.error(`导出失败`)
+  }
+}
+
+function openPackDialog() {
+  packInput.value?.click()
+}
+
+async function onPackChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ``
+  if (!file) {
+    return
+  }
+  try {
+    await emojiStore.importPack(file)
+  }
+  catch (error) {
+    console.error(`Failed to import emoji pack:`, error)
+    toast.error(`导入失败`)
+  }
+}
+
 function resolveMineUrl(id: string): string {
   return resolveEmojiUrl(id) ?? ``
 }
@@ -323,6 +354,14 @@ function resolveMineUrl(id: string): string {
       </div>
 
       <div v-if="tab === 'mine'">
+        <div class="mb-2 flex items-center justify-end gap-1">
+          <Button variant="ghost" size="sm" class="text-muted-foreground h-7 gap-1 px-2 text-xs" title="导出为备份文件" @click="exportMine">
+            <Download class="h-3.5 w-3.5" />导出
+          </Button>
+          <Button variant="ghost" size="sm" class="text-muted-foreground h-7 gap-1 px-2 text-xs" title="从备份文件导入" @click="openPackDialog">
+            <Upload class="h-3.5 w-3.5" />导入
+          </Button>
+        </div>
         <div v-if="emojiStore.brokenFiles.length > 0" class="bg-destructive/10 text-destructive mb-2 rounded-lg px-2.5 py-2 text-xs">
           {{ emojiStore.brokenFiles.length }} 张图片数据丢失（可能清理过浏览器数据），预览中无法显示。
           <button type="button" class="underline" @click="repairBroken">
@@ -362,6 +401,7 @@ function resolveMineUrl(id: string): string {
           还没有自定义表情，点 + 从本地添加（PNG / JPEG / GIF / WebP，≤5MB）
         </p>
         <input ref="fileInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp" multiple class="hidden" @change="onFileChange">
+        <input ref="packInput" type="file" accept="application/json,.json" class="hidden" @change="onPackChange">
       </div>
     </div>
 

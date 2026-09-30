@@ -1,4 +1,4 @@
-import { addPrefix } from '@/utils'
+import { addPrefix, downloadFile, sanitizeTitle, toBase64 } from '@/utils'
 import { clearCustomEmojiUrls, registerCustomEmojiUrl, unregisterCustomEmojiUrl } from '@/utils/emojiRegistry'
 import { emojiBlobStore } from '@/utils/emojiStorage'
 
@@ -199,6 +199,145 @@ export const useEmojiStore = defineStore(`emoji`, () => {
     }
   }
 
+  interface ExportedEmojiItem {
+    name: string
+    mime: string
+    dataUrl: string
+  }
+
+  interface ExportedEmojiPack {
+    kind: `md-emoji-pack`
+    version: 1
+    pack: string
+    exportedAt: number
+    items: ExportedEmojiItem[]
+  }
+
+  function isExportedPack(value: unknown): value is ExportedEmojiPack {
+    if (!value || typeof value !== `object`) {
+      return false
+    }
+    const pack = value as Record<string, unknown>
+    return pack.kind === `md-emoji-pack`
+      && Array.isArray(pack.items)
+      && pack.items.every(item =>
+        !!item && typeof item === `object`
+        && typeof (item as Record<string, unknown>).dataUrl === `string`
+        && typeof (item as Record<string, unknown>).mime === `string`,
+      )
+  }
+
+  // Download the whole pack as one self-contained JSON (meta + base64).
+  async function exportPack(): Promise<number> {
+    const pack = activePack.value
+    if (!pack || !pack.files.length) {
+      toast.error(`表情包是空的，无需导出`)
+      return 0
+    }
+    const items: ExportedEmojiItem[] = []
+    for (const file of pack.files) {
+      try {
+        const blob = await emojiBlobStore.get(file.id)
+        if (!blob) {
+          continue
+        }
+        const body = await toBase64(blob)
+        items.push({
+          name: file.name,
+          mime: file.mime,
+          dataUrl: `data:${file.mime};base64,${body}`,
+        })
+      }
+      catch (error) {
+        console.error(`Failed to export emoji ${file.id}:`, error)
+      }
+    }
+    if (!items.length) {
+      toast.error(`没有可导出的图片数据`)
+      return 0
+    }
+    const payload: ExportedEmojiPack = {
+      kind: `md-emoji-pack`,
+      version: 1,
+      pack: pack.name,
+      exportedAt: Date.now(),
+      items,
+    }
+    const date = new Date().toISOString().slice(0, 10)
+    downloadFile(JSON.stringify(payload), `${sanitizeTitle(pack.name)}-${date}.json`, `application/json`)
+    toast.success(`已导出 ${items.length} 张表情`)
+    return items.length
+  }
+
+  function dataUrlToFile(dataUrl: string, mime: string, name: string): File | null {
+    const match = /^data:([^;]+);base64,(.+)$/.exec(dataUrl.trim())
+    if (!match) {
+      return null
+    }
+    try {
+      const binary = atob(match[2])
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i)
+      }
+      return new File([bytes], name, { type: mime || match[1] })
+    }
+    catch {
+      return null
+    }
+  }
+
+  // Import a pack file exported above. Respects the pack size limit.
+  async function importPack(file: File): Promise<number> {
+    const pack = activePack.value
+    if (!pack) {
+      return 0
+    }
+    let payload: unknown
+    try {
+      payload = JSON.parse(await file.text())
+    }
+    catch {
+      toast.error(`文件不是有效的表情包备份`)
+      return 0
+    }
+    if (!isExportedPack(payload)) {
+      toast.error(`文件不是有效的表情包备份`)
+      return 0
+    }
+    await ensureLoaded()
+    const candidates: File[] = []
+    for (const [index, item] of payload.items.entries()) {
+      const converted = dataUrlToFile(item.dataUrl, item.mime, `${item.name || `表情`}.png`)
+      if (converted) {
+        candidates.push(converted)
+      }
+      else {
+        console.warn(`Skipped invalid emoji item at index ${index}`)
+      }
+    }
+    if (!candidates.length) {
+      toast.error(`备份里没有可导入的图片`)
+      return 0
+    }
+    const room = Math.max(0, MAX_ITEMS - pack.files.length)
+    if (room <= 0) {
+      toast.error(`表情包已满（${MAX_ITEMS} 张），先删除一些再导入`)
+      return 0
+    }
+    const added = await addFiles(candidates.slice(0, room))
+    if (payload.items.length > candidates.length) {
+      toast.warning(`跳过 ${payload.items.length - candidates.length} 张损坏的数据`)
+    }
+    if (candidates.length > room) {
+      toast.warning(`位置只够 ${room} 张，其余未导入`)
+    }
+    if (added > 0) {
+      toast.success(`已导入 ${added} 张表情`)
+    }
+    return added
+  }
+
   return {
     packs,
     activePack,
@@ -210,5 +349,7 @@ export const useEmojiStore = defineStore(`emoji`, () => {
     addFiles,
     removeFile,
     clearPack,
+    exportPack,
+    importPack,
   }
 })
