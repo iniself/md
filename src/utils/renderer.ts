@@ -291,6 +291,23 @@ export function initRenderer(opts: IOpts): RendererAPI {
     return `<${tag} ${/^h\d$/.test(tag) ? `data-heading="true"` : ``} ${styles(styleLabel)}>${content}</${tag}>`
   }
 
+  // Wrap top-level bare text in spans so a paragraph never mixes raw text
+  // with elements under one wrapper. Pure-text paragraphs come out
+  // identical to before (`<span>text</span>`); only mixed content changes:
+  // `he<strong>ll</strong>o` -> `<span>he</span><strong>ll</strong><span>o</span>`
+  function wrapTopLevelText(html: string): string {
+    const container = document.createElement(`div`)
+    container.innerHTML = html
+    for (const child of Array.from(container.childNodes)) {
+      if (child.nodeType === 3 && (child.textContent ?? ``).trim() !== ``) {
+        const wrapper = document.createElement(`span`)
+        container.replaceChild(wrapper, child)
+        wrapper.appendChild(child)
+      }
+    }
+    return container.innerHTML
+  }
+
   function addFootnote(title: string, link: string): number {
     footnotes.push([++footnoteIndex, title, link])
     return footnoteIndex
@@ -356,7 +373,7 @@ export function initRenderer(opts: IOpts): RendererAPI {
       if (isFigureImage || isEmpty) {
         return text
       }
-      return styledContent(`p`, `<span>${text}</span>`)
+      return styledContent(`p`, wrapTopLevelText(text))
     },
 
     blockquote({ tokens }: Tokens.Blockquote): string {
