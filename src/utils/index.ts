@@ -763,6 +763,34 @@ export function removeLeft(str: string) {
   return lines.map(item => item.slice(minSpaceNum)).join(`\n`)
 }
 
+/**
+ * Mark the whole horizontal slider subtree as width-exempt for WeChat.
+ * WeChat's paste checker evaluates nested blocks individually, so the
+ * attribute has to be present on every element, not only on the root.
+ */
+export function markWeChatSliderWidthExemptions(root: Document | HTMLElement) {
+  const scope = root instanceof Document ? root.body : root
+  const sliders = Array.from(scope.querySelectorAll<HTMLElement>(`section[style*="overflow-x: scroll"]`))
+  if (!sliders.length) {
+    return
+  }
+
+  sliders.forEach((slider) => {
+    // Find the top-level slider block inside the article container.
+    const topContainer = slider.closest(`body > section`)
+    let block: Element = slider
+    if (topContainer && topContainer !== slider) {
+      while (block.parentElement && block.parentElement !== topContainer) {
+        block = block.parentElement
+      }
+    }
+
+    // WeChat may evaluate every nested block separately, so mark them all.
+    block.setAttribute(`data-ignore-width`, ``)
+    block.querySelectorAll(`*`).forEach(el => el.setAttribute(`data-ignore-width`, ``))
+  })
+}
+
 export function solveWeChatImage(doc: Document, mode: string) {
   const images = doc.getElementsByTagName(`img`)
   if (mode === `txt`) {

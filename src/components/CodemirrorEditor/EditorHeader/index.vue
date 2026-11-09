@@ -12,7 +12,7 @@ import {
 import { altKey, altSign, ctrlKey, ctrlSign, shiftSign } from '@/config'
 import { replaceGradientsWithSolidColors } from '@/lib/utils'
 import { useStore } from '@/stores'
-import { addPrefix, processClipboardContent, solveWeChatImage } from '@/utils'
+import { addPrefix, markWeChatSliderWidthExemptions, processClipboardContent, solveWeChatImage } from '@/utils'
 import { inlineEmojiImages } from '@/utils/emojiExport'
 import TocMenu from '../TocMenu.vue'
 
@@ -385,6 +385,7 @@ async function copy() {
             })
             solveWeChatImage(tempDoc, copyMode.value)
             replaceGradientsWithSolidColors(tempDoc, copyMode.value)
+            markWeChatSliderWidthExemptions(tempDoc)
           }
 
           if (copyMode.value === `html`) {
@@ -737,7 +738,7 @@ function transformAnchorsToZhihuCards(a: HTMLAnchorElement | HTMLElement, contai
 
       <!-- 复制按钮组 -->
       <div
-        class="bg-background space-x-1 text-background-foreground mx-2 flex items-center border rounded-md"
+        class="space-x-1 bg-background text-background-foreground mx-2 flex items-center border rounded-md"
       >
         <Button variant="ghost" class="shadow-none" @click="copy">
           复制
