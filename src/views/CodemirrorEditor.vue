@@ -788,6 +788,17 @@ function tableToMarkdown(text: string): string {
   return markdown
 }
 
+// Excel and web spreadsheets put a real <table> into the clipboard HTML.
+// Plain text tabs are not a reliable signal: code indentation uses them too.
+function hasClipboardTable(html: string): boolean {
+  if (!html) {
+    return false
+  }
+  const doc = new DOMParser().parseFromString(html, `text/html`)
+  return doc.querySelectorAll(`table tr`).length > 0
+    && doc.querySelectorAll(`table td, table th`).length >= 2
+}
+
 async function modifyMath(type: MigrateType) {
   const cleanNewDSL = mathLatex.value.modifyDSL.trim()
   const cleanOldDSL = mathLatex.value.initialDSL.trim()
@@ -1171,8 +1182,9 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
       return
     }
     const tableContent = event.clipboardData.getData(`text/plain`)
-    if (tableContent && tableContent.includes(`\t`)) {
-      // 是表格
+    const htmlContent = event.clipboardData.getData(`text/html`)
+    if (tableContent && hasClipboardTable(htmlContent)) {
+      // Real table from a spreadsheet or a web page
       const markdownTable = tableToMarkdown(tableContent)
       const cursor = editor.value!.getCursor()
       event.preventDefault()
