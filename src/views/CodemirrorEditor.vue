@@ -788,6 +788,49 @@ function tableToMarkdown(text: string): string {
   return markdown
 }
 
+// Convert only contiguous TSV blocks so that surrounding prose is preserved.
+function convertTsvBlocks(text: string): string {
+  const lines = text.split(/\r?\n/)
+  const output: string[] = []
+  let i = 0
+
+  while (i < lines.length) {
+    if (!lines[i].includes(`\t`)) {
+      output.push(lines[i])
+      i++
+      continue
+    }
+
+    const columns = lines[i].split(`\t`).length
+    let end = i + 1
+    while (
+      end < lines.length
+      && lines[end].includes(`\t`)
+      && lines[end].split(`\t`).length === columns
+    ) {
+      end++
+    }
+
+    if (columns < 2 || end - i < 2) {
+      output.push(lines[i])
+      i++
+      continue
+    }
+
+    // Keep the table separated from adjacent prose so Markdown can parse it.
+    if (output.length > 0 && output[output.length - 1].trim() !== ``) {
+      output.push(``)
+    }
+    output.push(tableToMarkdown(lines.slice(i, end).join(`\n`)).trimEnd())
+    if (end < lines.length && lines[end].trim() !== ``) {
+      output.push(``)
+    }
+    i = end
+  }
+
+  return output.join(`\n`)
+}
+
 // Excel and web spreadsheets put a real <table> into the clipboard HTML.
 // Plain text tabs are not a reliable signal: code indentation uses them too.
 function hasClipboardTable(html: string): boolean {
@@ -1183,12 +1226,13 @@ function createFormTextArea(dom: HTMLTextAreaElement) {
     }
     const tableContent = event.clipboardData.getData(`text/plain`)
     const htmlContent = event.clipboardData.getData(`text/html`)
-    if (tableContent && hasClipboardTable(htmlContent)) {
-      // Real table from a spreadsheet or a web page
-      const markdownTable = tableToMarkdown(tableContent)
+    const converted = tableContent && hasClipboardTable(htmlContent)
+      ? convertTsvBlocks(tableContent)
+      : tableContent
+    if (converted !== tableContent) {
       const cursor = editor.value!.getCursor()
       event.preventDefault()
-      toRaw(store.editor!).replaceSelection(`${markdownTable}\n`, cursor as any)
+      toRaw(store.editor!).replaceSelection(`${converted}\n`, cursor as any)
     }
     else {
       const items = [...event.clipboardData.items].map(item => item.getAsFile()).filter(item => item != null && beforeUpload(item)) as File[]
