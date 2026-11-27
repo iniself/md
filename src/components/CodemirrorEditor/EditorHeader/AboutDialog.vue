@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import fetch from '@/utils/fetch'
+import { version } from '../../../../package.json'
 
 const props = defineProps({
   visible: {
@@ -61,7 +62,12 @@ function onRedirect(url: string) {
         <DialogTitle>Docs<sup style="color:red">+</sup></DialogTitle>
       </DialogHeader>
       <div class="text-center">
-        <h3><b>一款多功能 Markdown 编辑器</b></h3>
+        <h3 class="flex flex-wrap items-center justify-center gap-2">
+          <b>一款多功能 Markdown 编辑器</b>
+          <span class="bg-primary/10 text-primary border-primary/20 inline-flex items-center border rounded-full px-2 py-0.5 text-xs font-medium leading-none">
+            v{{ version }}
+          </span>
+        </h3>
         <p><i>Based on Doocs</i></p>
         <div class="flex">
           <img
